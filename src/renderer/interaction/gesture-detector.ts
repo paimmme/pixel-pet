@@ -5,6 +5,8 @@ export interface GestureDetector {
   tick(now: DOMHighResTimeStamp): void
   /** Is the user currently performing a petting gesture? */
   readonly isPetting: boolean
+  /** Progress of the petting gesture: 0.0 to 1.0 ratio of direction changes / threshold */
+  readonly progress: number
   destroy(): void
 }
 
@@ -17,6 +19,8 @@ export interface GestureDetectorOptions {
   threshold?: number
   /** Direction change detection window in ms (default: 400) */
   window?: number
+  /** Called on each direction change with progress 0.0-1.0 */
+  onProgress?: (progress: number) => void
 }
 
 /**
@@ -33,11 +37,13 @@ export interface GestureDetectorOptions {
 export function createGestureDetector(
   options: GestureDetectorOptions
 ): GestureDetector {
-  const { canvas, stateMachine, cooldown = 600, threshold = 3, window: timeWindow = 400 } = options
+  const { canvas, stateMachine, cooldown = 600, threshold = 3, window: timeWindow = 400, onProgress } = options
 
   let lastPetTime = 0
   let lastSampleTime = 0
   let petting = false
+  let progress = 0
+  let lastReportedProgress = 0
 
   // Position history: stores { x, y, time } samples
   const MAX_SAMPLES = 10
@@ -88,6 +94,9 @@ export function createGestureDetector(
     directionChanges = 0
     lastDirection = null
     petting = false
+    progress = 0
+    lastReportedProgress = 0
+    if (onProgress) onProgress(0)
   }
 
   function tick(now: DOMHighResTimeStamp): void {
@@ -127,6 +136,13 @@ export function createGestureDetector(
     directionChanges = changes
     petting = changes >= threshold
 
+    // Compute progress and report to callback
+    progress = Math.min(changes / threshold, 1.0)
+    if (onProgress && progress !== lastReportedProgress) {
+      lastReportedProgress = progress
+      onProgress(progress)
+    }
+
     if (petting && (now - lastPetTime) >= cooldown) {
       lastPetTime = now
       stateMachine.feedEvent({ type: 'pet' })
@@ -145,6 +161,7 @@ export function createGestureDetector(
   return {
     tick,
     get isPetting() { return petting },
+    get progress() { return progress },
     destroy
   }
 }

@@ -8,6 +8,8 @@ export type FsmEvent =
   | { type: 'react' | 'pet' | 'hover' }
   | { type: 'drag-start' | 'drag-end' }
   | { type: 'animation-complete' | 'action-complete' }
+  | { type: 'notice' }
+  | { type: 'zone-react'; zone: string }
 
 export type FsmStateChangeCallback = (event: FsmEvent, newState: PetState) => void
 
@@ -33,6 +35,14 @@ export class PetStateMachine {
           case 'hover':
             this.transition(PetState.Reacting)
             break
+          case 'notice':
+            // Stay in Idle but notify subscribers to play blink animation
+            this.subscribers.forEach((cb) => cb(event, PetState.Idle))
+            break
+          case 'zone-react':
+            this.previousState = PetState.Idle
+            this.transition(PetState.Reacting)
+            break
           case 'drag-start':
             this.transition(PetState.Dragging)
             break
@@ -54,6 +64,9 @@ export class PetStateMachine {
           case 'drag-start':
             this.previousState = PetState.Acting
             this.transition(PetState.Dragging)
+            break
+          default:
+            // 'notice' and 'zone-react' are no-op in Acting state
             break
         }
         break
@@ -79,6 +92,9 @@ export class PetStateMachine {
           case 'drag-start':
             this.transition(PetState.Dragging)
             break
+          default:
+            // 'notice' and 'zone-react' are no-op in Reacting state
+            break
         }
         break
 
@@ -95,6 +111,9 @@ export class PetStateMachine {
           case 'change':
             this.previousState = PetState.Acting
             // Stay in dragging until drag-end
+            break
+          default:
+            // 'notice' and 'zone-react' are no-op in Dragging state
             break
         }
         break

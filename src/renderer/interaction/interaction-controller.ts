@@ -18,6 +18,8 @@ export interface InteractionController {
   readonly isHovering: boolean
   /** Context menu handler — set externally by main.ts */
   onContextMenu: ((x: number, y: number) => void) | null
+  /** Single-click handler — set externally by main.ts to trigger a notice animation */
+  onSingleClick: (() => void) | null
   /** Cleanup */
   destroy: () => void
 }
@@ -42,7 +44,7 @@ export function createInteractionController(
 ): InteractionController {
   const pupilOffset = { dx: 0, dy: 0 }
   let isHovering = false
-  let lastClickTime = 0
+  // (click routing moved to main.ts)
 
   // Eye center positions (in pet-local 32x32 coordinates)
   const LEFT_EYE_CENTER = { x: 13, y: 12 }
@@ -102,16 +104,6 @@ export function createInteractionController(
     resetPupils()
   }
 
-  function handleClick(): void {
-    const now = Date.now()
-    const isDoubleClick = now - lastClickTime < 300
-    lastClickTime = now
-
-    if (isDoubleClick) {
-      petStateMachine.feedEvent({ type: 'react' })
-    }
-  }
-
   function onMouseMove(e: MouseEvent): void {
     const local = toLocalCoords(e.clientX, e.clientY)
     if (local) {
@@ -125,14 +117,8 @@ export function createInteractionController(
     handleLeave()
   }
 
-  function onClick(): void {
-    if (!isHovering) return
-    handleClick()
-  }
-
   canvas.addEventListener('mousemove', onMouseMove)
   canvas.addEventListener('mouseleave', onMouseLeave)
-  canvas.addEventListener('click', onClick)
 
   const instance: InteractionController = {
     pupilOffset,
@@ -140,10 +126,10 @@ export function createInteractionController(
       return isHovering
     },
     onContextMenu: null,
+    onSingleClick: null,
     destroy: () => {
       canvas.removeEventListener('mousemove', onMouseMove)
       canvas.removeEventListener('mouseleave', onMouseLeave)
-      canvas.removeEventListener('click', onClick)
       canvas.removeEventListener('contextmenu', onContextMenu)
     }
   }

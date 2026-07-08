@@ -62,7 +62,12 @@ async function main(): Promise<void> {
     stateMachine,
     cooldown: 600,
     threshold: 3,
-    window: 400
+    window: 400,
+    onProgress: (progress) => {
+      // Gesture progress visual feedback (0.0 → 1.0)
+      // The progress indicator is drawn separately — this hook
+      // allows future haptic or audio feedback
+    }
   })
 
   // Context menu actions
@@ -164,8 +169,14 @@ async function main(): Promise<void> {
     canvas,
     electronAPI: api,
     getIsHit: () => pointer.isHit,
-    onDragStart: () => stateMachine.feedEvent({ type: 'drag-start' }),
-    onDragEnd: () => stateMachine.feedEvent({ type: 'drag-end' })
+    onDragStart: () => {
+      pointer.onDragStart()
+      stateMachine.feedEvent({ type: 'drag-start' })
+    },
+    onDragEnd: () => {
+      pointer.onDragEnd()
+      stateMachine.feedEvent({ type: 'drag-end' })
+    }
   })
 
   // Movement (click-to-follow)
@@ -225,6 +236,10 @@ async function main(): Promise<void> {
     }
   }
 
+  // --- Notice (blink) overlay ---
+  let noticeTimer = 0
+  const NOTICE_DURATION = 400
+
   // --- Single click router ---
   let lastClickTime = 0
 
@@ -243,6 +258,9 @@ async function main(): Promise<void> {
       if (isDoubleClick) {
         // Double-click: trigger reaction
         stateMachine.feedEvent({ type: 'react' })
+      } else {
+        // Single click: show notice (blink) overlay
+        noticeTimer = NOTICE_DURATION
       }
     } else {
       // Click on transparent area (desktop) — click-to-follow
@@ -314,6 +332,13 @@ async function main(): Promise<void> {
     lastFrameTime = now
     movement.tick(dt)
     gestureDetector.tick(now)
+
+    // Notice overlay — draw exclamation mark while timer active
+    if (noticeTimer > 0) {
+      noticeTimer -= dt
+      display.drawNotice()
+    }
+
     walk.tick(dt)
     requestAnimationFrame(gameLoop)
   }

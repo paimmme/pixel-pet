@@ -7,6 +7,9 @@ export interface Point {
   y: number
 }
 
+/** Zone type for interaction-aware hit testing */
+export type InteractionZone = 'body' | 'head' | 'belly' | 'tail' | 'none'
+
 export interface Rect {
   x: number
   y: number
@@ -19,7 +22,16 @@ export interface LayerDef {
   name: string
   zIndex: number
   anchor: Point
+  zone: InteractionZone
   optional?: boolean
+}
+
+export interface ZoneDef {
+  id: InteractionZone
+  /** Anchor point for zone center */
+  anchor: Point
+  /** Radius for hit-test approach */
+  radius: number
 }
 
 export interface AnimalDef {
@@ -29,6 +41,7 @@ export interface AnimalDef {
   layers: LayerDef[]
   defaultPalette: string
   hitArea: Rect
+  zones?: ZoneDef[]
 }
 
 export interface ActionDef {

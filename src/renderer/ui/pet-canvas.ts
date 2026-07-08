@@ -15,6 +15,8 @@ export interface DisplaySurface {
   scale: number
   /** Draw a composed frame with optional pupil offset overlay */
   drawFrame(bitmap: ImageBitmap, pupilOffset?: { dx: number; dy: number }): void
+  /** Draw a notice overlay (exclamation mark at top center) */
+  drawNotice(): void
   /** Clear the canvas */
   clear(): void
 }
@@ -62,5 +64,14 @@ export function createDisplaySurface(
     ctx.clearRect(0, 0, resolution, resolution)
   }
 
-  return { canvas, ctx, resolution, scale, drawFrame, clear }
+  function drawNotice(): void {
+    // Draw a small exclamation mark "!" at top center for single-click feedback
+    ctx.fillStyle = '#ffffff'
+    // Top bar of "!"
+    ctx.fillRect(Math.floor(resolution / 2) - 1, 4, 3, 7)
+    // Dot below
+    ctx.fillRect(Math.floor(resolution / 2) - 1, 12, 3, 3)
+  }
+
+  return { canvas, ctx, resolution, scale, drawFrame, drawNotice, clear }
 }

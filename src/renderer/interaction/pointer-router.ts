@@ -15,6 +15,10 @@ import type { ElectronAPI } from '../../shared/ipc-types'
 export interface PointerRouter {
   /** Whether the pointer is currently over a non-transparent pixel. */
   isHit: boolean
+  /** Called when a drag starts — changes cursor to 'grabbing'. */
+  onDragStart: () => void
+  /** Called when a drag ends — restores cursor based on hit state. */
+  onDragEnd: () => void
   /** Remove all event listeners and reset state. */
   destroy: () => void
 }
@@ -51,11 +55,13 @@ export function setupPointerRouter(
   function onMouseMove(e: MouseEvent): void {
     isHit = checkHit(e.clientX, e.clientY)
     updateIgnoreState(isHit)
+    canvas.style.cursor = isHit ? 'pointer' : 'default'
   }
 
   function onMouseLeave(): void {
     isHit = false
     updateIgnoreState(false)
+    canvas.style.cursor = 'default'
   }
 
   // Start with click-through enabled (forward: true so we get mouse events)
@@ -69,9 +75,16 @@ export function setupPointerRouter(
     get isHit() {
       return isHit
     },
+    onDragStart: () => {
+      canvas.style.cursor = 'grabbing'
+    },
+    onDragEnd: () => {
+      canvas.style.cursor = isHit ? 'pointer' : 'default'
+    },
     destroy: () => {
       canvas.removeEventListener('mousemove', onMouseMove)
       canvas.removeEventListener('mouseleave', onMouseLeave)
+      canvas.style.cursor = 'default'
     },
   }
 }

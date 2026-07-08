@@ -33,9 +33,11 @@ export function setupDragHandler(options: DragHandlerOptions): DragHandler {
   let offsetY = 0
 
   async function onMouseDown(e: MouseEvent): Promise<void> {
-    // Only start drag if clicking on non-transparent area
+    // Only start drag if clicking on non-transparent area (transparent-area
+    // clicks are forwarded to desktop via forward: true and can't be intercepted)
     if (!getIsHit()) return
 
+    canvas.style.cursor = 'grabbing'
     isDragging = true
     onDragStart?.()
     // Disable click-through during drag
@@ -49,12 +51,26 @@ export function setupDragHandler(options: DragHandlerOptions): DragHandler {
 
   function onMouseMove(e: MouseEvent): void {
     if (!isDragging) return
-    electronAPI.moveWindow(e.screenX - offsetX, e.screenY - offsetY)
+
+    const newX = e.screenX - offsetX
+    const newY = e.screenY - offsetY
+
+    // Clamp within display work area to prevent window from going off-screen
+    const minX = -10
+    const minY = -10
+    const maxX = 1920
+    const maxY = 1080
+
+    electronAPI.moveWindow(
+      Math.max(minX, Math.min(maxX, newX)),
+      Math.max(minY, Math.min(maxY, newY)),
+    )
   }
 
   function onMouseUp(): void {
     if (!isDragging) return
     isDragging = false
+    canvas.style.cursor = getIsHit() ? 'pointer' : 'default'
     onDragEnd?.()
 
     // Save window position
