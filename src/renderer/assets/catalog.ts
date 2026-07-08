@@ -289,7 +289,13 @@ export const ACTIONS: ActionDef[] = [
     fps: 4,
     loop: true,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 0,
+    category: 'rest',
+    phases: [
+      { name: 'Inhale', phaseType: 'prepare', startFrame: 0, endFrame: 1, staminaCostPerTick: 0, gracePotential: 0 },
+      { name: 'Exhale', phaseType: 'recover', startFrame: 2, endFrame: 3, staminaCostPerTick: 0, gracePotential: 0 }
+    ]
   },
   {
     id: 'jump',
@@ -298,7 +304,15 @@ export const ACTIONS: ActionDef[] = [
     fps: 8,
     loop: false,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 15,
+    category: 'basic',
+    phases: [
+      { name: 'Squat', phaseType: 'prepare', startFrame: 0, endFrame: 1, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Launch', phaseType: 'execute', startFrame: 2, endFrame: 2, staminaCostPerTick: 5, gracePotential: 3 },
+      { name: 'Air', phaseType: 'hold', startFrame: 3, endFrame: 4, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Land', phaseType: 'recover', startFrame: 5, endFrame: 5, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
   },
   {
     id: 'wave',
@@ -307,7 +321,15 @@ export const ACTIONS: ActionDef[] = [
     fps: 4,
     loop: false,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 5,
+    category: 'interaction',
+    phases: [
+      { name: 'Raise', phaseType: 'prepare', startFrame: 0, endFrame: 0, staminaCostPerTick: 1, gracePotential: 1 },
+      { name: 'Wave', phaseType: 'execute', startFrame: 1, endFrame: 1, staminaCostPerTick: 2, gracePotential: 2 },
+      { name: 'Wave', phaseType: 'hold', startFrame: 2, endFrame: 2, staminaCostPerTick: 2, gracePotential: 2 },
+      { name: 'Lower', phaseType: 'recover', startFrame: 3, endFrame: 3, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
   },
   {
     id: 'walk',
@@ -316,7 +338,15 @@ export const ACTIONS: ActionDef[] = [
     fps: 6,
     loop: true,
     directions: ['down', 'left', 'right', 'up'],
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 8,
+    category: 'basic',
+    phases: [
+      { name: 'Step', phaseType: 'execute', startFrame: 0, endFrame: 0, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Step', phaseType: 'execute', startFrame: 1, endFrame: 1, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Step', phaseType: 'execute', startFrame: 2, endFrame: 2, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Step', phaseType: 'execute', startFrame: 3, endFrame: 3, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
   },
   {
     id: 'sleep',
@@ -325,7 +355,13 @@ export const ACTIONS: ActionDef[] = [
     fps: 3,
     loop: true,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 0,
+    category: 'rest',
+    phases: [
+      { name: 'Breathe In', phaseType: 'prepare', startFrame: 0, endFrame: 2, staminaCostPerTick: 0, gracePotential: 0 },
+      { name: 'Breathe Out', phaseType: 'recover', startFrame: 3, endFrame: 5, staminaCostPerTick: 0, gracePotential: 0 }
+    ]
   },
   {
     id: 'sit',
@@ -334,7 +370,14 @@ export const ACTIONS: ActionDef[] = [
     fps: 4,
     loop: true,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 0,
+    category: 'rest',
+    phases: [
+      { name: 'Settle', phaseType: 'prepare', startFrame: 0, endFrame: 0, staminaCostPerTick: 0, gracePotential: 0 },
+      { name: 'Rest', phaseType: 'hold', startFrame: 1, endFrame: 2, staminaCostPerTick: 0, gracePotential: 0 },
+      { name: 'Shift', phaseType: 'execute', startFrame: 3, endFrame: 3, staminaCostPerTick: 0, gracePotential: 0 }
+    ]
   },
   {
     id: 'eat',
@@ -343,7 +386,16 @@ export const ACTIONS: ActionDef[] = [
     fps: 5,
     loop: false,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 5,
+    category: 'interaction',
+    phases: [
+      { name: 'Reach', phaseType: 'prepare', startFrame: 0, endFrame: 0, staminaCostPerTick: 1, gracePotential: 1 },
+      { name: 'Bite', phaseType: 'execute', startFrame: 1, endFrame: 1, staminaCostPerTick: 2, gracePotential: 2 },
+      { name: 'Chew', phaseType: 'hold', startFrame: 2, endFrame: 3, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Swallow', phaseType: 'execute', startFrame: 4, endFrame: 4, staminaCostPerTick: 1, gracePotential: 1 },
+      { name: 'Wipe', phaseType: 'recover', startFrame: 5, endFrame: 5, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
   },
   {
     id: 'dance',
@@ -352,7 +404,15 @@ export const ACTIONS: ActionDef[] = [
     fps: 8,
     loop: true,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 20,
+    category: 'interaction',
+    phases: [
+      { name: 'Sway L', phaseType: 'execute', startFrame: 0, endFrame: 1, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Sway R', phaseType: 'execute', startFrame: 2, endFrame: 3, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Spin', phaseType: 'execute', startFrame: 4, endFrame: 5, staminaCostPerTick: 5, gracePotential: 3 },
+      { name: 'Sway', phaseType: 'hold', startFrame: 6, endFrame: 7, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
   },
   {
     id: 'surprise',
@@ -361,7 +421,14 @@ export const ACTIONS: ActionDef[] = [
     fps: 6,
     loop: false,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 8,
+    category: 'reaction',
+    phases: [
+      { name: 'Startle', phaseType: 'execute', startFrame: 0, endFrame: 0, staminaCostPerTick: 4, gracePotential: 2 },
+      { name: 'Wide', phaseType: 'hold', startFrame: 1, endFrame: 1, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Recover', phaseType: 'recover', startFrame: 2, endFrame: 2, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
   },
   {
     id: 'dodge',
@@ -370,7 +437,15 @@ export const ACTIONS: ActionDef[] = [
     fps: 8,
     loop: false,
     directions: null,
-    poseTemplate: 'poses_32.json'
+    poseTemplate: 'poses_32.json',
+    staminaCost: 12,
+    category: 'reaction',
+    phases: [
+      { name: 'React', phaseType: 'prepare', startFrame: 0, endFrame: 0, staminaCostPerTick: 3, gracePotential: 1 },
+      { name: 'Dodge', phaseType: 'execute', startFrame: 1, endFrame: 1, staminaCostPerTick: 5, gracePotential: 3 },
+      { name: 'Dodge', phaseType: 'execute', startFrame: 2, endFrame: 2, staminaCostPerTick: 5, gracePotential: 2 },
+      { name: 'Recover', phaseType: 'recover', startFrame: 3, endFrame: 3, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
   },
   {
     id: 'plié',
