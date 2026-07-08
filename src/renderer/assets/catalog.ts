@@ -1,4 +1,4 @@
-import type { AnimalDef, ActionDef, InteractionZone } from '../engine/types'
+import type { AnimalDef, ActionDef, ActionPhase, InteractionZone } from '../engine/types'
 
 export interface AccessoryInfo {
   id: string
@@ -371,6 +371,89 @@ export const ACTIONS: ActionDef[] = [
     loop: false,
     directions: null,
     poseTemplate: 'poses_32.json'
+  },
+  {
+    id: 'plié',
+    name: 'Plie',
+    frameCount: 6,
+    fps: 4,
+    loop: false,
+    directions: null,
+    poseTemplate: 'poses_32.json',
+    staminaCost: 10,
+    category: 'ballet',
+    phases: [
+      { name: 'Lower', phaseType: 'prepare', startFrame: 0, endFrame: 1, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Hold', phaseType: 'hold', startFrame: 2, endFrame: 3, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Rise', phaseType: 'recover', startFrame: 4, endFrame: 5, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
+  },
+  {
+    id: 'relevé',
+    name: 'Releve',
+    frameCount: 6,
+    fps: 4,
+    loop: false,
+    directions: null,
+    poseTemplate: 'poses_32.json',
+    staminaCost: 15,
+    category: 'ballet',
+    phases: [
+      { name: 'Prepare', phaseType: 'prepare', startFrame: 0, endFrame: 1, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Rise', phaseType: 'execute', startFrame: 2, endFrame: 3, staminaCostPerTick: 4, gracePotential: 2 },
+      { name: 'Hold', phaseType: 'hold', startFrame: 4, endFrame: 4, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Lower', phaseType: 'recover', startFrame: 5, endFrame: 5, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
+  },
+  {
+    id: 'pirouette',
+    name: 'Pirouette',
+    frameCount: 8,
+    fps: 6,
+    loop: false,
+    directions: null,
+    poseTemplate: 'poses_32.json',
+    staminaCost: 25,
+    category: 'ballet',
+    phases: [
+      { name: 'Prepare', phaseType: 'prepare', startFrame: 0, endFrame: 0, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Turn', phaseType: 'execute', startFrame: 1, endFrame: 4, staminaCostPerTick: 5, gracePotential: 3 },
+      { name: 'Spot', phaseType: 'hold', startFrame: 5, endFrame: 6, staminaCostPerTick: 4, gracePotential: 2 },
+      { name: 'Finish', phaseType: 'recover', startFrame: 7, endFrame: 7, staminaCostPerTick: 2, gracePotential: 1 }
+    ]
+  },
+  {
+    id: 'arabesque',
+    name: 'Arabesque',
+    frameCount: 6,
+    fps: 3,
+    loop: false,
+    directions: null,
+    poseTemplate: 'poses_32.json',
+    staminaCost: 20,
+    category: 'ballet',
+    phases: [
+      { name: 'Start', phaseType: 'prepare', startFrame: 0, endFrame: 1, staminaCostPerTick: 2, gracePotential: 1 },
+      { name: 'Extend', phaseType: 'execute', startFrame: 2, endFrame: 3, staminaCostPerTick: 5, gracePotential: 3 },
+      { name: 'Hold', phaseType: 'hold', startFrame: 4, endFrame: 4, staminaCostPerTick: 4, gracePotential: 2 },
+      { name: 'Close', phaseType: 'recover', startFrame: 5, endFrame: 5, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
+  },
+  {
+    id: 'bow',
+    name: 'Bow',
+    frameCount: 4,
+    fps: 3,
+    loop: false,
+    directions: null,
+    poseTemplate: 'poses_32.json',
+    staminaCost: 5,
+    category: 'ballet',
+    phases: [
+      { name: 'Bend', phaseType: 'execute', startFrame: 0, endFrame: 1, staminaCostPerTick: 2, gracePotential: 2 },
+      { name: 'Hold', phaseType: 'hold', startFrame: 2, endFrame: 2, staminaCostPerTick: 3, gracePotential: 2 },
+      { name: 'Rise', phaseType: 'recover', startFrame: 3, endFrame: 3, staminaCostPerTick: 1, gracePotential: 1 }
+    ]
   }
 ]
 

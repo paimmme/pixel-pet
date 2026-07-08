@@ -1235,6 +1235,776 @@ function drawOwlDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, fra
   ctx.fillRect(24, 16 - armRaise, 2, 10 + armRaise)
 }
 
+// ===== RACCOON BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawRaccoonBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(14 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((14 - bodyH) / 2)
+  ctx.fillStyle = '#A0896C'
+  ctx.fillRect(8 + dx, 12 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#C4B39D'
+  ctx.fillRect(12 + dx, 16 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillStyle = '#8B7355'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawRaccoonBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#A0896C'
+  ctx.fillRect(8, 12 + dy, 16, 14)
+  ctx.fillStyle = '#C4B39D'
+  ctx.fillRect(12, 16 + dy, 8, 8)
+  ctx.fillStyle = '#8B7355'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 14 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(23, 14 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawRaccoonBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#A0896C'
+  ctx.fillRect(8 + dx, 12, 16, 14)
+  ctx.fillStyle = '#C4B39D'
+  ctx.fillRect(12 + dx, 16, 8, 8)
+}
+
+function drawRaccoonBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 14 - lean
+  ctx.fillStyle = '#A0896C'
+  ctx.fillRect(8, 12 + lean, 16, bodyH)
+  ctx.fillStyle = '#C4B39D'
+  ctx.fillRect(12, 16 + lean, 8, bodyH - 4)
+  if (frame > 0) {
+    ctx.fillStyle = '#8B7355'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+  }
+}
+
+function drawRaccoonBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#A0896C'
+  ctx.fillRect(8, 12 + topTrim, 16, 14 - topTrim)
+  ctx.fillStyle = '#C4B39D'
+  ctx.fillRect(12, 16 + topTrim, 8, 8 - topTrim)
+}
+
+// ===== CAT BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawCatBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(12 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((12 - bodyH) / 2)
+  ctx.fillStyle = '#D4845A'
+  ctx.fillRect(8 + dx, 14 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#F0C9A0'
+  ctx.fillRect(12 + dx, 16 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillStyle = '#B8653A'
+  ctx.fillRect(10 + dx, 15 + dy, 2, bodyH - 2)
+  ctx.fillRect(16 + dx, 15 + dy, 2, bodyH - 2)
+  ctx.fillRect(22 + dx, 15 + dy, 2, bodyH - 2)
+  ctx.fillStyle = '#D4845A'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawCatBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#D4845A'
+  ctx.fillRect(8, 14 + dy, 16, 12)
+  ctx.fillStyle = '#F0C9A0'
+  ctx.fillRect(12, 16 + dy, 8, 8)
+  ctx.fillStyle = '#B8653A'
+  ctx.fillRect(10, 15 + dy, 2, 10)
+  ctx.fillRect(16, 15 + dy, 2, 10)
+  ctx.fillRect(22, 15 + dy, 2, 10)
+  ctx.fillStyle = '#D4845A'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 16 + dy - armRise, 3, 6 + armRise)
+  ctx.fillRect(23, 16 + dy - armRise, 3, 6 + armRise)
+}
+
+function drawCatBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#D4845A'
+  ctx.fillRect(8 + dx, 14, 16, 12)
+  ctx.fillStyle = '#F0C9A0'
+  ctx.fillRect(12 + dx, 16, 8, 8)
+  ctx.fillStyle = '#B8653A'
+  ctx.fillRect(10 + dx, 15, 2, 10)
+  ctx.fillRect(16 + dx, 15, 2, 10)
+  ctx.fillRect(22 + dx, 15, 2, 10)
+}
+
+function drawCatBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 12 - lean
+  ctx.fillStyle = '#D4845A'
+  ctx.fillRect(8, 14 + lean, 16, bodyH)
+  ctx.fillStyle = '#F0C9A0'
+  ctx.fillRect(12, 16 + lean, 8, bodyH - 4)
+  ctx.fillStyle = '#B8653A'
+  ctx.fillRect(10, 15 + lean, 2, bodyH - 2)
+  ctx.fillRect(16, 15 + lean, 2, bodyH - 2)
+  ctx.fillRect(22, 15 + lean, 2, bodyH - 2)
+  if (frame > 0) {
+    ctx.fillStyle = '#D4845A'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+  }
+}
+
+function drawCatBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#D4845A'
+  ctx.fillRect(8, 14 + topTrim, 16, 12 - topTrim)
+  ctx.fillStyle = '#F0C9A0'
+  ctx.fillRect(12, 16 + topTrim, 8, 8 - topTrim)
+  ctx.fillStyle = '#B8653A'
+  ctx.fillRect(10, 15 + topTrim, 2, 10 - topTrim)
+  ctx.fillRect(16, 15 + topTrim, 2, 10 - topTrim)
+  ctx.fillRect(22, 15 + topTrim, 2, 10 - topTrim)
+}
+
+// ===== FOX BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawFoxBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(14 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((14 - bodyH) / 2)
+  ctx.fillStyle = '#D46A3A'
+  ctx.fillRect(8 + dx, 12 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12 + dx, 16 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillRect(13 + dx, 12 + dy, bodyW - 10, 4)
+  ctx.fillStyle = '#D46A3A'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawFoxBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#D46A3A'
+  ctx.fillRect(8, 12 + dy, 16, 14)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 16 + dy, 8, 8)
+  ctx.fillRect(13, 12 + dy, 6, 4)
+  ctx.fillStyle = '#D46A3A'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 16 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(23, 16 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawFoxBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#D46A3A'
+  ctx.fillRect(8 + dx, 12, 16, 14)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12 + dx, 16, 8, 8)
+  ctx.fillRect(13 + dx, 12, 6, 4)
+}
+
+function drawFoxBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 14 - lean
+  ctx.fillStyle = '#D46A3A'
+  ctx.fillRect(8, 12 + lean, 16, bodyH)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 16 + lean, 8, bodyH - 4)
+  ctx.fillRect(13, 12 + lean, 6, 4)
+  if (frame > 0) {
+    ctx.fillStyle = '#D46A3A'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+    ctx.fillStyle = '#FFFFFF'
+    ctx.fillRect(4, 22 + lean, 4, 1)
+  }
+}
+
+function drawFoxBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#D46A3A'
+  ctx.fillRect(8, 12 + topTrim, 16, 14 - topTrim)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 16 + topTrim, 8, 8 - topTrim)
+  ctx.fillRect(13, 12 + topTrim, 6, 4 - Math.min(4, topTrim))
+}
+
+// ===== RABBIT BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawRabbitBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(12 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((12 - bodyH) / 2)
+  ctx.fillStyle = '#C4A882'
+  ctx.fillRect(8 + dx, 14 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#E8D5B7'
+  ctx.fillRect(12 + dx, 16 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillStyle = '#C4A882'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawRabbitBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#C4A882'
+  ctx.fillRect(8, 14 + dy, 16, 12)
+  ctx.fillStyle = '#E8D5B7'
+  ctx.fillRect(12, 16 + dy, 8, 8)
+  ctx.fillStyle = '#C4A882'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 16 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(23, 16 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawRabbitBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#C4A882'
+  ctx.fillRect(8 + dx, 14, 16, 12)
+  ctx.fillStyle = '#E8D5B7'
+  ctx.fillRect(12 + dx, 16, 8, 8)
+}
+
+function drawRabbitBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 12 - lean
+  ctx.fillStyle = '#C4A882'
+  ctx.fillRect(8, 14 + lean, 16, bodyH)
+  ctx.fillStyle = '#E8D5B7'
+  ctx.fillRect(12, 16 + lean, 8, bodyH - 4)
+  if (frame > 0) {
+    ctx.fillStyle = '#C4A882'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+  }
+}
+
+function drawRabbitBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#C4A882'
+  ctx.fillRect(8, 14 + topTrim, 16, 12 - topTrim)
+  ctx.fillStyle = '#E8D5B7'
+  ctx.fillRect(12, 16 + topTrim, 8, 8 - topTrim)
+}
+
+// ===== PANDA BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawPandaBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(14 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((14 - bodyH) / 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(8 + dx, 12 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(8 + dx, 22 + dy - Math.floor(Math.min(4, bodyH - 8)), 4, 4)
+  ctx.fillRect(20 + dx, 22 + dy - Math.floor(Math.min(4, bodyH - 8)), 4, 4)
+  ctx.fillStyle = '#1a1a1a'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawPandaBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(8, 12 + dy, 16, 14)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(8, 22 + dy, 4, 4)
+  ctx.fillRect(20, 22 + dy, 4, 4)
+  ctx.fillStyle = '#1a1a1a'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 16 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(23, 16 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawPandaBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(8 + dx, 12, 16, 14)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(8 + dx, 22, 4, 4)
+  ctx.fillRect(20 + dx, 22, 4, 4)
+}
+
+function drawPandaBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 14 - lean
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(8, 12 + lean, 16, bodyH)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(8, 22 + lean, 4, Math.min(4, bodyH - 10))
+  ctx.fillRect(20, 22 + lean, 4, Math.min(4, bodyH - 10))
+  if (frame > 0) {
+    ctx.fillStyle = '#1a1a1a'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+  }
+}
+
+function drawPandaBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(8, 12 + topTrim, 16, 14 - topTrim)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(8, 22 + topTrim - Math.min(topTrim, 4), 4, 4)
+  ctx.fillRect(20, 22 + topTrim - Math.min(topTrim, 4), 4, 4)
+}
+
+// ===== FROG BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawFrogBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(14 * compress)
+  const bodyW = Math.floor(20 * widen)
+  const dx = Math.floor((20 - bodyW) / 2)
+  const dy = Math.floor((14 - bodyH) / 2)
+  ctx.fillStyle = '#4CAF50'
+  ctx.fillRect(6 + dx, 14 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#C8E6C9'
+  ctx.fillRect(12 + dx, 18 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillStyle = '#2E7D32'
+  ctx.fillRect(8 + dx, 14 + dy, 2, 6)
+  ctx.fillRect(22 + dx, 14 + dy, 2, 6)
+  ctx.fillStyle = '#4CAF50'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(4 - armOff, 18 + dy, 3, 6)
+  ctx.fillRect(25 + armOff, 18 + dy, 3, 6)
+}
+
+function drawFrogBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#4CAF50'
+  ctx.fillRect(6, 14 + dy, 20, 14)
+  ctx.fillStyle = '#C8E6C9'
+  ctx.fillRect(12, 18 + dy, 8, 8)
+  ctx.fillStyle = '#2E7D32'
+  ctx.fillRect(8, 14 + dy, 2, 6)
+  ctx.fillRect(22, 14 + dy, 2, 6)
+  ctx.fillStyle = '#4CAF50'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(4, 16 + dy - armRise, 3, 6 + armRise)
+  ctx.fillRect(25, 16 + dy - armRise, 3, 6 + armRise)
+}
+
+function drawFrogBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#4CAF50'
+  ctx.fillRect(6 + dx, 14, 20, 14)
+  ctx.fillStyle = '#C8E6C9'
+  ctx.fillRect(12 + dx, 18, 8, 8)
+  ctx.fillStyle = '#2E7D32'
+  ctx.fillRect(8 + dx, 14, 2, 6)
+  ctx.fillRect(22 + dx, 14, 2, 6)
+}
+
+function drawFrogBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 14 - lean
+  ctx.fillStyle = '#4CAF50'
+  ctx.fillRect(6, 14 + lean, 20, bodyH)
+  ctx.fillStyle = '#C8E6C9'
+  ctx.fillRect(12, 18 + lean, 8, bodyH - 4)
+  ctx.fillStyle = '#2E7D32'
+  ctx.fillRect(8, 14 + lean, 2, Math.min(6, bodyH - 2))
+  ctx.fillRect(22, 14 + lean, 2, Math.min(6, bodyH - 2))
+  if (frame > 0) {
+    ctx.fillStyle = '#4CAF50'
+    ctx.fillRect(4, 18 + lean, 3, 4)
+  }
+}
+
+function drawFrogBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#4CAF50'
+  ctx.fillRect(6, 14 + topTrim, 20, 14 - topTrim)
+  ctx.fillStyle = '#C8E6C9'
+  ctx.fillRect(12, 18 + topTrim, 8, 8 - topTrim)
+  ctx.fillStyle = '#2E7D32'
+  ctx.fillRect(8, 14 + topTrim, 2, Math.min(6, 6 - topTrim))
+  ctx.fillRect(22, 14 + topTrim, 2, Math.min(6, 6 - topTrim))
+}
+
+// ===== PENGUIN BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawPenguinBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.10 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(18 * compress)
+  const bodyW = Math.floor(12 * widen)
+  const dx = Math.floor((12 - bodyW) / 2)
+  const dy = Math.floor((18 - bodyH) / 2)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10 + dx, 10 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13 + dx, 12 + dy, bodyW - 6, bodyH - 4)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14 + dx, 26 + dy - Math.floor(Math.min(2, bodyH - 14)), 2, 2)
+  ctx.fillRect(18 + dx, 26 + dy - Math.floor(Math.min(2, bodyH - 14)), 2, 2)
+  ctx.fillStyle = '#1a1a1a'
+  const armOff = Math.floor(2 * Math.sin(t * Math.PI))
+  ctx.fillRect(7 - armOff, 16 + dy, 3, 8)
+  ctx.fillRect(22 + armOff, 16 + dy, 3, 8)
+}
+
+function drawPenguinBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10, 10 + dy, 12, 18)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 12 + dy, 6, 14)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 26 + dy, 2, 2)
+  ctx.fillRect(18, 26 + dy, 2, 2)
+  ctx.fillStyle = '#1a1a1a'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(7, 14 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(22, 14 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawPenguinBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10 + dx, 10, 12, 18)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13 + dx, 12, 6, 14)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14 + dx, 26, 2, 2)
+  ctx.fillRect(18 + dx, 26, 2, 2)
+}
+
+function drawPenguinBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 18 - lean
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10, 10 + lean, 12, bodyH)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 12 + lean, 6, bodyH - 4)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 26 + lean, Math.min(2, 2), Math.min(2, 2))
+  ctx.fillRect(18, 26 + lean, Math.min(2, 2), Math.min(2, 2))
+  if (frame > 0) {
+    ctx.fillStyle = '#1a1a1a'
+    ctx.fillRect(6, 18 + lean, 4, 3)
+  }
+}
+
+function drawPenguinBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10, 10 + topTrim, 12, 18 - topTrim)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 12 + topTrim, 6, 14 - topTrim)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 26 + topTrim, 2, 2)
+  ctx.fillRect(18, 26 + topTrim, 2, 2)
+}
+
+// ===== MOUSE BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawMouseBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(12 * compress)
+  const bodyW = Math.floor(12 * widen)
+  const dx = Math.floor((12 - bodyW) / 2)
+  const dy = Math.floor((12 - bodyH) / 2)
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(10 + dx, 14 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#E0E0E0'
+  ctx.fillRect(13 + dx, 16 + dy, bodyW - 6, bodyH - 4)
+  ctx.fillStyle = '#9E9E9E'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(8 - armOff, 18 + dy, 3, 6)
+  ctx.fillRect(21 + armOff, 18 + dy, 3, 6)
+}
+
+function drawMouseBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(10, 14 + dy, 12, 12)
+  ctx.fillStyle = '#E0E0E0'
+  ctx.fillRect(13, 16 + dy, 6, 8)
+  ctx.fillStyle = '#9E9E9E'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(8, 16 + dy - armRise, 3, 6 + armRise)
+  ctx.fillRect(21, 16 + dy - armRise, 3, 6 + armRise)
+}
+
+function drawMouseBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(10 + dx, 14, 12, 12)
+  ctx.fillStyle = '#E0E0E0'
+  ctx.fillRect(13 + dx, 16, 6, 8)
+}
+
+function drawMouseBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 12 - lean
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(10, 14 + lean, 12, bodyH)
+  ctx.fillStyle = '#E0E0E0'
+  ctx.fillRect(13, 16 + lean, 6, bodyH - 4)
+  if (frame > 0) {
+    ctx.fillStyle = '#9E9E9E'
+    ctx.fillRect(6, 20 + lean, 4, 3)
+  }
+}
+
+function drawMouseBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(10, 14 + topTrim, 12, 12 - topTrim)
+  ctx.fillStyle = '#E0E0E0'
+  ctx.fillRect(13, 16 + topTrim, 6, 8 - topTrim)
+}
+
+// ===== BEAR BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawBearBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.10 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(18 * compress)
+  const bodyW = Math.floor(20 * widen)
+  const dx = Math.floor((20 - bodyW) / 2)
+  const dy = Math.floor((18 - bodyH) / 2)
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(6 + dx, 10 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#A1887F'
+  ctx.fillRect(13 + dx, 14 + dy, bodyW - 14, 5)
+  ctx.fillStyle = '#8D6E63'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(4 - armOff, 18 + dy, 4, 8)
+  ctx.fillRect(24 + armOff, 18 + dy, 4, 8)
+}
+
+function drawBearBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(6, 10 + dy, 20, 18)
+  ctx.fillStyle = '#A1887F'
+  ctx.fillRect(13, 14 + dy, 6, 5)
+  ctx.fillStyle = '#8D6E63'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(4, 16 + dy - armRise, 4, 8 + armRise)
+  ctx.fillRect(24, 16 + dy - armRise, 4, 8 + armRise)
+}
+
+function drawBearBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(6 + dx, 10, 20, 18)
+  ctx.fillStyle = '#A1887F'
+  ctx.fillRect(13 + dx, 14, 6, 5)
+}
+
+function drawBearBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 18 - lean
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(6, 10 + lean, 20, bodyH)
+  ctx.fillStyle = '#A1887F'
+  ctx.fillRect(13, 14 + lean, 6, 5)
+  if (frame > 0) {
+    ctx.fillStyle = '#8D6E63'
+    ctx.fillRect(2, 18 + lean, 4, 4)
+  }
+}
+
+function drawBearBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(6, 10 + topTrim, 20, 18 - topTrim)
+  ctx.fillStyle = '#A1887F'
+  ctx.fillRect(13, 14 + topTrim, 6, 5)
+}
+
+// ===== KOALA BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawKoalaBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.12 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(14 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((14 - bodyH) / 2)
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(8 + dx, 12 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#CFD8DC'
+  ctx.fillRect(12 + dx, 16 + dy, bodyW - 8, bodyH - 4)
+  ctx.fillStyle = '#78909C'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 18 + dy, 3, 8)
+  ctx.fillRect(23 + armOff, 18 + dy, 3, 8)
+}
+
+function drawKoalaBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(8, 12 + dy, 16, 14)
+  ctx.fillStyle = '#CFD8DC'
+  ctx.fillRect(12, 16 + dy, 8, 8)
+  ctx.fillStyle = '#78909C'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 16 + dy - armRise, 3, 8 + armRise)
+  ctx.fillRect(23, 16 + dy - armRise, 3, 8 + armRise)
+}
+
+function drawKoalaBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(8 + dx, 12, 16, 14)
+  ctx.fillStyle = '#CFD8DC'
+  ctx.fillRect(12 + dx, 16, 8, 8)
+}
+
+function drawKoalaBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 14 - lean
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(8, 12 + lean, 16, bodyH)
+  ctx.fillStyle = '#CFD8DC'
+  ctx.fillRect(12, 16 + lean, 8, bodyH - 4)
+  if (frame > 0) {
+    ctx.fillStyle = '#78909C'
+    ctx.fillRect(4, 20 + lean, 4, 3)
+  }
+}
+
+function drawKoalaBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(8, 12 + topTrim, 16, 14 - topTrim)
+  ctx.fillStyle = '#CFD8DC'
+  ctx.fillRect(12, 16 + topTrim, 8, 8 - topTrim)
+}
+
+// ===== OWL BALLET OVERRIDE DRAWING FUNCTIONS =====
+
+function drawOwlBalletPliéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const compress = 1 - 0.10 * Math.sin(t * Math.PI)
+  const widen = 1 + 0.06 * Math.sin(t * Math.PI)
+  const bodyH = Math.floor(18 * compress)
+  const bodyW = Math.floor(16 * widen)
+  const dx = Math.floor((16 - bodyW) / 2)
+  const dy = Math.floor((18 - bodyH) / 2)
+  ctx.fillStyle = '#795548'
+  ctx.fillRect(8 + dx, 10 + dy, bodyW, bodyH)
+  ctx.fillStyle = '#D7CCC8'
+  ctx.fillRect(13 + dx, 16 + dy, bodyW - 6, bodyH - 6)
+  ctx.fillStyle = '#5D4037'
+  ctx.fillRect(8 + dx, 16 + dy, 2, bodyH - 6)
+  ctx.fillRect(22 + dx, 16 + dy, 2, bodyH - 6)
+  ctx.fillStyle = '#5D4037'
+  const armOff = Math.floor(3 * Math.sin(t * Math.PI))
+  ctx.fillRect(6 - armOff, 16 + dy, 2, 10)
+  ctx.fillRect(24 + armOff, 16 + dy, 2, 10)
+}
+
+function drawOwlBalletRelevéBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dy = -Math.floor(frame * 2 / (total - 1))
+  ctx.fillStyle = '#795548'
+  ctx.fillRect(8, 10 + dy, 16, 18)
+  ctx.fillStyle = '#D7CCC8'
+  ctx.fillRect(13, 16 + dy, 6, 8)
+  ctx.fillStyle = '#5D4037'
+  ctx.fillRect(8, 16 + dy, 2, 8)
+  ctx.fillRect(22, 16 + dy, 2, 8)
+  ctx.fillStyle = '#5D4037'
+  const armRise = Math.floor(frame * 4 / (total - 1))
+  ctx.fillRect(6, 14 + dy - armRise, 2, 10 + armRise)
+  ctx.fillRect(24, 14 + dy - armRise, 2, 10 + armRise)
+}
+
+function drawOwlBalletPirouetteBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const dx = frame === 0 ? 0 : frame === 1 ? 1 : 0
+  ctx.fillStyle = '#795548'
+  ctx.fillRect(8 + dx, 10, 16, 18)
+  ctx.fillStyle = '#D7CCC8'
+  ctx.fillRect(13 + dx, 16, 6, 8)
+  ctx.fillStyle = '#5D4037'
+  ctx.fillRect(8 + dx, 16, 2, 8)
+  ctx.fillRect(22 + dx, 16, 2, 8)
+}
+
+function drawOwlBalletArabesqueBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const lean = Math.floor(3 * Math.sin(t * Math.PI))
+  const bodyH = 18 - lean
+  ctx.fillStyle = '#795548'
+  ctx.fillRect(8, 10 + lean, 16, bodyH)
+  ctx.fillStyle = '#D7CCC8'
+  ctx.fillRect(13, 16 + lean, 6, bodyH - 6)
+  ctx.fillStyle = '#5D4037'
+  ctx.fillRect(8, 16 + lean, 2, bodyH - 6)
+  ctx.fillRect(22, 16 + lean, 2, bodyH - 6)
+  if (frame > 0) {
+    ctx.fillStyle = '#5D4037'
+    ctx.fillRect(4, 18 + lean, 4, 3)
+  }
+}
+
+function drawOwlBalletBowBody(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
+  const t = frame / (total - 1)
+  const topTrim = Math.floor(8 * Math.sin(t * Math.PI))
+  ctx.fillStyle = '#795548'
+  ctx.fillRect(8, 10 + topTrim, 16, 18 - topTrim)
+  ctx.fillStyle = '#D7CCC8'
+  ctx.fillRect(13, 16 + topTrim, 6, 8 - topTrim)
+  ctx.fillStyle = '#5D4037'
+  ctx.fillRect(8, 16 + topTrim, 2, Math.min(8, 8 - topTrim))
+  ctx.fillRect(22, 16 + topTrim, 2, Math.min(8, 8 - topTrim))
+}
+
 // ===== NEW POSE DATA =====
 
 function createSleepPoses(): PoseTemplate {
@@ -1312,6 +2082,78 @@ function createDodgePoses(): PoseTemplate {
       { index: 1, parts: { body: { dx: 2, dy: -1 }, front_arm: { dx: 2 } } },
       { index: 2, parts: { body: { dx: 3, dy: -1 }, front_arm: { dx: 3 } } },
       { index: 3, parts: { body: { dx: 0 }, front_arm: { dx: 0 } } }
+    ]
+  }
+}
+
+// ===== BALLET POSE TEMPLATES =====
+
+function createBalletPliéPoses(): PoseTemplate {
+  return {
+    action: 'plié', resolution: 32,
+    frames: [
+      { index: 0, parts: { body: { override: { layer: 'body', frame: 0 } } } },
+      { index: 1, parts: { body: { override: { layer: 'body', frame: 1 } } } },
+      { index: 2, parts: { body: { override: { layer: 'body', frame: 1 } }, tail: { rotation: -5 } } },
+      { index: 3, parts: { body: { override: { layer: 'body', frame: 1 } }, tail: { rotation: 5 } } },
+      { index: 4, parts: { body: { override: { layer: 'body', frame: 2 } } } },
+      { index: 5, parts: { body: { override: { layer: 'body', frame: 0 } } } }
+    ]
+  }
+}
+
+function createBalletRelevéPoses(): PoseTemplate {
+  return {
+    action: 'relevé', resolution: 32,
+    frames: [
+      { index: 0, parts: { body: { override: { layer: 'body', frame: 0 } } } },
+      { index: 1, parts: { body: { override: { layer: 'body', frame: 1 }, dy: -1 } } },
+      { index: 2, parts: { body: { override: { layer: 'body', frame: 2 }, dy: -2 } } },
+      { index: 3, parts: { body: { override: { layer: 'body', frame: 2 }, dy: -2 } } },
+      { index: 4, parts: { body: { override: { layer: 'body', frame: 1 }, dy: -1 } } },
+      { index: 5, parts: { body: { override: { layer: 'body', frame: 0 } } } }
+    ]
+  }
+}
+
+function createBalletPirouettePoses(): PoseTemplate {
+  return {
+    action: 'pirouette', resolution: 32,
+    frames: [
+      { index: 0, parts: { body: { override: { layer: 'body', frame: 0 } }, front_arm: { override: { layer: 'front_arm', frame: 0 } } } },
+      { index: 1, parts: { body: { override: { layer: 'body', frame: 1 } }, front_arm: { override: { layer: 'front_arm', frame: 1 } } } },
+      { index: 2, parts: { body: { override: { layer: 'body', frame: 2 } }, front_arm: { override: { layer: 'front_arm', frame: 1 } } } },
+      { index: 3, parts: { body: { override: { layer: 'body', frame: 1 } }, front_arm: { override: { layer: 'front_arm', frame: 2 } } } },
+      { index: 4, parts: { body: { override: { layer: 'body', frame: 0 } }, front_arm: { override: { layer: 'front_arm', frame: 0 } } } },
+      { index: 5, parts: { body: { override: { layer: 'body', frame: 1 } }, front_arm: { override: { layer: 'front_arm', frame: 1 } } } },
+      { index: 6, parts: { body: { override: { layer: 'body', frame: 0 } }, front_arm: { override: { layer: 'front_arm', frame: 0 } } } },
+      { index: 7, parts: { body: { override: { layer: 'body', frame: 0 } } } }
+    ]
+  }
+}
+
+function createBalletArabesquePoses(): PoseTemplate {
+  return {
+    action: 'arabesque', resolution: 32,
+    frames: [
+      { index: 0, parts: { body: { override: { layer: 'body', frame: 0 } } } },
+      { index: 1, parts: { body: { override: { layer: 'body', frame: 1 } } } },
+      { index: 2, parts: { body: { override: { layer: 'body', frame: 2 } }, tail: { rotation: 5 } } },
+      { index: 3, parts: { body: { override: { layer: 'body', frame: 2 } }, tail: { rotation: -5 } } },
+      { index: 4, parts: { body: { override: { layer: 'body', frame: 1 } } } },
+      { index: 5, parts: { body: { override: { layer: 'body', frame: 0 } } } }
+    ]
+  }
+}
+
+function createBalletBowPoses(): PoseTemplate {
+  return {
+    action: 'bow', resolution: 32,
+    frames: [
+      { index: 0, parts: { body: { override: { layer: 'body', frame: 0 } } } },
+      { index: 1, parts: { body: { override: { layer: 'body', frame: 1 } }, tail: { rotation: 3 } } },
+      { index: 2, parts: { body: { override: { layer: 'body', frame: 2 } }, tail: { rotation: 3 } } },
+      { index: 3, parts: { body: { override: { layer: 'body', frame: 0 } }, tail: { rotation: 0 } } }
     ]
   }
 }
@@ -1704,10 +2546,20 @@ function createRaccoonAssets(resolution: number): TestAssets {
   poses.set('jump', createJumpPoses())
   poses.set('wave', createWavePoses())
   poses.set('walk', createWalkPoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawRaccoonWaveFrontArm, resolution))
   overrides.set('jump_body', createScaledSpritesheet(5, drawRaccoonJumpBody, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawRaccoonBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawRaccoonBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawRaccoonBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawRaccoonBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawRaccoonBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createRaccoonPalette(),
@@ -1734,10 +2586,20 @@ function createCatAssets(resolution: number): TestAssets {
   poses.set('jump', createJumpPoses())
   poses.set('wave', createWavePoses())
   poses.set('walk', createWalkPoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawCatWaveFrontArm, resolution))
   overrides.set('jump_body', createScaledSpritesheet(5, drawCatJumpBody, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawCatBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawCatBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawCatBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawCatBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawCatBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createCatPalette(),
@@ -1764,10 +2626,20 @@ function createFoxAssets(resolution: number): TestAssets {
   poses.set('jump', createJumpPoses())
   poses.set('wave', createWavePoses())
   poses.set('walk', createWalkPoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawFoxWaveFrontArm, resolution))
   overrides.set('jump_body', createScaledSpritesheet(5, drawFoxJumpBody, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawFoxBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawFoxBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawFoxBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawFoxBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawFoxBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createFoxPalette(),
@@ -1802,6 +2674,11 @@ function createRabbitAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawRabbitWaveFrontArm, resolution))
@@ -1809,6 +2686,11 @@ function createRabbitAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawRabbitEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawRabbitSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawRabbitDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawRabbitBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawRabbitBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawRabbitBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawRabbitBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawRabbitBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createRabbitPalette(),
@@ -1842,6 +2724,11 @@ function createPandaAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawPandaWaveFrontArm, resolution))
@@ -1849,6 +2736,11 @@ function createPandaAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawPandaEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawPandaSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawPandaDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawPandaBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawPandaBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawPandaBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawPandaBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawPandaBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createPandaPalette(),
@@ -1881,6 +2773,11 @@ function createFrogAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawFrogWaveFrontArm, resolution))
@@ -1888,6 +2785,11 @@ function createFrogAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawFrogEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawFrogSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawFrogDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawFrogBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawFrogBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawFrogBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawFrogBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawFrogBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createFrogPalette(),
@@ -1920,6 +2822,11 @@ function createPenguinAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawPenguinWaveFrontArm, resolution))
@@ -1927,6 +2834,11 @@ function createPenguinAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawPenguinEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawPenguinSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawPenguinDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawPenguinBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawPenguinBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawPenguinBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawPenguinBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawPenguinBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createPenguinPalette(),
@@ -1959,6 +2871,11 @@ function createMouseAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawMouseWaveFrontArm, resolution))
@@ -1966,6 +2883,11 @@ function createMouseAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawMouseEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawMouseSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawMouseDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawMouseBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawMouseBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawMouseBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawMouseBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawMouseBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createMousePalette(),
@@ -1998,6 +2920,11 @@ function createBearAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawBearWaveFrontArm, resolution))
@@ -2005,6 +2932,11 @@ function createBearAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawBearEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawBearSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawBearDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawBearBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawBearBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawBearBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawBearBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawBearBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createBearPalette(),
@@ -2037,6 +2969,11 @@ function createKoalaAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawKoalaWaveFrontArm, resolution))
@@ -2044,6 +2981,11 @@ function createKoalaAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawKoalaEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawKoalaSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawKoalaDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawKoalaBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawKoalaBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawKoalaBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawKoalaBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawKoalaBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createKoalaPalette(),
@@ -2076,6 +3018,11 @@ function createOwlAssets(resolution: number): TestAssets {
   poses.set('dance', createDancePoses())
   poses.set('surprise', createSurprisePoses())
   poses.set('dodge', createDodgePoses())
+  poses.set('plié', createBalletPliéPoses())
+  poses.set('relevé', createBalletRelevéPoses())
+  poses.set('pirouette', createBalletPirouettePoses())
+  poses.set('arabesque', createBalletArabesquePoses())
+  poses.set('bow', createBalletBowPoses())
 
   const overrides = new Map<string, Map<number, ImageBitmap>>()
   overrides.set('wave_front_arm', createScaledSpritesheet(4, drawOwlWaveFrontArm, resolution))
@@ -2083,6 +3030,11 @@ function createOwlAssets(resolution: number): TestAssets {
   overrides.set('eat_mouth', createScaledSpritesheet(4, drawOwlEatMouth, resolution))
   overrides.set('surprise_eyes', createScaledSpritesheet(3, drawOwlSurpriseEyes, resolution))
   overrides.set('dance_front_arm', createScaledSpritesheet(4, drawOwlDanceArms, resolution))
+  overrides.set('plié_body', createScaledSpritesheet(3, drawOwlBalletPliéBody, resolution))
+  overrides.set('relevé_body', createScaledSpritesheet(3, drawOwlBalletRelevéBody, resolution))
+  overrides.set('pirouette_body', createScaledSpritesheet(3, drawOwlBalletPirouetteBody, resolution))
+  overrides.set('arabesque_body', createScaledSpritesheet(3, drawOwlBalletArabesqueBody, resolution))
+  overrides.set('bow_body', createScaledSpritesheet(3, drawOwlBalletBowBody, resolution))
 
   const palettes: PaletteDef[] = [
     createOwlPalette(),

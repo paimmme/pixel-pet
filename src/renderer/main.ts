@@ -18,6 +18,8 @@ import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
 import { createSettingsPanel } from './ui/settings-panel'
 import { createWalkController } from './state/walk-controller'
+import { SkillSystem } from './state/skill-system'
+import { ChoreographyController, CHOREOGRAPHY_PRESETS } from './state/choreography'
 
 declare global {
   interface Window {
@@ -49,6 +51,10 @@ async function main(): Promise<void> {
   const selectionStore = new SelectionStore()
   const stateMachine = new PetStateMachine()
 
+  // --- Phase 7: Skill + Choreography ---
+  const skills = new SkillSystem()
+  const choreo = new ChoreographyController()
+
   // Wire tray action menu → pending buffer
   api.onAction((actionId: string) => {
     if (actionId === 'idle' && stateMachine.state === PetState.Idle) return
@@ -71,6 +77,10 @@ async function main(): Promise<void> {
     // Restore auto-launch state
     if (savedState.settings?.autoLaunch !== undefined) {
       autoLaunchEnabled = savedState.settings.autoLaunch
+    }
+    // Restore skill data
+    if (savedState.skillData) {
+      skills.restore(savedState.skillData)
     }
   })
 
@@ -95,6 +105,17 @@ async function main(): Promise<void> {
       { actionId: 'idle', label: 'Idle 🐾' },
       { actionId: 'jump', label: 'Jump' },
       { actionId: 'wave', label: 'Wave' },
+      // Ballet actions
+      { actionId: 'plié', label: 'Plie' },
+      { actionId: 'relevé', label: 'Releve' },
+      { actionId: 'pirouette', label: 'Pirouette' },
+      { actionId: 'arabesque', label: 'Arabesque' },
+      { actionId: 'bow', label: 'Bow' },
+      // Choreography presets
+      ...CHOREOGRAPHY_PRESETS.map(p => ({
+        actionId: `preset:${p.id}`,
+        label: `🎭 ${p.name}`
+      })),
       { actionId: 'settings', label: 'Settings' },
       { actionId: 'separator', label: '' },
       { actionId: 'quit', label: 'Quit' }
@@ -156,6 +177,12 @@ async function main(): Promise<void> {
           })
         }
         settingsPanel.show()
+        return
+      }
+      // Handle preset triggers
+      if (actionId.startsWith('preset:')) {
+        const presetId = actionId.slice(7)
+        choreo.playPreset(presetId, (id) => triggerAction(id))
         return
       }
       triggerAction(actionId)
@@ -254,6 +281,12 @@ async function main(): Promise<void> {
       if (requestId !== playRequestId) return
       animController.setFrames(result.frames, actionDef.fps, actionDef.loop)
       animController.start()
+
+      // Record practice for skill-building actions
+      if (actionDef.phases && actionDef.phases.length > 0) {
+        const gracePotential = actionDef.phases.reduce((sum, p) => sum + p.gracePotential, 0)
+        skills.recordPractice(actionId, gracePotential)
+      }
     } catch (err) {
       if (requestId === playRequestId) {
         console.error('Failed to compose animation:', err)
@@ -314,8 +347,10 @@ async function main(): Promise<void> {
         }
         break
       case PetState.Idle:
-        // If there's a pending action, play it; otherwise idle
-        if (pendingAction) {
+        // If choreography is active, continue the sequence
+        if (choreo.isPlaying) {
+          choreo.onAnimationComplete((actionId) => triggerAction(actionId))
+        } else if (pendingAction) {
           const nextAction = pendingAction
           pendingAction = null
           playAction(nextAction)
@@ -338,7 +373,8 @@ async function main(): Promise<void> {
         resolution: store.resolution,
         palette: store.palette,
         accessories: store.accessories.length > 0 ? store.accessories : undefined
-      }
+      },
+      skillData: skills.snapshot()
     })
     if (animController.isPlaying() && store.action !== 'idle') {
       stateMachine.feedEvent({ type: 'change' })
@@ -356,6 +392,7 @@ async function main(): Promise<void> {
     const dt = now - lastFrameTime
     lastFrameTime = now
     movement.tick(dt)
+    skills.restTick(dt)
     gestureDetector.tick(now)
 
     // Notice overlay — draw exclamation mark while timer active
@@ -374,6 +411,7 @@ async function main(): Promise<void> {
 
   // --- Cleanup ---
   window.addEventListener('beforeunload', () => {
+    api.saveState({ skillData: skills.snapshot() })
     animController.destroy()
     if (settingsPanel) settingsPanel.destroy()
     ctxMenu.destroy()

@@ -20,6 +20,13 @@ export interface Selection {
   accessories?: string[]
 }
 
+export interface SkillData {
+  dailyPracticeRecord: Record<string, number>
+  lastPracticeDate: string
+  skillLevels: Record<string, number>
+  fatigue: number
+}
+
 export interface SavedState {
   window: {
     x: number
@@ -29,4 +36,5 @@ export interface SavedState {
   settings?: {
     autoLaunch?: boolean
   }
+  skillData?: SkillData
 }

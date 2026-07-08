@@ -44,6 +44,19 @@ export interface AnimalDef {
   zones?: ZoneDef[]
 }
 
+/** Phase type within an action */
+export type ActionPhaseType = 'prepare' | 'execute' | 'hold' | 'recover'
+
+/** Metadata for one phase of an action */
+export interface ActionPhase {
+  name: string
+  phaseType: ActionPhaseType
+  startFrame: number
+  endFrame: number
+  staminaCostPerTick: number
+  gracePotential: number
+}
+
 export interface ActionDef {
   id: string
   name: string
@@ -52,6 +65,12 @@ export interface ActionDef {
   loop: boolean
   directions: Direction[] | null
   poseTemplate: string
+  /** Optional action phases for skill-based depth */
+  phases?: ActionPhase[]
+  /** Base stamina cost to perform once (0-100) */
+  staminaCost?: number
+  /** Skill category for grouping related actions */
+  category?: string
 }
 
 export interface OverrideRef {
