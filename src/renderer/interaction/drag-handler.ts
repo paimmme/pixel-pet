@@ -13,6 +13,17 @@
 
 import type { ElectronAPI } from '../../shared/ipc-types'
 
+let displayBounds = { x: 0, y: 0, width: 1920, height: 1080 }
+
+async function initDisplayBounds(electronAPI: ElectronAPI): Promise<void> {
+  try {
+    const info = await electronAPI.getDisplayInfo()
+    displayBounds = info
+  } catch {
+    // use defaults
+  }
+}
+
 export interface DragHandlerOptions {
   canvas: HTMLCanvasElement
   electronAPI: ElectronAPI
@@ -37,6 +48,9 @@ export function setupDragHandler(options: DragHandlerOptions): DragHandler {
     // clicks are forwarded to desktop via forward: true and can't be intercepted)
     if (!getIsHit()) return
 
+    // Fire-and-forget — first drag uses defaults, subsequent drags use real bounds
+    initDisplayBounds(electronAPI)
+
     canvas.style.cursor = 'grabbing'
     isDragging = true
     onDragStart?.()
@@ -56,10 +70,10 @@ export function setupDragHandler(options: DragHandlerOptions): DragHandler {
     const newY = e.screenY - offsetY
 
     // Clamp within display work area to prevent window from going off-screen
-    const minX = -10
-    const minY = -10
-    const maxX = 1920
-    const maxY = 1080
+    const maxX = displayBounds.x + displayBounds.width - 10
+    const maxY = displayBounds.y + displayBounds.height - 10
+    const minX = displayBounds.x - 10
+    const minY = displayBounds.y - 10
 
     electronAPI.moveWindow(
       Math.max(minX, Math.min(maxX, newX)),

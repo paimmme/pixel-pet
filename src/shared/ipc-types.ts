@@ -19,6 +19,7 @@ export interface ElectronAPI {
   getDisplayInfo(): Promise<{ x: number; y: number; width: number; height: number }>
   saveState(state: SavedState): void
   onAction(callback: (action: string) => void): () => void
+  onRestoreState(callback: (state: SavedState) => void): () => void
   centerWindow(): void
   quitApp(): void
   setAutoLaunch(enabled: boolean): void

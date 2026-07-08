@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { ElectronAPI } from '../shared/ipc-types'
 import { IPC_CHANNELS } from '../shared/ipc-types'
+import type { SavedState } from '../shared/app-types'
 
 const electronAPI: ElectronAPI = {
   setIgnoreMouseEvents: (ignore, options) => {
@@ -14,6 +15,11 @@ const electronAPI: ElectronAPI = {
     const handler = (_event: Electron.IpcRendererEvent, action: string) => callback(action)
     ipcRenderer.on('action', handler)
     return () => ipcRenderer.removeListener('action', handler)
+  },
+  onRestoreState: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: SavedState) => callback(state)
+    ipcRenderer.on('restore-state', handler)
+    return () => ipcRenderer.removeListener('restore-state', handler)
   },
   centerWindow: () => ipcRenderer.invoke(IPC_CHANNELS.CENTER_WINDOW),
   quitApp: () => ipcRenderer.send(IPC_CHANNELS.QUIT_APP),

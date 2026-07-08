@@ -26,6 +26,7 @@ export function createMovementController(
 ): MovementController {
   let currentTarget: { x: number; y: number } | null = null
   let moving = false
+  let initializing = false
   let startX = 0
   let startY = 0
   let traveledX = 0
@@ -47,7 +48,7 @@ export function createMovementController(
   function moveTo(targetX: number, targetY: number): void {
     // Stop any current movement
     currentTarget = { x: targetX, y: targetY }
-    moving = true
+    initializing = true
     traveledX = 0
     traveledY = 0
     totalDistance = 0
@@ -61,11 +62,13 @@ export function createMovementController(
       if (dx !== 0 || dy !== 0) {
         updateDirection(dx, dy)
       }
+      initializing = false
+      moving = true
     })
   }
 
   function tick(dt: number): void {
-    if (!moving || !currentTarget) return
+    if (!moving || !currentTarget || initializing) return
 
     const seconds = dt / 1000
     const step = SPEED * seconds
@@ -101,6 +104,7 @@ export function createMovementController(
 
   function stop(): void {
     moving = false
+    initializing = false
     currentTarget = null
   }
 

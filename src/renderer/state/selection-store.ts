@@ -101,6 +101,16 @@ export class SelectionStore {
     }
   }
 
+  fromSavedState(data: Partial<SelectionSnapshot>): void {
+    if (data.animal !== undefined) this._animal = data.animal
+    if (data.action !== undefined) this._action = data.action
+    if (data.resolution !== undefined) this._resolution = data.resolution
+    if (data.palette !== undefined) this._palette = data.palette
+    if (data.direction !== undefined) this._direction = data.direction
+    if (data.accessories !== undefined) this._accessories = data.accessories
+    // Don't notify subscribers here — the caller will trigger the first animation
+  }
+
   subscribe(cb: SelectionChangeCallback): () => void {
     this.subscribers.add(cb)
     return () => this.subscribers.delete(cb)

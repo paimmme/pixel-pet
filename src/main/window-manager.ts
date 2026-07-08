@@ -22,7 +22,7 @@ export function createWindow(x?: number, y?: number): BrowserWindow {
       preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
-      sandbox: false
+      sandbox: true
     }
   }
 

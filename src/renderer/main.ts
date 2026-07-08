@@ -55,6 +55,20 @@ async function main(): Promise<void> {
     triggerAction(actionId)
   })
 
+  // Restore saved state on startup
+  api.onRestoreState((savedState) => {
+    if (savedState.selection) {
+      selectionStore.fromSavedState({
+        animal: savedState.selection.animal,
+        action: savedState.selection.action,
+        resolution: savedState.selection.resolution,
+        palette: savedState.selection.palette,
+      })
+      // Trigger the restored action
+      triggerAction(savedState.selection.action)
+    }
+  })
+
   // --- Phase 2 interaction ---
   const interaction = createInteractionController(canvas, stateMachine)
   const gestureDetector = createGestureDetector({
@@ -202,6 +216,7 @@ async function main(): Promise<void> {
 
   // --- Pending action buffer ---
   let pendingAction: string | null = null
+  let playRequestId = 0
   let autoLaunchEnabled = false
 
   function triggerAction(actionId: string): void {
@@ -212,6 +227,7 @@ async function main(): Promise<void> {
 
   // --- Compose and play an action ---
   async function playAction(actionId: string): Promise<void> {
+    const requestId = ++playRequestId
     const config: ComposeConfig = {
       animal: selectionStore.animal,
       action: actionId,
@@ -229,10 +245,14 @@ async function main(): Promise<void> {
 
     try {
       const result = await composeAnimation(loader, compositor, config)
+      // Only apply if this is still the latest request
+      if (requestId !== playRequestId) return
       animController.setFrames(result.frames, actionDef.fps, actionDef.loop)
       animController.start()
     } catch (err) {
-      console.error('Failed to compose animation:', err)
+      if (requestId === playRequestId) {
+        console.error('Failed to compose animation:', err)
+      }
     }
   }
 

@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import { createWindow, getWindow, setIgnoreMouseEventsState } from './window-manager'
 import { registerIpcHandlers } from './ipc-handlers'
 import { createTray } from './tray'
-import { loadState, saveState } from './settings'
+import { loadState, saveState, patchState } from './settings'
 
 // Crash/diagnostics logging
 const crashLogPath = path.join(app.getPath('userData'), 'crash.log')
@@ -58,25 +58,23 @@ app.whenReady().then(() => {
     win.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  // Restore previous selection if available
-  if (savedState.selection) {
-    win.webContents.on('did-finish-load', () => {
-      try {
-        if (!win.isDestroyed()) {
-          win.webContents.send('action', savedState.selection!.action)
-        }
-      } catch {
-        // ignore if already destroyed
+  // Restore saved state on load
+  win.webContents.on('did-finish-load', () => {
+    try {
+      if (!win.isDestroyed()) {
+        win.webContents.send('restore-state', savedState)
       }
-    })
-  }
+    } catch {
+      // ignore if already destroyed
+    }
+  })
 
   // Save window position on move
   win.on('move', () => {
     try {
       if (!win.isDestroyed()) {
         const bounds = win.getBounds()
-        saveState({ window: { x: bounds.x, y: bounds.y } })
+        patchState({ window: { x: bounds.x, y: bounds.y } })
       }
     } catch {
       // ignore errors during move
@@ -88,7 +86,7 @@ app.whenReady().then(() => {
     try {
       if (!win.isDestroyed()) {
         const bounds = win.getBounds()
-        saveState({ window: { x: bounds.x, y: bounds.y } })
+        patchState({ window: { x: bounds.x, y: bounds.y } })
       }
     } catch {
       // ignore errors during close

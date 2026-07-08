@@ -18,6 +18,15 @@ export function loadState(): SavedState {
   return { window: { x: -1, y: -1 } }
 }
 
+export function patchState(partial: Partial<SavedState>): void {
+  const current = loadState()
+  saveState({
+    window: partial.window ?? current.window,
+    selection: partial.selection ?? current.selection,
+    settings: partial.settings ?? current.settings,
+  })
+}
+
 export function saveState(state: SavedState): void {
   try {
     fs.mkdirSync(path.dirname(SETTINGS_PATH), { recursive: true })

@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { IPC_CHANNELS } from '../shared/ipc-types'
-import { saveState } from './settings'
+import { saveState, patchState } from './settings'
 import type { SavedState, Point } from '../shared/app-types'
 
 export function registerIpcHandlers(win: BrowserWindow): void {
@@ -57,7 +57,7 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   // Persist window state
   ipcMain.on(IPC_CHANNELS.SAVE_STATE, (_event, state: SavedState) => {
     try {
-      saveState(state)
+      patchState(state)
     } catch (err) {
       console.error('Failed to save state via IPC:', err)
     }
@@ -92,7 +92,7 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   ipcMain.on(IPC_CHANNELS.SET_AUTO_LAUNCH, (_event, enabled: boolean) => {
     try {
       app.setLoginItemSettings({ openAtLogin: enabled })
-      saveState({ window: { x: 0, y: 0 }, settings: { autoLaunch: enabled } })
+      patchState({ settings: { autoLaunch: enabled } })
     } catch (err) {
       console.error('Failed to set auto-launch:', err)
     }
