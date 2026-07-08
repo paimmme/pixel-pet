@@ -1,0 +1,31 @@
+export type PixelResolution = 16 | 32
+
+export interface Point {
+  x: number
+  y: number
+}
+
+export interface Rect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface Selection {
+  animal: string
+  action: string
+  resolution: PixelResolution
+  palette: string
+}
+
+export interface SavedState {
+  window: {
+    x: number
+    y: number
+  }
+  selection?: Selection
+  settings?: {
+    autoLaunch?: boolean
+  }
+}

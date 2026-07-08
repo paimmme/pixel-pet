@@ -1,0 +1,9 @@
+node_modules/
+dist/
+release/
+out/
+.slim/deepwork/
+.cortexkit/
+.DS_Store
+*.log
+README_副本.md
