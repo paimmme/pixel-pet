@@ -13,6 +13,7 @@ import { AssetLoader } from './assets/asset-loader'
 import { composeAnimation } from './engine/compose-animation'
 import { SelectionStore } from './state/selection-store'
 import { PetStateMachine, PetState } from './state/pet-state-machine'
+import { createExpressionController } from './state/expression-controller'
 import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES } from './assets/catalog'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
@@ -50,6 +51,9 @@ async function main(): Promise<void> {
   const animController = new AnimationController()
   const selectionStore = new SelectionStore()
   const stateMachine = new PetStateMachine()
+
+  // --- Expression controller ---
+  const expression = createExpressionController()
 
   // --- Phase 7: Skill + Choreography ---
   const skills = new SkillSystem()
@@ -266,7 +270,11 @@ async function main(): Promise<void> {
       resolution: selectionStore.resolution,
       palette: selectionStore.palette,
       direction: selectionStore.direction,
-      accessories: selectionStore.accessories.length > 0 ? selectionStore.accessories : undefined
+      accessories: selectionStore.accessories.length > 0 ? selectionStore.accessories : undefined,
+      expression: {
+        eyes: expression.current.eyes !== 'neutral' ? expression.current.eyes : undefined,
+        mouth: expression.current.mouth !== 'neutral' ? expression.current.mouth : undefined
+      }
     }
 
     const actionDef = getAction(actionId)
@@ -316,9 +324,12 @@ async function main(): Promise<void> {
       if (isDoubleClick) {
         // Double-click: trigger reaction
         stateMachine.feedEvent({ type: 'react' })
+        expression.triggerSurprised()
       } else {
         // Single click: show notice (blink) overlay
         noticeTimer = NOTICE_DURATION
+        // Subtle happy expression on click
+        expression.triggerHappy()
       }
     } else {
       // Click on transparent area (desktop) — click-to-follow
@@ -336,6 +347,7 @@ async function main(): Promise<void> {
     switch (newState) {
       case PetState.Reacting:
         playAction('wave')
+        expression.triggerHappy()
         break
       case PetState.Acting:
         // Play the pending action
@@ -392,6 +404,7 @@ async function main(): Promise<void> {
     const dt = now - lastFrameTime
     lastFrameTime = now
     movement.tick(dt)
+    expression.tick(dt)  // micro-expression timing (blinks, emotion decay)
     skills.restTick(dt)
     gestureDetector.tick(now)
 
@@ -413,6 +426,7 @@ async function main(): Promise<void> {
   window.addEventListener('beforeunload', () => {
     api.saveState({ skillData: skills.snapshot() })
     animController.destroy()
+    expression.destroy()
     if (settingsPanel) settingsPanel.destroy()
     ctxMenu.destroy()
     gestureDetector.destroy()

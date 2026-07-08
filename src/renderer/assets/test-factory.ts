@@ -128,6 +128,107 @@ function drawRaccoonJumpBody(ctx: OffscreenCanvasRenderingContext2D, s: number, 
   ctx.fillRect(12, 16 + yOffset, 8, bodyHeight - 4)
 }
 
+// ===== RACCOON EXPRESSION DRAWING FUNCTIONS =====
+
+function drawRaccoonEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#A0896C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 4, 2)
+  ctx.fillRect(17, 10, 4, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 12, 4, 2)
+  ctx.fillRect(17, 12, 4, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawRaccoonEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#A0896C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 4, 4)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 10, 4, 4)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(11, 12, 4, 1)
+  ctx.fillRect(17, 12, 4, 1)
+}
+
+function drawRaccoonEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillRect(13, 10, 1, 1)
+  ctx.fillRect(19, 10, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(9, 12, 3, 2)
+  ctx.fillRect(19, 12, 3, 2)
+}
+
+function drawRaccoonEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 9, 6, 6)
+  ctx.fillRect(16, 9, 6, 6)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 10, 4, 5)
+  ctx.fillRect(18, 10, 4, 5)
+}
+
+function drawRaccoonEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#A0896C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 4, 2)
+  ctx.fillRect(17, 10, 4, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 12, 4, 2)
+  ctx.fillRect(17, 12, 4, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawRaccoonMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawRaccoonMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawRaccoonMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawRaccoonMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+
 // ===== CAT PART DRAWING FUNCTIONS =====
 
 function drawCatShadow(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
@@ -364,6 +465,119 @@ function drawCatJumpBody(ctx: OffscreenCanvasRenderingContext2D, s: number, fram
   ctx.fillRect(22, 15 + yOffset, 2, bodyHeight - 2)
 }
 
+// ===== CAT EXPRESSION DRAWING FUNCTIONS =====
+
+function drawCatEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#D4845A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 11, 4, 2)
+  ctx.fillRect(17, 11, 4, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 13, 4, 2)
+  ctx.fillRect(17, 13, 4, 2)
+  ctx.fillStyle = '#2D8C2D'
+  ctx.fillRect(13, 13, 2, 2)
+  ctx.fillRect(19, 13, 2, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 13, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(19, 13, 1, 1)
+}
+
+function drawCatEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#D4845A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 11, 4, 4)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 11, 4, 4)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(11, 13, 4, 1)
+  ctx.fillRect(17, 13, 4, 1)
+}
+
+function drawCatEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillRect(13, 11, 1, 1)
+  ctx.fillRect(19, 11, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(9, 13, 3, 2)
+  ctx.fillRect(19, 13, 3, 2)
+}
+
+function drawCatEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 10, 6, 6)
+  ctx.fillRect(16, 10, 6, 6)
+  ctx.fillStyle = '#2D8C2D'
+  ctx.fillRect(12, 11, 4, 5)
+  ctx.fillRect(18, 11, 4, 5)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 3, 4)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(18, 11, 3, 4)
+}
+
+function drawCatEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#D4845A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 11, 4, 2)
+  ctx.fillRect(17, 11, 4, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 13, 4, 2)
+  ctx.fillRect(17, 13, 4, 2)
+  ctx.fillStyle = '#2D8C2D'
+  ctx.fillRect(13, 13, 2, 2)
+  ctx.fillRect(19, 13, 2, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 13, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(19, 13, 1, 1)
+}
+
+function drawCatMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#FF9999'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawCatMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#FF9999'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawCatMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#FF9999'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawCatMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#FF9999'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+
 // ===== FOX OVERRIDE DRAWING FUNCTIONS =====
 
 function drawFoxWaveFrontArm(ctx: OffscreenCanvasRenderingContext2D, s: number, frame: number, total: number): void {
@@ -386,6 +600,119 @@ function drawFoxJumpBody(ctx: OffscreenCanvasRenderingContext2D, s: number, fram
   ctx.fillStyle = '#FFFFFF'
   ctx.fillRect(13, 12 + yOffset, 6, 4)
 }
+
+// ===== FOX EXPRESSION DRAWING FUNCTIONS =====
+
+function drawFoxEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#D46A3A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 10, 3, 1)
+  ctx.fillRect(17, 10, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 11, 3, 2)
+  ctx.fillRect(17, 11, 3, 2)
+  ctx.fillStyle = '#D4A020'
+  ctx.fillRect(13, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 13, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(18, 13, 1, 1)
+}
+
+function drawFoxEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#D46A3A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 10, 3, 3)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 10, 3, 3)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(12, 11, 3, 1)
+  ctx.fillRect(17, 11, 3, 1)
+}
+
+function drawFoxEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 10, 2, 1)
+  ctx.fillRect(17, 10, 2, 1)
+  ctx.fillRect(13, 9, 1, 1)
+  ctx.fillRect(18, 9, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(10, 12, 3, 2)
+  ctx.fillRect(19, 12, 3, 2)
+}
+
+function drawFoxEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 9, 5, 5)
+  ctx.fillRect(16, 9, 5, 5)
+  ctx.fillStyle = '#D4A020'
+  ctx.fillRect(12, 10, 4, 4)
+  ctx.fillRect(17, 10, 4, 4)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 3, 3)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(17, 11, 3, 3)
+}
+
+function drawFoxEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#D46A3A'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 10, 3, 1)
+  ctx.fillRect(17, 10, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 11, 3, 2)
+  ctx.fillRect(17, 11, 3, 2)
+  ctx.fillStyle = '#D4A020'
+  ctx.fillRect(13, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 12, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(18, 12, 1, 1)
+}
+
+function drawFoxMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawFoxMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawFoxMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawFoxMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
 
 // ===== RABBIT PART DRAWING FUNCTIONS =====
 
@@ -489,6 +816,107 @@ function drawRabbitDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, 
   ctx.fillRect(23, 18 - armRaise, 3, 8 + armRaise)
 }
 
+// ===== RABBIT EXPRESSION DRAWING FUNCTIONS =====
+
+function drawRabbitEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#C4A882'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 3, 2)
+  ctx.fillRect(18, 10, 3, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 12, 3, 2)
+  ctx.fillRect(18, 12, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawRabbitEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#C4A882'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 3, 4)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(18, 10, 3, 4)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(11, 12, 3, 1)
+  ctx.fillRect(18, 12, 3, 1)
+}
+
+function drawRabbitEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(11, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillRect(12, 10, 1, 1)
+  ctx.fillRect(19, 10, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(9, 12, 3, 2)
+  ctx.fillRect(20, 12, 3, 2)
+}
+
+function drawRabbitEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 9, 5, 6)
+  ctx.fillRect(17, 9, 5, 6)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(11, 10, 4, 5)
+  ctx.fillRect(18, 10, 4, 5)
+}
+
+function drawRabbitEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#C4A882'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 3, 2)
+  ctx.fillRect(18, 10, 3, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 12, 3, 2)
+  ctx.fillRect(18, 12, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawRabbitMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#FF69B4'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawRabbitMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#FF69B4'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawRabbitMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#FF69B4'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawRabbitMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#FF69B4'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+
 // ===== PANDA PART DRAWING FUNCTIONS =====
 
 function drawPandaShadow(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
@@ -588,6 +1016,107 @@ function drawPandaDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, f
   ctx.fillRect(6, 18 - armRaise, 3, 8 + armRaise)
   ctx.fillRect(23, 18 - armRaise, 3, 8 + armRaise)
 }
+
+// ===== PANDA EXPRESSION DRAWING FUNCTIONS =====
+
+function drawPandaEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 10, 5, 2)
+  ctx.fillRect(17, 10, 5, 2)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10, 12, 5, 3)
+  ctx.fillRect(17, 12, 5, 3)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawPandaEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#FFFFFF'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(10, 10, 5, 5)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 10, 5, 5)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(10, 12, 5, 1)
+  ctx.fillRect(17, 12, 5, 1)
+}
+
+function drawPandaEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 10, 5, 5)
+  ctx.fillRect(17, 10, 5, 5)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(11, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillRect(12, 10, 1, 1)
+  ctx.fillRect(19, 10, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(8, 12, 3, 2)
+  ctx.fillRect(19, 12, 3, 2)
+}
+
+function drawPandaEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(9, 9, 7, 7)
+  ctx.fillRect(16, 9, 7, 7)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 10, 4, 5)
+  ctx.fillRect(18, 10, 4, 5)
+}
+
+function drawPandaEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(10, 10, 5, 5)
+  ctx.fillRect(17, 10, 5, 5)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 10, 5, 2)
+  ctx.fillRect(17, 10, 5, 2)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 12, 2, 2)
+  ctx.fillRect(19, 12, 2, 2)
+}
+
+function drawPandaMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawPandaMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawPandaMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawPandaMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
 
 // ===== FROG PART DRAWING FUNCTIONS =====
 
@@ -699,6 +1228,107 @@ function drawFrogDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, fr
   ctx.fillRect(25, 18 - armRaise, 3, 8 + armRaise)
 }
 
+// ===== FROG EXPRESSION DRAWING FUNCTIONS =====
+
+function drawFrogEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#4CAF50'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 9, 3, 1)
+  ctx.fillRect(18, 9, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 10, 3, 2)
+  ctx.fillRect(18, 10, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 1, 1)
+  ctx.fillRect(19, 11, 1, 1)
+}
+
+function drawFrogEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#4CAF50'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 9, 3, 3)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(18, 9, 3, 3)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(11, 10, 3, 1)
+  ctx.fillRect(18, 10, 3, 1)
+}
+
+function drawFrogEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(11, 9, 2, 1)
+  ctx.fillRect(18, 9, 2, 1)
+  ctx.fillRect(12, 8, 1, 1)
+  ctx.fillRect(19, 8, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(9, 11, 3, 2)
+  ctx.fillRect(20, 11, 3, 2)
+}
+
+function drawFrogEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 8, 5, 5)
+  ctx.fillRect(17, 8, 5, 5)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(11, 9, 3, 4)
+  ctx.fillRect(18, 9, 3, 4)
+}
+
+function drawFrogEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#4CAF50'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 9, 3, 1)
+  ctx.fillRect(18, 9, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 10, 3, 2)
+  ctx.fillRect(18, 10, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 1, 1)
+  ctx.fillRect(19, 11, 1, 1)
+}
+
+function drawFrogMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#D32F2F'
+  ctx.fillRect(13, 20, 6, 1)
+  ctx.fillRect(12, 21, 1, 1)
+  ctx.fillRect(19, 21, 1, 1)
+}
+
+function drawFrogMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#D32F2F'
+  ctx.fillRect(12, 20, 8, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 21, 6, 2)
+}
+
+function drawFrogMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#D32F2F'
+  ctx.fillRect(11, 20, 10, 1)
+  ctx.fillRect(10, 21, 2, 1)
+  ctx.fillRect(20, 21, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 21, 8, 1)
+}
+
+function drawFrogMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#D32F2F'
+  ctx.fillRect(13, 22, 6, 1)
+  ctx.fillRect(12, 21, 1, 1)
+  ctx.fillRect(19, 21, 1, 1)
+}
+
+
 // ===== PENGUIN PART DRAWING FUNCTIONS =====
 
 function drawPenguinShadow(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
@@ -804,6 +1434,118 @@ function drawPenguinDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number,
   ctx.fillRect(7, 16 - armRaise, 3, 8 + armRaise)
   ctx.fillRect(22, 16 - armRaise, 3, 8 + armRaise)
 }
+
+// ===== PENGUIN EXPRESSION DRAWING FUNCTIONS =====
+
+function drawPenguinEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#1a1a1a'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(13, 11, 3, 1)
+  ctx.fillRect(17, 11, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 12, 3, 2)
+  ctx.fillRect(17, 12, 3, 2)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 13, 2, 1)
+  ctx.fillRect(18, 13, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 13, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(18, 13, 1, 1)
+}
+
+function drawPenguinEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#1a1a1a'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(13, 11, 3, 3)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 11, 3, 3)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(13, 12, 3, 1)
+  ctx.fillRect(17, 12, 3, 1)
+}
+
+function drawPenguinEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 11, 2, 1)
+  ctx.fillRect(17, 11, 2, 1)
+  ctx.fillRect(14, 10, 1, 1)
+  ctx.fillRect(18, 10, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(11, 13, 3, 2)
+  ctx.fillRect(19, 13, 3, 2)
+}
+
+function drawPenguinEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(12, 10, 5, 5)
+  ctx.fillRect(16, 10, 5, 5)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(13, 11, 4, 4)
+  ctx.fillRect(17, 11, 4, 4)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 11, 3, 3)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(17, 11, 3, 3)
+}
+
+function drawPenguinEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#1a1a1a'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(13, 11, 3, 1)
+  ctx.fillRect(17, 11, 3, 1)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(13, 12, 3, 2)
+  ctx.fillRect(17, 12, 3, 2)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 13, 2, 1)
+  ctx.fillRect(18, 13, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 12, 1, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(18, 12, 1, 1)
+}
+
+function drawPenguinMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 14, 4, 1)
+  ctx.fillRect(13, 15, 1, 1)
+  ctx.fillRect(18, 15, 1, 1)
+}
+
+function drawPenguinMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 14, 4, 1)
+  ctx.fillRect(15, 15, 2, 2)
+}
+
+function drawPenguinMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(13, 14, 6, 1)
+  ctx.fillRect(12, 15, 2, 1)
+  ctx.fillRect(18, 15, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 15, 4, 1)
+}
+
+function drawPenguinMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(14, 16, 4, 1)
+  ctx.fillRect(13, 15, 1, 1)
+  ctx.fillRect(18, 15, 1, 1)
+}
+
 
 // ===== MOUSE PART DRAWING FUNCTIONS =====
 
@@ -911,6 +1653,104 @@ function drawMouseDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, f
   ctx.fillRect(21, 18 - armRaise, 3, 8 + armRaise)
 }
 
+// ===== MOUSE EXPRESSION DRAWING FUNCTIONS =====
+
+function drawMouseEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: body color covers top half
+  const bodyColor = '#9E9E9E'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 13, 2, 2)
+  ctx.fillRect(18, 13, 2, 2)
+}
+
+function drawMouseEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#9E9E9E'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 12, 2, 3)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(18, 12, 2, 3)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(12, 13, 2, 1)
+  ctx.fillRect(18, 13, 2, 1)
+}
+
+function drawMouseEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#9E9E9E'
+  ctx.fillRect(12, 12, 2, 3)
+  ctx.fillRect(18, 12, 2, 3)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillRect(13, 11, 1, 1)
+  ctx.fillRect(19, 11, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(10, 14, 3, 2)
+  ctx.fillRect(20, 14, 3, 2)
+}
+
+function drawMouseEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 11, 4, 5)
+  ctx.fillRect(17, 11, 4, 5)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 4)
+  ctx.fillRect(18, 12, 2, 4)
+}
+
+function drawMouseEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#9E9E9E'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 13, 2, 2)
+  ctx.fillRect(18, 13, 2, 2)
+}
+
+function drawMouseMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#F48FB1'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawMouseMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#F48FB1'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawMouseMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#F48FB1'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawMouseMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#F48FB1'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+
 // ===== BEAR PART DRAWING FUNCTIONS =====
 
 function drawBearShadow(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
@@ -1014,6 +1854,104 @@ function drawBearDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, fr
   ctx.fillRect(24, 18 - armRaise, 4, 10 + armRaise)
 }
 
+// ===== BEAR EXPRESSION DRAWING FUNCTIONS =====
+
+function drawBearEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: body color covers top half
+  const bodyColor = '#8D6E63'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+}
+
+function drawBearEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#8D6E63'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 2, 2)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(18, 11, 2, 2)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+}
+
+function drawBearEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#8D6E63'
+  ctx.fillRect(12, 11, 2, 2)
+  ctx.fillRect(18, 11, 2, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillRect(13, 10, 1, 1)
+  ctx.fillRect(19, 10, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(10, 13, 3, 2)
+  ctx.fillRect(20, 13, 3, 2)
+}
+
+function drawBearEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 10, 4, 4)
+  ctx.fillRect(17, 10, 4, 4)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 2, 3)
+  ctx.fillRect(18, 11, 2, 3)
+}
+
+function drawBearEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#8D6E63'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 2, 1)
+  ctx.fillRect(18, 11, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+}
+
+function drawBearMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#3E2723'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawBearMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#3E2723'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawBearMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#3E2723'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawBearMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#3E2723'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+
 // ===== KOALA PART DRAWING FUNCTIONS =====
 
 function drawKoalaShadow(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
@@ -1116,6 +2054,104 @@ function drawKoalaDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, f
   ctx.fillRect(6, 18 - armRaise, 3, 8 + armRaise)
   ctx.fillRect(23, 18 - armRaise, 3, 8 + armRaise)
 }
+
+// ===== KOALA EXPRESSION DRAWING FUNCTIONS =====
+
+function drawKoalaEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: body color covers top half
+  const bodyColor = '#78909C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 3, 2)
+  ctx.fillRect(17, 11, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 13, 3, 2)
+  ctx.fillRect(17, 13, 3, 2)
+}
+
+function drawKoalaEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#78909C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 3, 4)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 11, 3, 4)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(12, 13, 3, 1)
+  ctx.fillRect(17, 13, 3, 1)
+}
+
+function drawKoalaEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#78909C'
+  ctx.fillRect(12, 11, 3, 4)
+  ctx.fillRect(17, 11, 3, 4)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(17, 12, 2, 1)
+  ctx.fillRect(13, 11, 1, 1)
+  ctx.fillRect(18, 11, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(10, 13, 3, 2)
+  ctx.fillRect(19, 13, 3, 2)
+}
+
+function drawKoalaEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 10, 5, 6)
+  ctx.fillRect(16, 10, 5, 6)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 11, 3, 5)
+  ctx.fillRect(17, 11, 3, 5)
+}
+
+function drawKoalaEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#78909C'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(12, 11, 3, 2)
+  ctx.fillRect(17, 11, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 13, 3, 2)
+  ctx.fillRect(17, 13, 3, 2)
+}
+
+function drawKoalaMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
+function drawKoalaMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 18, 4, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawKoalaMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawKoalaMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(14, 20, 4, 1)
+  ctx.fillRect(13, 19, 1, 1)
+  ctx.fillRect(18, 19, 1, 1)
+}
+
 
 // ===== OWL PART DRAWING FUNCTIONS =====
 
@@ -1234,6 +2270,119 @@ function drawOwlDanceArms(ctx: OffscreenCanvasRenderingContext2D, s: number, fra
   ctx.fillRect(6, 16 - armRaise, 2, 10 + armRaise)
   ctx.fillRect(24, 16 - armRaise, 2, 10 + armRaise)
 }
+
+// ===== OWL EXPRESSION DRAWING FUNCTIONS =====
+
+function drawOwlEyesBlink0(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Half-closed: top half of eyes filled with fur color
+  const bodyColor = '#795548'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 5, 3)
+  ctx.fillRect(17, 10, 5, 3)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 13, 5, 3)
+  ctx.fillRect(17, 13, 5, 3)
+  ctx.fillStyle = '#FFC107'
+  ctx.fillRect(13, 13, 3, 3)
+  ctx.fillRect(19, 13, 3, 3)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 14, 2, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(20, 14, 2, 2)
+}
+
+function drawOwlEyesBlink1(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Fully closed: eye area filled with fur/body color
+  const bodyColor = '#795548'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 5, 6)
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(17, 10, 5, 6)
+  // Draw a thin dark line for eye crease
+  ctx.fillStyle = 'rgba(0,0,0,0.3)'
+  ctx.fillRect(11, 13, 5, 1)
+  ctx.fillRect(17, 13, 5, 1)
+}
+
+function drawOwlEyesHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Happy squinted: ^ ^ — small curved slits
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(12, 12, 2, 1)
+  ctx.fillRect(18, 12, 2, 1)
+  ctx.fillRect(13, 11, 1, 1)
+  ctx.fillRect(19, 11, 1, 1)
+  // Small rosy cheeks
+  ctx.fillStyle = 'rgba(255,150,150,0.4)'
+  ctx.fillRect(9, 12, 3, 2)
+  ctx.fillRect(19, 12, 3, 2)
+}
+
+function drawOwlEyesSurprised(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide eyes: larger white area, bigger pupils
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(10, 9, 7, 8)
+  ctx.fillRect(16, 9, 7, 8)
+  ctx.fillStyle = '#FFC107'
+  ctx.fillRect(12, 11, 5, 6)
+  ctx.fillRect(18, 11, 5, 6)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(13, 12, 4, 5)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(19, 12, 4, 5)
+}
+
+function drawOwlEyesSleepy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Sleepy half-lidded: top half dull, pupils at bottom
+  const bodyColor = '#795548'
+  ctx.fillStyle = bodyColor
+  ctx.fillRect(11, 10, 5, 3)
+  ctx.fillRect(17, 10, 5, 3)
+  ctx.fillStyle = '#FFFFFF'
+  ctx.fillRect(11, 13, 5, 3)
+  ctx.fillRect(17, 13, 5, 3)
+  ctx.fillStyle = '#FFC107'
+  ctx.fillRect(13, 14, 3, 2)
+  ctx.fillRect(19, 14, 3, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(14, 14, 2, 2)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(20, 14, 2, 2)
+}
+
+function drawOwlMouthSmile(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Slightly curved up smile
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(15, 19, 2, 1)
+  ctx.fillRect(14, 20, 1, 1)
+  ctx.fillRect(18, 20, 1, 1)
+}
+
+function drawOwlMouthOpen(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Open mouth (surprise)
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(15, 18, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 2)
+}
+
+function drawOwlMouthHappy(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Wide happy smile with open mouth
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(13, 18, 6, 1)
+  ctx.fillRect(12, 19, 2, 1)
+  ctx.fillRect(18, 19, 2, 1)
+  ctx.fillStyle = '#000000'
+  ctx.fillRect(15, 19, 2, 1)
+}
+
+function drawOwlMouthPout(ctx: OffscreenCanvasRenderingContext2D, s: number): void {
+  // Pout / pouty lip
+  ctx.fillStyle = '#FF9800'
+  ctx.fillRect(15, 21, 2, 1)
+  ctx.fillRect(14, 20, 1, 1)
+  ctx.fillRect(18, 20, 1, 1)
+}
+
 
 // ===== RACCOON BALLET OVERRIDE DRAWING FUNCTIONS =====
 
@@ -2538,6 +3687,15 @@ function createRaccoonAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawRaccoonFrontArm, resolution))
   parts.set('eyes', createScaled(drawRaccoonEyes, resolution))
   parts.set('mouth', createScaled(drawRaccoonMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawRaccoonEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawRaccoonEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawRaccoonEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawRaccoonEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawRaccoonEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawRaccoonMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawRaccoonMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawRaccoonMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawRaccoonMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2578,6 +3736,15 @@ function createCatAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawCatFrontArm, resolution))
   parts.set('eyes', createScaled(drawCatEyes, resolution))
   parts.set('mouth', createScaled(drawCatMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawCatEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawCatEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawCatEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawCatEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawCatEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawCatMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawCatMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawCatMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawCatMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2618,6 +3785,15 @@ function createFoxAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawFoxFrontArm, resolution))
   parts.set('eyes', createScaled(drawFoxEyes, resolution))
   parts.set('mouth', createScaled(drawFoxMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawFoxEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawFoxEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawFoxEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawFoxEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawFoxEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawFoxMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawFoxMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawFoxMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawFoxMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2660,6 +3836,15 @@ function createRabbitAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawRabbitFrontArm, resolution))
   parts.set('eyes', createScaled(drawRabbitEyes, resolution))
   parts.set('mouth', createScaled(drawRabbitMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawRabbitEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawRabbitEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawRabbitEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawRabbitEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawRabbitEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawRabbitMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawRabbitMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawRabbitMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawRabbitMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2710,6 +3895,15 @@ function createPandaAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawPandaFrontArm, resolution))
   parts.set('eyes', createScaled(drawPandaEyes, resolution))
   parts.set('mouth', createScaled(drawPandaMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawPandaEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawPandaEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawPandaEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawPandaEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawPandaEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawPandaMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawPandaMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawPandaMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawPandaMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2759,6 +3953,15 @@ function createFrogAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawFrogFrontArm, resolution))
   parts.set('eyes', createScaled(drawFrogEyes, resolution))
   parts.set('mouth', createScaled(drawFrogMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawFrogEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawFrogEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawFrogEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawFrogEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawFrogEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawFrogMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawFrogMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawFrogMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawFrogMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2808,6 +4011,15 @@ function createPenguinAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawPenguinFrontArm, resolution))
   parts.set('eyes', createScaled(drawPenguinEyes, resolution))
   parts.set('mouth', createScaled(drawPenguinMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawPenguinEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawPenguinEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawPenguinEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawPenguinEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawPenguinEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawPenguinMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawPenguinMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawPenguinMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawPenguinMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2857,6 +4069,15 @@ function createMouseAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawMouseFrontArm, resolution))
   parts.set('eyes', createScaled(drawMouseEyes, resolution))
   parts.set('mouth', createScaled(drawMouseMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawMouseEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawMouseEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawMouseEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawMouseEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawMouseEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawMouseMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawMouseMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawMouseMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawMouseMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2906,6 +4127,15 @@ function createBearAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawBearFrontArm, resolution))
   parts.set('eyes', createScaled(drawBearEyes, resolution))
   parts.set('mouth', createScaled(drawBearMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawBearEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawBearEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawBearEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawBearEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawBearEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawBearMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawBearMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawBearMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawBearMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -2955,6 +4185,15 @@ function createKoalaAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawKoalaFrontArm, resolution))
   parts.set('eyes', createScaled(drawKoalaEyes, resolution))
   parts.set('mouth', createScaled(drawKoalaMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawKoalaEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawKoalaEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawKoalaEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawKoalaEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawKoalaEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawKoalaMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawKoalaMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawKoalaMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawKoalaMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 
@@ -3004,6 +4243,15 @@ function createOwlAssets(resolution: number): TestAssets {
   parts.set('front_arm', createScaled(drawOwlFrontArm, resolution))
   parts.set('eyes', createScaled(drawOwlEyes, resolution))
   parts.set('mouth', createScaled(drawOwlMouth, resolution))
+  parts.set('expr_eyes_blink0', createScaled(drawOwlEyesBlink0, resolution))
+  parts.set('expr_eyes_blink1', createScaled(drawOwlEyesBlink1, resolution))
+  parts.set('expr_eyes_happy', createScaled(drawOwlEyesHappy, resolution))
+  parts.set('expr_eyes_surprised', createScaled(drawOwlEyesSurprised, resolution))
+  parts.set('expr_eyes_sleepy', createScaled(drawOwlEyesSleepy, resolution))
+  parts.set('expr_mouth_smile', createScaled(drawOwlMouthSmile, resolution))
+  parts.set('expr_mouth_open', createScaled(drawOwlMouthOpen, resolution))
+  parts.set('expr_mouth_happy', createScaled(drawOwlMouthHappy, resolution))
+  parts.set('expr_mouth_pout', createScaled(drawOwlMouthPout, resolution))
   parts.set('accessory_hat', createScaled(drawTopHat, resolution))
   parts.set('accessory_glasses', createScaled(drawGlasses, resolution))
 

@@ -83,6 +83,12 @@ export class AssetLoader {
     return assets.parts.get(key)
   }
 
+  async loadExpressionPart(animalId: string, partType: 'eyes' | 'mouth', variant: string, resolution: number): Promise<ImageBitmap | undefined> {
+    const assets = await this.ensureLoaded(animalId, resolution)
+    const key = `expr_${partType}_${variant}`
+    return assets.parts.get(key)
+  }
+
   getFrameCache(): AssetCache {
     return this.frameCache
   }

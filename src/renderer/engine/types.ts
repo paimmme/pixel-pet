@@ -114,6 +114,13 @@ export interface PaletteDef {
   mappings: PaletteMapping[]
 }
 
+export type ExpressionVariant = 'neutral' | 'blink0' | 'blink1' | 'happy' | 'surprised' | 'sleepy' | 'smile' | 'open' | 'pout'
+
+export interface ExpressionState {
+  eyes: 'neutral' | 'blink0' | 'blink1' | 'happy' | 'surprised' | 'sleepy'
+  mouth: 'neutral' | 'smile' | 'open' | 'happy' | 'pout'
+}
+
 export interface ComposeConfig {
   animal: string
   action: string
@@ -121,6 +128,7 @@ export interface ComposeConfig {
   palette?: string
   direction?: Direction
   accessories?: string[]
+  expression?: { eyes?: string; mouth?: string }
 }
 
 export interface ComposedLayer {

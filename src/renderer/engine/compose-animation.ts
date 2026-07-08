@@ -55,7 +55,18 @@ export async function composeAnimation(
 
     const layers: ComposedLayer[] = animal.layers.map((layerDef) => {
       const transform = pose.parts[layerDef.id] ?? {}
-      const overrideBitmap = resolveOverrideBitmap(overrideCache, action.id, transform.override)
+      let overrideBitmap = resolveOverrideBitmap(overrideCache, action.id, transform.override)
+
+      // Expression overrides take priority over action overrides for eyes/mouth
+      if ((layerDef.id === 'eyes' || layerDef.id === 'mouth') && config.expression) {
+        const exprVariant = layerDef.id === 'eyes'
+          ? config.expression.eyes
+          : config.expression.mouth
+        if (exprVariant) {
+          const exprBitmap = parts.get(`expr_${layerDef.id}_${exprVariant}`)
+          if (exprBitmap) overrideBitmap = exprBitmap
+        }
+      }
 
       return {
         id: layerDef.id,
