@@ -27,6 +27,7 @@ export function createMovementController(
   let currentTarget: { x: number; y: number } | null = null
   let moving = false
   let initializing = false
+  let moveRequestId = 0
   let startX = 0
   let startY = 0
   let traveledX = 0
@@ -46,7 +47,7 @@ export function createMovementController(
   const SPEED = 300 // px/s
 
   function moveTo(targetX: number, targetY: number): void {
-    // Stop any current movement
+    const requestId = ++moveRequestId
     currentTarget = { x: targetX, y: targetY }
     initializing = true
     traveledX = 0
@@ -54,6 +55,7 @@ export function createMovementController(
     totalDistance = 0
     // Get current position
     api.getWindowBounds().then(bounds => {
+      if (requestId !== moveRequestId) return // stale request
       startX = bounds.x
       startY = bounds.y
       const dx = targetX - startX

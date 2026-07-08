@@ -17,6 +17,7 @@ export interface Selection {
   action: string
   resolution: PixelResolution
   palette: string
+  accessories?: string[]
 }
 
 export interface SavedState {

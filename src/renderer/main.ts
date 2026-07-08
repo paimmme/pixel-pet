@@ -63,9 +63,14 @@ async function main(): Promise<void> {
         action: savedState.selection.action,
         resolution: savedState.selection.resolution,
         palette: savedState.selection.palette,
+        accessories: savedState.selection.accessories
       })
       // Trigger the restored action
       triggerAction(savedState.selection.action)
+    }
+    // Restore auto-launch state
+    if (savedState.settings?.autoLaunch !== undefined) {
+      autoLaunchEnabled = savedState.settings.autoLaunch
     }
   })
 
@@ -327,12 +332,12 @@ async function main(): Promise<void> {
   // --- Handle selection changes ---
   selectionStore.subscribe((store) => {
     api.saveState({
-      window: { x: 0, y: 0 },
       selection: {
         animal: store.animal,
         action: store.action,
         resolution: store.resolution,
-        palette: store.palette
+        palette: store.palette,
+        accessories: store.accessories.length > 0 ? store.accessories : undefined
       }
     })
     if (animController.isPlaying() && store.action !== 'idle') {

@@ -17,7 +17,7 @@ export interface ElectronAPI {
   getWindowBounds(): Promise<{ x: number; y: number; width: number; height: number }>
   moveWindow(x: number, y: number): void
   getDisplayInfo(): Promise<{ x: number; y: number; width: number; height: number }>
-  saveState(state: SavedState): void
+  saveState(state: Partial<SavedState>): void
   onAction(callback: (action: string) => void): () => void
   onRestoreState(callback: (state: SavedState) => void): () => void
   centerWindow(): void
