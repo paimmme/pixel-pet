@@ -5,6 +5,7 @@ import { createWindow, getWindow, setIgnoreMouseEventsState } from './window-man
 import { registerIpcHandlers } from './ipc-handlers'
 import { createTray } from './tray'
 import { loadState, saveState, patchState } from './settings'
+import { startActivityDetection } from './activity-detector'
 
 // Crash/diagnostics logging
 const crashLogPath = path.join(app.getPath('userData'), 'crash.log')
@@ -50,6 +51,9 @@ app.whenReady().then(() => {
 
   // Create system tray
   createTray(win)
+
+  // Start foreground activity detection
+  const stopActivity = startActivityDetection(win)
 
   // Load the renderer
   if (process.env.ELECTRON_RENDERER_URL) {

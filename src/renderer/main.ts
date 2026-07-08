@@ -14,6 +14,7 @@ import { composeAnimation } from './engine/compose-animation'
 import { SelectionStore } from './state/selection-store'
 import { PetStateMachine, PetState } from './state/pet-state-machine'
 import { createExpressionController } from './state/expression-controller'
+import { createActivityController } from './state/activity-controller'
 import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES } from './assets/catalog'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
@@ -55,6 +56,9 @@ async function main(): Promise<void> {
   // --- Expression controller ---
   const expression = createExpressionController()
 
+  // --- Activity controller ---
+  const activity = createActivityController({ expression })
+
   // --- Phase 7: Skill + Choreography ---
   const skills = new SkillSystem()
   const choreo = new ChoreographyController()
@@ -86,6 +90,11 @@ async function main(): Promise<void> {
     if (savedState.skillData) {
       skills.restore(savedState.skillData)
     }
+  })
+
+  // Wire up activity detection
+  const stopActivity = api.onActivityChanged((info) => {
+    activity.updateActivity(info)
   })
 
   // --- Phase 2 interaction ---
@@ -405,6 +414,7 @@ async function main(): Promise<void> {
     lastFrameTime = now
     movement.tick(dt)
     expression.tick(dt)  // micro-expression timing (blinks, emotion decay)
+    activity.tick(dt)
     skills.restTick(dt)
     gestureDetector.tick(now)
 
@@ -426,6 +436,8 @@ async function main(): Promise<void> {
   window.addEventListener('beforeunload', () => {
     api.saveState({ skillData: skills.snapshot() })
     animController.destroy()
+    stopActivity()
+    activity.destroy()
     expression.destroy()
     if (settingsPanel) settingsPanel.destroy()
     ctxMenu.destroy()

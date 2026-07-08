@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { ElectronAPI } from '../shared/ipc-types'
 import { IPC_CHANNELS } from '../shared/ipc-types'
 import type { SavedState } from '../shared/app-types'
+import type { ActivityInfo } from '../shared/activity-types'
 
 const electronAPI: ElectronAPI = {
   setIgnoreMouseEvents: (ignore, options) => {
@@ -24,7 +25,12 @@ const electronAPI: ElectronAPI = {
   centerWindow: () => ipcRenderer.invoke(IPC_CHANNELS.CENTER_WINDOW),
   quitApp: () => ipcRenderer.send(IPC_CHANNELS.QUIT_APP),
   setAutoLaunch: (enabled) => ipcRenderer.send(IPC_CHANNELS.SET_AUTO_LAUNCH, enabled),
-  getDiagnostics: () => ipcRenderer.invoke(IPC_CHANNELS.GET_DIAGNOSTICS)
+  getDiagnostics: () => ipcRenderer.invoke(IPC_CHANNELS.GET_DIAGNOSTICS),
+  onActivityChanged: (callback) => {
+    const handler = (_event: Electron.IpcRendererEvent, info: ActivityInfo) => callback(info)
+    ipcRenderer.on('activity-changed', handler)
+    return () => ipcRenderer.removeListener('activity-changed', handler)
+  }
 }
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI)

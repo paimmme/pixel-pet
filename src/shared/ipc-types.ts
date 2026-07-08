@@ -1,4 +1,5 @@
 import type { SavedState } from './app-types'
+import type { ActivityInfo } from './activity-types'
 
 export const IPC_CHANNELS = {
   SET_IGNORE_MOUSE_EVENTS: 'set-ignore-mouse-events',
@@ -9,7 +10,8 @@ export const IPC_CHANNELS = {
   CENTER_WINDOW: 'center-window',
   QUIT_APP: 'quit-app',
   SET_AUTO_LAUNCH: 'set-auto-launch',
-  GET_DIAGNOSTICS: 'get-diagnostics'
+  GET_DIAGNOSTICS: 'get-diagnostics',
+  ACTIVITY_CHANGED: 'activity-changed'
 } as const
 
 export interface ElectronAPI {
@@ -30,4 +32,5 @@ export interface ElectronAPI {
     uptimeMs: number
     windowBounds: { x: number; y: number; width: number; height: number }
   }>
+  onActivityChanged(callback: (info: ActivityInfo) => void): () => void
 }
