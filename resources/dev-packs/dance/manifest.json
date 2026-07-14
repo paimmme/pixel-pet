@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "dance",
+  "name": "Dance",
+  "type": "action",
+  "category": "fun",
+  "frameCount": 8,
+  "fps": 8,
+  "loop": true,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}

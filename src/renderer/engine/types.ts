@@ -1,38 +1,7 @@
-export type PixelResolution = 16 | 32
+import type { PixelResolution, Direction, InteractionZone, Point, Rect, LayerDef, ZoneDef, ActionPhaseType, ActionPhase } from '../../shared/app-types'
 
-export type Direction = 'down' | 'left' | 'right' | 'up'
-
-export interface Point {
-  x: number
-  y: number
-}
-
-/** Zone type for interaction-aware hit testing */
-export type InteractionZone = 'body' | 'head' | 'belly' | 'tail' | 'none'
-
-export interface Rect {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-export interface LayerDef {
-  id: string
-  name: string
-  zIndex: number
-  anchor: Point
-  zone: InteractionZone
-  optional?: boolean
-}
-
-export interface ZoneDef {
-  id: InteractionZone
-  /** Anchor point for zone center */
-  anchor: Point
-  /** Radius for hit-test approach */
-  radius: number
-}
+// Re-export for convenience so consumers use a single import path
+export type { PixelResolution, Direction, InteractionZone, Point, Rect, LayerDef, ZoneDef, ActionPhaseType, ActionPhase }
 
 export interface AnimalDef {
   id: string
@@ -42,19 +11,6 @@ export interface AnimalDef {
   defaultPalette: string
   hitArea: Rect
   zones?: ZoneDef[]
-}
-
-/** Phase type within an action */
-export type ActionPhaseType = 'prepare' | 'execute' | 'hold' | 'recover'
-
-/** Metadata for one phase of an action */
-export interface ActionPhase {
-  name: string
-  phaseType: ActionPhaseType
-  startFrame: number
-  endFrame: number
-  staminaCostPerTick: number
-  gracePotential: number
 }
 
 export interface ActionDef {
@@ -150,11 +106,20 @@ export enum PetState {
 }
 
 export function createComposeCacheKey(config: ComposeConfig): string {
+  const accessories = config.accessories?.length
+    ? [...config.accessories].sort().join(',')
+    : 'none'
+  const expression = config.expression
+    ? `${config.expression.eyes ?? 'neutral'},${config.expression.mouth ?? 'neutral'}`
+    : 'neutral,neutral'
+
   return [
     config.animal,
     config.action,
     config.resolution,
     config.palette ?? 'default',
-    config.direction ?? 'none'
+    config.direction ?? 'none',
+    accessories,
+    expression
   ].join(':')
 }

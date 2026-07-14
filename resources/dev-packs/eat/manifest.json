@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "eat",
+  "name": "Eat",
+  "type": "action",
+  "category": "interaction",
+  "frameCount": 4,
+  "fps": 5,
+  "loop": false,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}

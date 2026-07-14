@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "surprise",
+  "name": "Surprise",
+  "type": "action",
+  "category": "reaction",
+  "frameCount": 3,
+  "fps": 6,
+  "loop": false,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}

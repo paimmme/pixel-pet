@@ -1,5 +1,10 @@
+export interface PackImportError {
+  field: string
+  message: string
+}
+
 export interface SettingsPanelOptions {
-  animals: Array<{ id: string; name: string }>
+  animals: Array<{ id: string; name: string; source?: string }>
   palettes: Array<{ id: string; name: string }>
   accessories: Array<{ id: string; name: string }>
   currentAnimal: string
@@ -13,11 +18,21 @@ export interface SettingsPanelOptions {
     electronVersion: string
     uptimeMs: number
   }
+  importedCharacters?: Array<{ id: string; name: string; layerCount: number }>
+  importErrors?: PackImportError[]
   onAnimalChange: (animalId: string) => void
   onPaletteChange: (paletteId: string) => void
   onResolutionToggle: () => void
   onAutoLaunchChange?: (enabled: boolean) => void
   onAccessoryToggle?: (accessoryId: string) => void
+  onImportPack?: () => Promise<void>
+  onRemovePack?: (packId: string) => void
+  // AI Generation
+  onGenerateCharacter?: () => Promise<void>
+  generationStatus?: string
+  generationProgress?: number
+  generationResult?: { packId: string; packName: string }
+  generationError?: string
 }
 
 export interface SettingsPanel {
@@ -208,6 +223,138 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         panel.appendChild(el)
       })
     }
+
+    // ── AI Generation section ──
+    const genLabel = document.createElement('div')
+    genLabel.textContent = 'AI Character'
+    genLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
+    panel.appendChild(genLabel)
+
+    const genBtn = document.createElement('button')
+    genBtn.textContent = currentOptions.generationStatus === 'running' ? '⏳ Generating...'
+      : currentOptions.generationResult ? '✅ Generate Another'
+      : '🎨 Generate from Image'
+    genBtn.style.cssText = `
+      width: 100%; padding: 6px; background: #2a2a4a; border: 1px solid #4a4a6a;
+      border-radius: 4px; color: #88c; cursor: pointer; font-size: 12px;
+      margin-bottom: 6px;
+    `
+    genBtn.disabled = currentOptions.generationStatus === 'running'
+    genBtn.addEventListener('click', async () => {
+      await currentOptions.onGenerateCharacter?.()
+    })
+    panel.appendChild(genBtn)
+
+    // Generation progress bar
+    if (currentOptions.generationProgress !== undefined && currentOptions.generationStatus === 'running') {
+      const progressBar = document.createElement('div')
+      progressBar.style.cssText = `
+        width: 100%; height: 4px; background: #333; border-radius: 2px;
+        margin-bottom: 6px; overflow: hidden;
+      `
+      const progressFill = document.createElement('div')
+      progressFill.style.cssText = `
+        width: ${currentOptions.generationProgress}%; height: 100%;
+        background: #558; border-radius: 2px; transition: width 0.3s;
+      `
+      progressBar.appendChild(progressFill)
+      panel.appendChild(progressBar)
+    }
+
+    // Generation result
+    if (currentOptions.generationResult) {
+      const resultBox = document.createElement('div')
+      resultBox.style.cssText = `
+        background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 4px;
+        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #7c7;
+      `
+      resultBox.textContent = `✔ Saved: ${currentOptions.generationResult.packName}`
+      panel.appendChild(resultBox)
+    }
+
+    // Generation error
+    if (currentOptions.generationError) {
+      const errorBox = document.createElement('div')
+      errorBox.style.cssText = `
+        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
+        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
+      `
+      errorBox.textContent = `✖ ${currentOptions.generationError}`
+      panel.appendChild(errorBox)
+    }
+
+    // ── Packs section ──
+    const packLabel = document.createElement('div')
+    packLabel.textContent = 'Packs'
+    packLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
+    panel.appendChild(packLabel)
+
+    // Import button
+    const importBtn = document.createElement('button')
+    importBtn.textContent = '+ Import Pack'
+    importBtn.style.cssText = `
+      width: 100%; padding: 6px; background: #2a4a2a; border: 1px solid #3a6a3a;
+      border-radius: 4px; color: #7c7; cursor: pointer; font-size: 12px;
+      margin-bottom: 6px;
+    `
+    importBtn.addEventListener('click', async () => {
+      await currentOptions.onImportPack?.()
+    })
+    panel.appendChild(importBtn)
+
+    // Imported packs list
+    if (currentOptions.importedCharacters && currentOptions.importedCharacters.length > 0) {
+      for (const pack of currentOptions.importedCharacters) {
+        const row = document.createElement('div')
+        row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 3px; font-size: 12px;'
+
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = `📦 ${pack.name}`
+        nameSpan.style.cssText = 'flex: 1; color: #ccc;'
+        row.appendChild(nameSpan)
+
+        const layersSpan = document.createElement('span')
+        layersSpan.textContent = `${pack.layerCount} layers`
+        layersSpan.style.cssText = 'font-size: 10px; color: #666;'
+        row.appendChild(layersSpan)
+
+        const removeBtn = document.createElement('button')
+        removeBtn.textContent = '✕'
+        removeBtn.style.cssText = `
+          background: none; border: none; color: #855; cursor: pointer;
+          font-size: 12px; padding: 0 2px;
+        `
+        removeBtn.addEventListener('click', () => currentOptions.onRemovePack?.(pack.id))
+        row.appendChild(removeBtn)
+
+        panel.appendChild(row)
+      }
+    }
+
+    // Import errors display
+    if (currentOptions.importErrors && currentOptions.importErrors.length > 0) {
+      const errorBox = document.createElement('div')
+      errorBox.style.cssText = `
+        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
+        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
+      `
+      const errorTitle = document.createElement('div')
+      errorTitle.textContent = 'Import errors:'
+      errorTitle.style.cssText = 'font-weight: 600; margin-bottom: 3px;'
+      errorBox.appendChild(errorTitle)
+
+      for (const err of currentOptions.importErrors) {
+        const errLine = document.createElement('div')
+        errLine.textContent = `  ${err.field}: ${err.message}`
+        errLine.style.cssText = 'margin-bottom: 1px;'
+        errorBox.appendChild(errLine)
+      }
+      panel.appendChild(errorBox)
+    }
+
+    const packSep = document.createElement('div')
+    packSep.style.cssText = 'height: 1px; background: #333; margin: 8px 0;'
+    panel.appendChild(packSep)
 
     // Close button
     const closeBtn = document.createElement('button')

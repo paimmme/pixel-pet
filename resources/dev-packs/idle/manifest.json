@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "idle",
+  "name": "Idle",
+  "type": "action",
+  "category": "idle",
+  "frameCount": 1,
+  "fps": 4,
+  "loop": true,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "eyes",
+    "mouth"
+  ]
+}

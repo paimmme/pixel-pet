@@ -31,7 +31,7 @@ export async function composeAnimation(
   const action = getAction(config.action)
   if (!action) throw new Error(`Action not found: ${config.action}`)
 
-  const poseTemplate = await loader.loadPoseTemplate(action.id, config.resolution)
+  const poseTemplate = await loader.loadPoseTemplate(action.id, config.resolution, animal.id)
   const poseFrames = selectPoseFrames(poseTemplate, config.direction)
 
   assertPoseFrames(action, poseFrames)

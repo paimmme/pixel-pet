@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "dodge",
+  "name": "Dodge",
+  "type": "action",
+  "category": "reaction",
+  "frameCount": 3,
+  "fps": 8,
+  "loop": false,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}

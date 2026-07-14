@@ -10,12 +10,13 @@ import { createMovementController } from './engine/movement-controller'
 import { SpriteCompositor } from './engine/sprite-compositor'
 import { AnimationController } from './engine/animation-controller'
 import { AssetLoader } from './assets/asset-loader'
+import { PackAssetSource } from './assets/pack-asset-source'
 import { composeAnimation } from './engine/compose-animation'
 import { SelectionStore } from './state/selection-store'
 import { PetStateMachine, PetState } from './state/pet-state-machine'
 import { createExpressionController } from './state/expression-controller'
 import { createActivityController } from './state/activity-controller'
-import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES } from './assets/catalog'
+import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES, mergeAnimals, type PackCharacterInfo } from './assets/catalog'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
 import { createSettingsPanel } from './ui/settings-panel'
@@ -47,7 +48,8 @@ async function main(): Promise<void> {
 
   // --- Phase 1 engine ---
   const display = createDisplaySurface(canvas, 32, 3)
-  const loader = new AssetLoader()
+  const packSource = new PackAssetSource(api)
+  const loader = new AssetLoader(packSource)
   const compositor = new SpriteCompositor(32)
   const animController = new AnimationController()
   const selectionStore = new SelectionStore()
@@ -143,8 +145,31 @@ async function main(): Promise<void> {
           const animal = getAnimal(selectionStore.animal)
           const availablePalettes = getPalettesForAnimal(selectionStore.animal)
 
+          let packChars: PackCharacterInfo[] = []
+          let importErrors: Array<{ field: string; message: string }> = []
+          let generationStatus = ''
+          let generationProgress = 0
+          let generationResult: { packId: string; packName: string } | undefined
+          let generationError = ''
+
+          // Fetch pack data async after panel creation
+          api.listCharacterPacks().then(list => {
+            packChars = list.map(p => ({
+              id: p.id, name: p.name, resolutions: p.resolutions,
+              defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+            }))
+            const updatedMerged = mergeAnimals(ANIMALS, packChars)
+            if (settingsPanel) {
+              settingsPanel.update({
+                animals: updatedMerged,
+                importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+              })
+            }
+          }).catch(() => {})
+
           settingsPanel = createSettingsPanel({
             animals: ANIMALS.map(a => ({ id: a.id, name: a.name })),
+            importedCharacters: [],
             palettes: availablePalettes,
             accessories: ACCESSORIES.map(a => ({ id: a.id, name: a.name })),
             currentAnimal: selectionStore.animal,
@@ -152,6 +177,126 @@ async function main(): Promise<void> {
             currentAccessories: selectionStore.accessories,
             currentResolution: selectionStore.resolution,
             autoLaunch: autoLaunchEnabled,
+            onImportPack: () => {
+              return api.openPackDialog()
+                .then(dialogResult => {
+                  if (!dialogResult) return
+                  return api.importPack(dialogResult.path)
+                })
+                .then(result => {
+                  if (!result) return
+                  if (result.success && result.packId) {
+                    return api.listCharacterPacks().then(updateList => {
+                      const updatedChars = updateList.map(p => ({
+                        id: p.id, name: p.name, resolutions: p.resolutions,
+                        defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+                      }))
+                      packChars = updatedChars
+                      importErrors = []
+                      const updatedMerged = mergeAnimals(ANIMALS, updatedChars)
+                      settingsPanel!.update({
+                        animals: updatedMerged,
+                        importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                        importErrors: undefined,
+                      })
+                    })
+                  } else {
+                    importErrors = (result.errors ?? []).map(e => ({ field: e.field, message: e.message }))
+                    settingsPanel!.update({
+                      importErrors: importErrors.length > 0 ? importErrors : [{ field: 'import', message: 'Import failed' }],
+                    })
+                  }
+                })
+            },
+            generationStatus,
+            generationProgress,
+            generationResult,
+            generationError,
+            onGenerateCharacter: () => {
+              return api.openImageDialog()
+                .then(imageResult => {
+                  if (!imageResult) return
+                  generationStatus = 'running'
+                  generationProgress = 0
+                  generationError = ''
+                  generationResult = undefined
+                  settingsPanel!.update({
+                    generationStatus,
+                    generationProgress,
+                    generationResult: undefined,
+                    generationError: undefined,
+                  })
+
+                  return api.createGenerationJob({
+                    imageData: imageResult.data,
+                    imageMimeType: imageResult.mimeType,
+                    resolution: 32,
+                  }).then(jobId => {
+                    return api.startGeneration(jobId).then(() => {
+                      // Poll for completion
+                      return new Promise<void>((resolve, reject) => {
+                        const poll = () => {
+                          api.getGenerationJob(jobId).then(job => {
+                            if (!job) { reject(new Error('Job not found')); return }
+                            generationProgress = job.progress
+                            generationStatus = job.status
+                            settingsPanel!.update({ generationProgress, generationStatus })
+
+                            if (job.status === 'completed') {
+                              // Save the generated pack
+                              api.saveGeneratedPack(jobId).then(saveResult => {
+                                if (saveResult.success && saveResult.packId) {
+                                  generationResult = { packId: saveResult.packId, packName: job.result?.packName ?? 'Generated Character' }
+                                  generationStatus = 'completed'
+                                  // Refresh pack list
+                                  api.listCharacterPacks().then(updateList => {
+                                    const updatedChars = updateList.map(p => ({
+                                      id: p.id, name: p.name, resolutions: p.resolutions,
+                                      defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+                                    }))
+                                    packChars = updatedChars
+                                    const updatedMerged = mergeAnimals(ANIMALS, updatedChars)
+                                    settingsPanel!.update({
+                                      animals: updatedMerged,
+                                      importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                                      generationResult,
+                                      generationStatus,
+                                      generationProgress: 100,
+                                    })
+                                  })
+                                } else {
+                                  generationError = saveResult.errors?.map(e => e.message).join('; ') ?? 'Save failed'
+                                  settingsPanel!.update({ generationError, generationStatus: 'failed' })
+                                }
+                                resolve()
+                              })
+                            } else if (job.status === 'failed') {
+                              generationError = job.error ?? 'Generation failed'
+                              generationStatus = 'failed'
+                              settingsPanel!.update({ generationError, generationStatus: 'failed' })
+                              resolve()
+                            } else {
+                              // Still running — poll again
+                              setTimeout(poll, 500)
+                            }
+                          }).catch(reject)
+                        }
+                        poll()
+                      })
+                    })
+                  })
+                })
+            },
+            onRemovePack: (packId: string) => {
+              api.removePack(packId).then(() => {
+                packChars = packChars.filter(p => p.id !== packId)
+                const updatedMerged = mergeAnimals(ANIMALS, packChars)
+                settingsPanel!.update({
+                  animals: updatedMerged,
+                  importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                })
+              })
+            },
             onAnimalChange: (animalId) => {
               selectionStore.setAnimal(animalId)
               // Auto-select default palette for new animal

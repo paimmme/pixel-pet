@@ -1,5 +1,60 @@
 import type { AnimalDef, ActionDef, ActionPhase, InteractionZone } from '../engine/types'
 
+export interface AnimalEntry {
+  id: string
+  name: string
+  source: 'factory' | 'pack'
+}
+
+export interface ActionEntry {
+  id: string
+  name: string
+  category: string
+  source: 'factory' | 'pack'
+}
+
+export interface PackCharacterInfo {
+  id: string
+  name: string
+  resolutions: number[]
+  defaultPalette: string
+  layerCount: number
+}
+
+export interface PackActionInfo {
+  id: string
+  name: string
+  category: string
+  frameCount: number
+  fps: number
+  loop: boolean
+}
+
+/**
+ * Merge factory animals with pack characters into a unified list.
+ * Pack characters override factory ones if they share an ID.
+ */
+export function mergeAnimals(factoryAnimals: AnimalDef[], packCharacters: PackCharacterInfo[]): AnimalEntry[] {
+  const packIds = new Set(packCharacters.map(p => p.id))
+  const factory: AnimalEntry[] = factoryAnimals
+    .filter(a => !packIds.has(a.id))
+    .map(a => ({ id: a.id, name: a.name, source: 'factory' as const }))
+  const packs: AnimalEntry[] = packCharacters.map(p => ({ id: p.id, name: p.name, source: 'pack' as const }))
+  return [...packs, ...factory]
+}
+
+/**
+ * Merge factory actions with pack actions into a unified list.
+ */
+export function mergeActions(factoryActions: ActionDef[], packActions: PackActionInfo[]): ActionEntry[] {
+  const packIds = new Set(packActions.map(p => p.id))
+  const factory: ActionEntry[] = factoryActions
+    .filter(a => !packIds.has(a.id))
+    .map(a => ({ id: a.id, name: a.name, category: a.category ?? '', source: 'factory' as const }))
+  const packs: ActionEntry[] = packActions.map(p => ({ id: p.id, name: p.name, category: p.category, source: 'pack' as const }))
+  return [...packs, ...factory]
+}
+
 export interface AccessoryInfo {
   id: string
   name: string

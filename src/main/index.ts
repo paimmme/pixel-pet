@@ -6,6 +6,7 @@ import { registerIpcHandlers } from './ipc-handlers'
 import { createTray } from './tray'
 import { loadState, saveState, patchState } from './settings'
 import { startActivityDetection } from './activity-detector'
+import { packRegistry } from './pack-registry'
 
 // Crash/diagnostics logging
 const crashLogPath = path.join(app.getPath('userData'), 'crash.log')
@@ -51,6 +52,14 @@ app.whenReady().then(() => {
 
   // Create system tray
   createTray(win)
+
+  // Initialize pack registry
+  const packsDir = path.join(app.getPath('userData'), 'packs')
+  packRegistry.initialize(packsDir).then(result => {
+    if (result.loaded > 0) {
+      console.log(`[PackRegistry] Loaded ${result.loaded}/${result.total} packs (${result.errors.length} errors)`)
+    }
+  })
 
   // Start foreground activity detection
   const stopActivity = startActivityDetection(win)

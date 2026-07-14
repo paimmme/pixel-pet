@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "sleep",
+  "name": "Sleep",
+  "type": "action",
+  "category": "idle",
+  "frameCount": 1,
+  "fps": 2,
+  "loop": true,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "eyes",
+    "mouth"
+  ]
+}

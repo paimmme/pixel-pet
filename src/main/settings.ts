@@ -24,6 +24,7 @@ export function patchState(partial: Partial<SavedState>): void {
     window: partial.window ?? current.window,
     selection: partial.selection ?? current.selection,
     settings: partial.settings ?? current.settings,
+    skillData: partial.skillData ?? current.skillData,
   })
 }
 

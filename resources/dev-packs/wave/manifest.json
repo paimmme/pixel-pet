@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "wave",
+  "name": "Wave",
+  "type": "action",
+  "category": "reaction",
+  "frameCount": 4,
+  "fps": 6,
+  "loop": false,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}

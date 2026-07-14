@@ -12,6 +12,42 @@ export interface Rect {
   height: number
 }
 
+/** Cardinal direction for directional poses */
+export type Direction = 'down' | 'left' | 'right' | 'up'
+
+/** Zone type for interaction-aware hit testing */
+export type InteractionZone = 'body' | 'head' | 'belly' | 'tail' | 'none'
+
+/** Layer definition — one drawable part of a character */
+export interface LayerDef {
+  id: string
+  name: string
+  zIndex: number
+  anchor: Point
+  zone: InteractionZone
+  optional?: boolean
+}
+
+/** Hit-test zone centered at anchor with radius */
+export interface ZoneDef {
+  id: InteractionZone
+  anchor: Point
+  radius: number
+}
+
+/** Phase type within an action */
+export type ActionPhaseType = 'prepare' | 'execute' | 'hold' | 'recover'
+
+/** Metadata for one phase of an action */
+export interface ActionPhase {
+  name: string
+  phaseType: ActionPhaseType
+  startFrame: number
+  endFrame: number
+  staminaCostPerTick: number
+  gracePotential: number
+}
+
 export interface Selection {
   animal: string
   action: string

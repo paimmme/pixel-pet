@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "jump",
+  "name": "Jump",
+  "type": "action",
+  "category": "movement",
+  "frameCount": 4,
+  "fps": 8,
+  "loop": false,
+  "directions": null,
+  "requiredLayers": [
+    "body",
+    "front_arm",
+    "eyes",
+    "mouth"
+  ]
+}
