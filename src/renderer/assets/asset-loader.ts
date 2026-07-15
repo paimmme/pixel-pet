@@ -179,5 +179,6 @@ export class AssetLoader {
     this.factoryCache.clear()
     this.factoryLoading.clear()
     this.packCharacterIds = null
+    this.packSource.clearCache()
   }
 }

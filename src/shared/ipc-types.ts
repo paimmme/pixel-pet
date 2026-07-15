@@ -1,6 +1,7 @@
 import type { SavedState } from './app-types'
 import type { ActivityInfo } from './activity-types'
-import type { CharacterPackSummary, ActionPackSummary, CharacterPackManifest, ActionPackManifest, PackImportResult } from './pack-types'
+import type { CharacterPackSummary, ActionPackSummary, CharacterPackManifest, ActionPackManifest, PackImportResult, QualityScore } from './pack-types'
+import type { EditorPackData, EditorPaletteData } from './editor-types'
 import type { GenerationJob, CharacterGenerationInput, ActionGenerationInput } from './generation-types'
 
 export const IPC_CHANNELS = {
@@ -25,6 +26,11 @@ export const IPC_CHANNELS = {
   IMPORT_PACK: 'import-pack',               // Import pack from a path
   EXPORT_PACK: 'export-pack',               // Export pack to a path
   REMOVE_PACK: 'remove-pack',               // Remove a pack from the registry
+  OPEN_PACKS_DIR: 'open-packs-dir',          // Open packs directory in file manager
+  GET_PACK_QUALITY_SCORE: 'get-pack-quality-score', // Read quality.json for a pack
+  GET_EDITOR_PACK_DATA: 'get-editor-pack-data', // Get full pack data for editor
+  UPDATE_PACK_PALETTE: 'update-pack-palette', // Save updated palette to pack
+  REPLACE_LAYER_PNG: 'replace-layer-png',    // Replace a layer PNG in a pack
   // AI Generation
   OPEN_IMAGE_DIALOG: 'open-image-dialog',
   CREATE_GENERATION_JOB: 'create-generation-job',
@@ -66,6 +72,11 @@ export interface ElectronAPI {
   importPack(sourcePath: string): Promise<PackImportResult>
   exportPack(packId: string, kind: 'character' | 'action', destinationPath: string): Promise<PackImportResult>
   removePack(packId: string): Promise<boolean>
+  openPacksDir(): Promise<void>
+  getPackQualityScore(packId: string): Promise<QualityScore | null>
+  getEditorPackData(packId: string): Promise<EditorPackData | null>
+  updatePackPalette(packId: string, paletteId: string, mappings: Array<{from: number[]; to: number[]}>): Promise<boolean>
+  replaceLayerPng(packId: string, layerId: string, resolution: number): Promise<boolean>
   // AI Generation
   openImageDialog(): Promise<{ data: string; mimeType: string } | null>
   createGenerationJob(input: CharacterGenerationInput): Promise<string>

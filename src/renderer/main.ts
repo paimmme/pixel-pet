@@ -17,6 +17,7 @@ import { PetStateMachine, PetState } from './state/pet-state-machine'
 import { createExpressionController } from './state/expression-controller'
 import { createActivityController } from './state/activity-controller'
 import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES, mergeAnimals, registerActionPack, customActions, type PackCharacterInfo } from './assets/catalog'
+import { createPackEditor, type PackEditor } from './ui/pack-editor'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
 import { createSettingsPanel } from './ui/settings-panel'
@@ -114,6 +115,9 @@ async function main(): Promise<void> {
     behavior.onActivityChanged(prev as any, info.type as any)
   })
 
+  let equippedActionIds = new Set<string>()
+  let actionPacksList: Array<{ id: string; name: string; frameCount: number; category: string; equipped: boolean }> = []
+
   // --- Phase 2 interaction ---
   const interaction = createInteractionController(canvas, stateMachine)
   const gestureDetector = createGestureDetector({
@@ -162,6 +166,7 @@ async function main(): Promise<void> {
 
   let packChars: PackCharacterInfo[] = []
   let importErrors: Array<{ field: string; message: string }> = []
+  let editorPanel: PackEditor | null = null
   let generationStatus = ''
   let generationProgress = 0
   let generationResult: { packId: string; packName: string } | undefined
@@ -176,13 +181,25 @@ async function main(): Promise<void> {
             packChars = list.map(p => ({
               id: p.id, name: p.name, resolutions: p.resolutions,
               defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+              qualityScore: p.qualityScore,
             }))
             const updatedMerged = mergeAnimals(ANIMALS, packChars)
             if (settingsPanel) {
               settingsPanel.update({
                 animals: updatedMerged,
-                importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount, qualityScore: p.qualityScore })),
               })
+            }
+          }).catch(() => {})
+
+          // Fetch action packs
+          api.listActionPacks().then(list => {
+            actionPacksList = list.map(p => ({
+              id: p.id, name: p.name, frameCount: p.frameCount, category: p.category ?? 'custom',
+              equipped: equippedActionIds.has(p.id),
+            }))
+            if (settingsPanel) {
+              settingsPanel.update({ actionPacks: actionPacksList })
             }
           }).catch(() => {})
 
@@ -209,13 +226,14 @@ async function main(): Promise<void> {
                       const updatedChars = updateList.map(p => ({
                         id: p.id, name: p.name, resolutions: p.resolutions,
                         defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+                        qualityScore: p.qualityScore,
                       }))
                       packChars = updatedChars
                       importErrors = []
                       const updatedMerged = mergeAnimals(ANIMALS, updatedChars)
                       settingsPanel!.update({
                         animals: updatedMerged,
-                        importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                        importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount, qualityScore: p.qualityScore })),
                         importErrors: undefined,
                       })
                     })
@@ -276,12 +294,13 @@ async function main(): Promise<void> {
                                     const updatedChars = updateList.map(p => ({
                                       id: p.id, name: p.name, resolutions: p.resolutions,
                                       defaultPalette: p.defaultPalette, layerCount: p.layerCount,
+                                      qualityScore: p.qualityScore,
                                     }))
                                     packChars = updatedChars
                                     const updatedMerged = mergeAnimals(ANIMALS, updatedChars)
                                     settingsPanel!.update({
                                       animals: updatedMerged,
-                                      importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                                      importedCharacters: updatedChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount, qualityScore: p.qualityScore })),
                                       generationResult,
                                       generationStatus,
                                       generationProgress: 100,
@@ -402,10 +421,22 @@ async function main(): Promise<void> {
                 const updatedMerged = mergeAnimals(ANIMALS, packChars)
                 settingsPanel!.update({
                   animals: updatedMerged,
-                  importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount })),
+                  importedCharacters: packChars.map(p => ({ id: p.id, name: p.name, layerCount: p.layerCount, qualityScore: p.qualityScore })),
                 })
               })
             },
+            onEditPack: (packId: string) => {
+              const editor = createPackEditor({
+                packId,
+                onClose: () => { editorPanel = null },
+                onSave: () => {
+                  loader.clearCache()
+                },
+              })
+              editorPanel = editor
+              document.body.appendChild(editor.element)
+            },
+            onOpenPacksDir: () => api.openPacksDir(),
             onAnimalChange: (animalId, packId) => {
               selectionStore.setAnimal(animalId, { packId })
               // Auto-select default palette for new animal
@@ -442,7 +473,29 @@ async function main(): Promise<void> {
               selectionStore.toggleAccessory(accId)
               // Re-compose current animation with updated accessories
               stateMachine.feedEvent({ type: 'change' })
-            }
+            },
+            actionPacks: actionPacksList,
+            onToggleActionEquip: (packId, equipped) => {
+              if (equipped) {
+                equippedActionIds.add(packId)
+              } else {
+                equippedActionIds.delete(packId)
+              }
+              actionPacksList = actionPacksList.map(p => ({
+                ...p, equipped: equippedActionIds.has(p.id),
+              }))
+              settingsPanel?.update({ actionPacks: actionPacksList })
+            },
+            onPreviewAction: (packId) => {
+              registerActionPack(packId, {
+                id: packId, name: actionPacksList.find(p => p.id === packId)?.name ?? packId,
+                frameCount: actionPacksList.find(p => p.id === packId)?.frameCount ?? 1,
+                fps: 8, loop: false, directions: [0, 1, 2, 3] as any,
+                poseTemplate: `pack:${packId}`,
+                staminaCost: 0, category: 'custom', phases: [],
+              })
+              triggerAction(packId)
+            },
           })
         }
         settingsPanel.show()
@@ -481,16 +534,18 @@ async function main(): Promise<void> {
     }
   }
 
-  // Wire context menu trigger — fetch custom action packs
+  // Wire context menu trigger — fetch equipped action packs
   interaction.onContextMenu = async (x: number, y: number) => {
     let customActions: Array<{ actionId: string; label: string }> = []
     try {
       const actionPacks = await api.listActionPacks()
       if (actionPacks.length > 0) {
-        customActions = actionPacks.map(p => ({
-          actionId: `pack-action:${p.id}`,
-          label: `🎬 ${p.name}`,
-        }))
+        customActions = actionPacks
+          .filter(p => equippedActionIds.has(p.id))
+          .map(p => ({
+            actionId: `pack-action:${p.id}`,
+            label: `🎬 ${p.name}`,
+          }))
       }
     } catch (_) { /* ignore fetch errors */ }
     ctxMenu.show(x, y, customActions)

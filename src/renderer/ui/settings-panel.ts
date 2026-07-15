@@ -18,7 +18,7 @@ export interface SettingsPanelOptions {
     electronVersion: string
     uptimeMs: number
   }
-  importedCharacters?: Array<{ id: string; name: string; layerCount: number }>
+  importedCharacters?: Array<{ id: string; name: string; layerCount: number; qualityScore?: number }>
   importErrors?: PackImportError[]
   onAnimalChange: (animalId: string, packId?: string) => void
   onPaletteChange: (paletteId: string) => void
@@ -27,6 +27,8 @@ export interface SettingsPanelOptions {
   onAccessoryToggle?: (accessoryId: string) => void
   onImportPack?: () => Promise<void>
   onRemovePack?: (packId: string) => void
+  onEditPack?: (packId: string) => void
+  onOpenPacksDir?: () => Promise<void>
   // AI Generation
   onGenerateCharacter?: () => Promise<void>
   generationStatus?: string
@@ -39,6 +41,10 @@ export interface SettingsPanelOptions {
   actionGenerationProgress?: number
   actionGenerationResult?: { packId: string; packName: string }
   actionGenerationError?: string
+  // Action Packs
+  actionPacks?: Array<{ id: string; name: string; frameCount: number; category: string; equipped: boolean }>
+  onToggleActionEquip?: (packId: string, equipped: boolean) => void
+  onPreviewAction?: (packId: string) => void
 }
 
 export interface SettingsPanel {
@@ -390,6 +396,19 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     })
     panel.appendChild(importBtn)
 
+    // Open packs folder button
+    const openFolderBtn = document.createElement('button')
+    openFolderBtn.textContent = 'Open Packs Folder'
+    openFolderBtn.style.cssText = `
+      width: 100%; padding: 6px; background: #2a304a; border: 1px solid #3a4a6a;
+      border-radius: 4px; color: #88c; cursor: pointer; font-size: 12px;
+      margin-bottom: 6px;
+    `
+    openFolderBtn.addEventListener('click', async () => {
+      await currentOptions.onOpenPacksDir?.()
+    })
+    panel.appendChild(openFolderBtn)
+
     // Imported packs list
     if (currentOptions.importedCharacters && currentOptions.importedCharacters.length > 0) {
       for (const pack of currentOptions.importedCharacters) {
@@ -412,6 +431,28 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         layersSpan.textContent = `${pack.layerCount} layers`
         layersSpan.style.cssText = 'font-size: 10px; color: #666;'
         row.appendChild(layersSpan)
+
+        // Quality score badge for generated packs
+        if (pack.qualityScore !== undefined) {
+          const scoreBadge = document.createElement('span')
+          const scoreVal = pack.qualityScore
+          scoreBadge.textContent = `★${scoreVal}`
+          const scoreColor = scoreVal >= 70 ? '#5a5' : scoreVal >= 40 ? '#aa5' : '#a55'
+          scoreBadge.style.cssText = `font-size: 10px; color: ${scoreColor}; font-weight: 600; padding: 0 3px;`
+          row.appendChild(scoreBadge)
+        }
+
+        const editBtn = document.createElement('button')
+        editBtn.textContent = 'Edit'
+        editBtn.style.cssText = `
+          background: #3a3a5e; border: 1px solid #555; border-radius: 3px;
+          color: #ccc; cursor: pointer; font-size: 10px; padding: 1px 6px;
+        `
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation()
+          currentOptions.onEditPack?.(pack.id)
+        })
+        row.appendChild(editBtn)
 
         const removeBtn = document.createElement('button')
         removeBtn.textContent = '✕'
@@ -453,6 +494,65 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     const packSep = document.createElement('div')
     packSep.style.cssText = 'height: 1px; background: #333; margin: 8px 0;'
     panel.appendChild(packSep)
+
+    // ── Actions section ──
+    const actionPackLabel = document.createElement('div')
+    actionPackLabel.textContent = 'Actions'
+    actionPackLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
+    panel.appendChild(actionPackLabel)
+
+    if (currentOptions.actionPacks && currentOptions.actionPacks.length > 0) {
+      for (const ap of currentOptions.actionPacks) {
+        const row = document.createElement('div')
+        row.style.cssText = 'display: flex; align-items: center; gap: 6px; margin-bottom: 3px; font-size: 12px;'
+
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = `${ap.name}`
+        nameSpan.style.cssText = 'flex: 1; color: #ccc;'
+        row.appendChild(nameSpan)
+
+        const metaSpan = document.createElement('span')
+        metaSpan.textContent = `${ap.frameCount}f · ${ap.category}`
+        metaSpan.style.cssText = 'font-size: 10px; color: #666;'
+        row.appendChild(metaSpan)
+
+        // Preview button
+        const previewBtn = document.createElement('button')
+        previewBtn.textContent = '▶'
+        previewBtn.title = 'Preview action'
+        previewBtn.style.cssText = `
+          background: none; border: 1px solid #555; border-radius: 3px;
+          color: #5a5; cursor: pointer; font-size: 10px; padding: 1px 4px;
+        `
+        previewBtn.addEventListener('click', (e) => {
+          e.stopPropagation()
+          currentOptions.onPreviewAction?.(ap.id)
+        })
+        row.appendChild(previewBtn)
+
+        // Equip toggle
+        const equipCheck = document.createElement('input')
+        equipCheck.type = 'checkbox'
+        equipCheck.checked = ap.equipped
+        equipCheck.title = 'Show in context menu'
+        equipCheck.addEventListener('change', () => {
+          currentOptions.onToggleActionEquip?.(ap.id, equipCheck.checked)
+        })
+        row.appendChild(equipCheck)
+
+        const equipLabel = document.createElement('span')
+        equipLabel.textContent = 'Menu'
+        equipLabel.style.cssText = 'font-size: 10px; color: #666;'
+        row.appendChild(equipLabel)
+
+        panel.appendChild(row)
+      }
+    } else {
+      const empty = document.createElement('div')
+      empty.textContent = 'No action packs imported'
+      empty.style.cssText = 'font-size: 11px; color: #555; padding: 4px 0;'
+      panel.appendChild(empty)
+    }
 
     // Close button
     const closeBtn = document.createElement('button')

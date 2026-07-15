@@ -1,12 +1,53 @@
 import type { CharacterPackSummary, ActionPackSummary, CharacterPackManifest, ActionPackManifest } from '../../shared/pack-types'
 import type { PoseTemplate, PaletteDef } from '../engine/types'
 
-/**
- * Renderer-side bridge to file-backed pack assets.
- * Reads PNG/JSON data from the main process via IPC and converts to renderer objects.
- */
+const MAX_BITMAP_CACHE = 500
+const MAX_PALETTE_CACHE = 100
+
 export class PackAssetSource {
   constructor(private api: typeof window.electronAPI) {}
+
+  // ── LRU caches ──
+
+  private bitmapCache = new Map<string, ImageBitmap>()
+  private paletteCache = new Map<string, PaletteDef>()
+
+  /** Evict oldest entry if at capacity */
+  private evictIfNeeded(cache: Map<string, unknown>, max: number): void {
+    if (cache.size >= max) {
+      const oldest = cache.keys().next().value
+      if (oldest !== undefined) {
+        const val = cache.get(oldest)
+        if (val instanceof ImageBitmap) (val as ImageBitmap).close()
+        cache.delete(oldest)
+      }
+    }
+  }
+
+  private memoKey(...parts: (string | number)[]): string {
+    return parts.join(':')
+  }
+
+  /** Cache an ImageBitmap with LRU eviction */
+  private cacheBitmap(key: string, bitmap: ImageBitmap): ImageBitmap {
+    this.evictIfNeeded(this.bitmapCache, MAX_BITMAP_CACHE)
+    this.bitmapCache.set(key, bitmap)
+    return bitmap
+  }
+
+  /** Cache a parsed PaletteDef */
+  private cachePalette(key: string, def: PaletteDef): PaletteDef {
+    this.evictIfNeeded(this.paletteCache as Map<string, unknown>, MAX_PALETTE_CACHE)
+    this.paletteCache.set(key, def)
+    return def
+  }
+
+  /** Clear both caches */
+  clearCache(): void {
+    for (const v of this.bitmapCache.values()) v.close()
+    this.bitmapCache.clear()
+    this.paletteCache.clear()
+  }
 
   // ── Queries ──
 
@@ -48,22 +89,38 @@ export class PackAssetSource {
     return manifest !== null
   }
 
-  // ── Asset loading ──
+  // ── Asset loading (with caching) ──
 
-  /** Load a layer part PNG as ImageBitmap */
+  /** Load a layer part PNG as ImageBitmap (cached) */
   async loadLayerBitmap(characterId: string, layerId: string, resolution: number): Promise<ImageBitmap | null> {
+    const key = this.memoKey(characterId, layerId, resolution)
+    const cached = this.bitmapCache.get(key)
+    if (cached) return cached
+
     const bytes = await this.readPackBytes(characterId, `parts/${resolution}/${layerId}.png`)
     if (!bytes) return null
-    return this.bytesToImageBitmap(bytes)
+
+    try {
+      const bitmap = await this.bytesToImageBitmap(bytes)
+      return this.cacheBitmap(key, bitmap)
+    } catch {
+      return null
+    }
   }
 
-  /** Load a palette definition JSON */
+  /** Load a palette definition JSON (cached) */
   async loadPaletteDef(characterId: string, paletteId: string): Promise<PaletteDef | null> {
+    const key = this.memoKey(characterId, paletteId)
+    const cached = this.paletteCache.get(key)
+    if (cached) return cached
+
     const bytes = await this.readPackBytes(characterId, `palettes/${paletteId}.json`)
     if (!bytes) return null
+
     try {
       const decoder = new TextDecoder()
-      return JSON.parse(decoder.decode(bytes)) as PaletteDef
+      const def = JSON.parse(decoder.decode(bytes)) as PaletteDef
+      return this.cachePalette(key, def)
     } catch {
       return null
     }
@@ -81,18 +138,36 @@ export class PackAssetSource {
     }
   }
 
-  /** Load an override spritesheet frame as ImageBitmap */
+  /** Load an override spritesheet frame as ImageBitmap (cached) */
   async loadOverrideFrame(actionId: string, characterId: string, layerId: string, frame: number, resolution: number): Promise<ImageBitmap | null> {
+    const key = this.memoKey('ovr', actionId, characterId, layerId, frame, resolution)
+    const cached = this.bitmapCache.get(key)
+    if (cached) return cached
+
     const bytes = await this.readPackBytes(actionId, `overrides/${characterId}/${resolution}/${layerId}_${frame}.png`)
     if (!bytes) return null
-    return this.bytesToImageBitmap(bytes)
+    try {
+      const bitmap = await this.bytesToImageBitmap(bytes)
+      return this.cacheBitmap(key, bitmap)
+    } catch {
+      return null
+    }
   }
 
-  /** Load an expression part (eyes/mouth variant) */
+  /** Load an expression part (eyes/mouth variant) — cached */
   async loadExpressionPart(characterId: string, partType: string, variant: string, resolution: number): Promise<ImageBitmap | null> {
+    const key = this.memoKey('expr', characterId, partType, variant, resolution)
+    const cached = this.bitmapCache.get(key)
+    if (cached) return cached
+
     const bytes = await this.readPackBytes(characterId, `expression/${resolution}/${partType}_${variant}.png`)
     if (!bytes) return null
-    return this.bytesToImageBitmap(bytes)
+    try {
+      const bitmap = await this.bytesToImageBitmap(bytes)
+      return this.cacheBitmap(key, bitmap)
+    } catch {
+      return null
+    }
   }
 
   // ── Internal ──

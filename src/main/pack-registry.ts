@@ -99,13 +99,24 @@ export class PackRegistry {
   // ── Queries ──
 
   listCharacterSummaries(): CharacterPackSummary[] {
-    return Array.from(this.characterPacks.values()).map(p => ({
-      id: p.manifest.id,
-      name: p.manifest.name,
-      resolutions: p.manifest.resolutions,
-      defaultPalette: p.manifest.defaultPalette,
-      layerCount: p.manifest.layers.length,
-    }))
+    return Array.from(this.characterPacks.values()).map(p => {
+      let qualityScore: number | undefined
+      try {
+        const scorePath = join(p.rootPath, 'quality.json')
+        if (existsSync(scorePath)) {
+          const raw = JSON.parse(readFileSync(scorePath, 'utf-8'))
+          if (raw && typeof raw.overall === 'number') qualityScore = raw.overall
+        }
+      } catch {}
+      return {
+        id: p.manifest.id,
+        name: p.manifest.name,
+        resolutions: p.manifest.resolutions,
+        defaultPalette: p.manifest.defaultPalette,
+        layerCount: p.manifest.layers.length,
+        qualityScore,
+      }
+    })
   }
 
   listActionSummaries(): ActionPackSummary[] {
@@ -141,6 +152,14 @@ export class PackRegistry {
    */
   removePack(packId: string): boolean {
     return this.characterPacks.delete(packId) || this.actionPacks.delete(packId)
+  }
+
+  getCharacterPack(packId: string): CharacterPack | undefined {
+    return this.characterPacks.get(packId)
+  }
+
+  listCharacterPacks(): CharacterPack[] {
+    return Array.from(this.characterPacks.values())
   }
 
   // ── Asset path resolution ──

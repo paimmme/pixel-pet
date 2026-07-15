@@ -1,5 +1,7 @@
 export type PixelResolution = 16 | 32
 
+export type RGB = [number, number, number]
+
 export interface Point {
   x: number
   y: number

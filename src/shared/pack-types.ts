@@ -41,6 +41,7 @@ export interface CharacterPackSummary {
   resolutions: PixelResolution[]
   defaultPalette: string
   layerCount: number
+  qualityScore?: number
 }
 
 // ──────────────────────────────────────
@@ -89,6 +90,26 @@ export interface PackImportResult {
   success: boolean
   packId?: string
   errors?: ValidationError[]
+  qualityScore?: QualityScore | null
 }
 
 export type PackSourceEntry = CharacterPack | ActionPack
+
+// ──────────────────────────────────────
+// Quality Scoring
+// ──────────────────────────────────────
+
+export interface QualityScoreDetails {
+  layerCompleteness: number
+  resolutionCoverage: number
+  expressionVariety: number
+  paletteCount: number
+  layerAlignment: number
+  validColors: number
+}
+
+export interface QualityScore {
+  overall: number
+  details: QualityScoreDetails
+  notes: string[]
+}

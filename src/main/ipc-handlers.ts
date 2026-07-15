@@ -1,11 +1,13 @@
-import { app, BrowserWindow, ipcMain, screen, dialog } from 'electron'
-import { existsSync } from 'fs'
+import { app, BrowserWindow, ipcMain, screen, dialog, shell } from 'electron'
+import { existsSync, readFileSync, writeFileSync, cpSync, readdirSync } from 'fs'
 import { join, basename } from 'path'
 import { IPC_CHANNELS } from '../shared/ipc-types'
 import { saveState, patchState } from './settings'
 import type { SavedState, Point } from '../shared/app-types'
+import type { CharacterPackManifest } from '../shared/pack-types'
 import { packRegistry } from './pack-registry'
 import { generationService, createJob, getJob, listJobs, ClaudeGenerationProvider } from './generation'
+import { scoreCharacterPack } from './quality-score'
 
 export function registerIpcHandlers(win: BrowserWindow): void {
   // Set ignore mouse events — CRITICAL: forward:true for click-through
@@ -181,6 +183,26 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     return packRegistry.removePack(packId)
   })
 
+  // ── Open packs directory ──
+
+  ipcMain.handle(IPC_CHANNELS.OPEN_PACKS_DIR, async () => {
+    const packsDir = join(app.getPath('userData'), 'packs')
+    if (!existsSync(packsDir)) return
+    await shell.openPath(packsDir)
+  })
+
+  // ── Pack quality score ──
+
+  ipcMain.handle(IPC_CHANNELS.GET_PACK_QUALITY_SCORE, async (_event, packId: string) => {
+    const scorePath = join(app.getPath('userData'), 'packs', packId, 'quality.json')
+    if (!existsSync(scorePath)) return null
+    try {
+      return JSON.parse(readFileSync(scorePath, 'utf-8'))
+    } catch {
+      return null
+    }
+  })
+
   // ── Image dialog for AI generation ──
 
   ipcMain.handle(IPC_CHANNELS.OPEN_IMAGE_DIALOG, async () => {
@@ -262,6 +284,108 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     // Re-scan pack registry to pick up the new pack
     await packRegistry.initialize(packsDir)
 
-    return { success: true, packId }
+    // Score the saved pack if it's a character pack
+    let qualityScore = null
+    if (job.type === 'character') {
+      try {
+        const pack = packRegistry.getCharacterPack(packId)
+        if (pack) {
+          qualityScore = scoreCharacterPack(pack)
+          const { writeFileSync } = await import('fs')
+          const scorePath = join(packsDir, packId, 'quality.json')
+          writeFileSync(scorePath, JSON.stringify(qualityScore, null, 2), 'utf-8')
+        }
+      } catch (err) {
+        console.error('[Generation] Failed to score pack:', err)
+      }
+    }
+
+    return { success: true, packId, qualityScore }
+  })
+
+  // ── Pack editor: get full pack data ──
+
+  ipcMain.handle(IPC_CHANNELS.GET_EDITOR_PACK_DATA, async (_event, packId: string) => {
+    const packsDir = join(app.getPath('userData'), 'packs')
+    const packDir = join(packsDir, packId)
+    if (!existsSync(packDir)) return null
+
+    try {
+      const manifestPath = join(packDir, 'manifest.json')
+      const manifest: CharacterPackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+
+      // Read palette files
+      const palettesDir = join(packDir, 'palettes')
+      const paletteFiles = existsSync(palettesDir) ? readdirSync(palettesDir).filter(f => f.endsWith('.json')) : []
+      const palettes = paletteFiles.map(f => {
+        const data = JSON.parse(readFileSync(join(palettesDir, f), 'utf-8'))
+        return { id: data.id, name: data.name, mappings: data.mappings }
+      })
+
+      // Build layer info for all resolutions
+      const layers: Array<{ id: string; name: string; zIndex: number; optional: boolean; resolution: number; pngExists: boolean; anchor: { x: number; y: number }; zone: string }> = []
+      for (const resolution of manifest.resolutions) {
+        for (const layerDef of manifest.layers) {
+          const pngPath = join(packDir, 'parts', String(resolution), `${layerDef.id}.png`)
+          layers.push({
+            id: layerDef.id,
+            name: layerDef.name,
+            zIndex: layerDef.zIndex,
+            optional: layerDef.optional ?? false,
+            resolution,
+            pngExists: existsSync(pngPath),
+            anchor: layerDef.anchor,
+            zone: layerDef.zone ?? 'none',
+          })
+        }
+      }
+
+      return { manifest, palettes, layers, rootPath: packDir }
+    } catch {
+      return null
+    }
+  })
+
+  // ── Pack editor: update palette ──
+
+  ipcMain.handle(IPC_CHANNELS.UPDATE_PACK_PALETTE, async (_event, packId: string, paletteId: string, mappings: Array<{ from: number[]; to: number[] }>) => {
+    const packsDir = join(app.getPath('userData'), 'packs')
+    const palettePath = join(packsDir, packId, 'palettes', `${paletteId}.json`)
+    if (!existsSync(palettePath)) return false
+
+    try {
+      const existing = JSON.parse(readFileSync(palettePath, 'utf-8'))
+      existing.mappings = mappings
+      writeFileSync(palettePath, JSON.stringify(existing, null, 2), 'utf-8')
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  // ── Pack editor: replace layer PNG ──
+
+  ipcMain.handle(IPC_CHANNELS.REPLACE_LAYER_PNG, async (_event, packId: string, layerId: string, resolution: number) => {
+    const packsDir = join(app.getPath('userData'), 'packs')
+    const packDir = join(packsDir, packId)
+    if (!existsSync(packDir)) return false
+
+    // Open file dialog for PNG
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Select Layer PNG',
+      filters: [{ name: 'PNG Images', extensions: ['png'] }],
+      properties: ['openFile'],
+    })
+
+    if (result.canceled || result.filePaths.length === 0) return false
+
+    try {
+      const targetDir = join(packDir, 'parts', String(resolution))
+      if (!existsSync(targetDir)) return false
+      cpSync(result.filePaths[0], join(targetDir, `${layerId}.png`), { force: true })
+      return true
+    } catch {
+      return false
+    }
   })
 }

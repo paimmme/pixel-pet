@@ -19,6 +19,7 @@ export interface PackCharacterInfo {
   resolutions: number[]
   defaultPalette: string
   layerCount: number
+  qualityScore?: number
 }
 
 export interface PackActionInfo {

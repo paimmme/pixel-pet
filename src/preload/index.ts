@@ -45,6 +45,11 @@ const electronAPI: ElectronAPI = {
   exportPack: (packId: string, kind: 'character' | 'action', destinationPath: string) =>
     ipcRenderer.invoke(IPC_CHANNELS.EXPORT_PACK, packId, kind, destinationPath),
   removePack: (packId: string) => ipcRenderer.invoke(IPC_CHANNELS.REMOVE_PACK, packId),
+  openPacksDir: () => ipcRenderer.invoke(IPC_CHANNELS.OPEN_PACKS_DIR),
+  getPackQualityScore: (packId: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_PACK_QUALITY_SCORE, packId),
+  getEditorPackData: (packId: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_EDITOR_PACK_DATA, packId),
+  updatePackPalette: (packId: string, paletteId: string, mappings) => ipcRenderer.invoke(IPC_CHANNELS.UPDATE_PACK_PALETTE, packId, paletteId, mappings),
+  replaceLayerPng: (packId: string, layerId: string, resolution) => ipcRenderer.invoke(IPC_CHANNELS.REPLACE_LAYER_PNG, packId, layerId, resolution),
   // AI Generation
   openImageDialog: () => ipcRenderer.invoke(IPC_CHANNELS.OPEN_IMAGE_DIALOG),
   createGenerationJob: (input) => ipcRenderer.invoke(IPC_CHANNELS.CREATE_GENERATION_JOB, input),
