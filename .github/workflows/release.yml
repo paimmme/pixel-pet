@@ -65,7 +65,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: PixelPet ${{ github.ref_name }}
-          body_path: CHANGELOG.md
           files: |
             **/*.dmg
             **/*.exe

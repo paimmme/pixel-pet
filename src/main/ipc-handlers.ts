@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, screen, dialog, shell } from 'electron'
 import { existsSync, readFileSync, writeFileSync, cpSync, readdirSync } from 'fs'
-import { join, basename } from 'path'
+import { join, basename, resolve, relative, isAbsolute } from 'path'
 import { IPC_CHANNELS } from '../shared/ipc-types'
 import { saveState, patchState } from './settings'
 import type { SavedState, Point } from '../shared/app-types'
@@ -8,6 +8,17 @@ import type { CharacterPackManifest } from '../shared/pack-types'
 import { packRegistry } from './pack-registry'
 import { generationService, createJob, getJob, listJobs, ClaudeGenerationProvider } from './generation'
 import { scoreCharacterPack } from './quality-score'
+
+/**
+ * Validate that a packId references a known installed pack,
+ * returning the pack's rootPath only if valid.
+ * Rejects arbitrary path traversal via registry-only resolution.
+ */
+function resolvePackDir(packId: string): string | null {
+  const pack = packRegistry.getCharacterPack(packId) ?? packRegistry.getActionById(packId)
+  if (!pack) return null
+  return pack.rootPath
+}
 
 export function registerIpcHandlers(win: BrowserWindow): void {
   // Set ignore mouse events — CRITICAL: forward:true for click-through
@@ -306,16 +317,15 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   // ── Pack editor: get full pack data ──
 
   ipcMain.handle(IPC_CHANNELS.GET_EDITOR_PACK_DATA, async (_event, packId: string) => {
-    const packsDir = join(app.getPath('userData'), 'packs')
-    const packDir = join(packsDir, packId)
-    if (!existsSync(packDir)) return null
+    const rootPath = resolvePackDir(packId)
+    if (!rootPath) return null
 
     try {
-      const manifestPath = join(packDir, 'manifest.json')
+      const manifestPath = join(rootPath, 'manifest.json')
       const manifest: CharacterPackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
 
       // Read palette files
-      const palettesDir = join(packDir, 'palettes')
+      const palettesDir = join(rootPath, 'palettes')
       const paletteFiles = existsSync(palettesDir) ? readdirSync(palettesDir).filter(f => f.endsWith('.json')) : []
       const palettes = paletteFiles.map(f => {
         const data = JSON.parse(readFileSync(join(palettesDir, f), 'utf-8'))
@@ -326,7 +336,7 @@ export function registerIpcHandlers(win: BrowserWindow): void {
       const layers: Array<{ id: string; name: string; zIndex: number; optional: boolean; resolution: number; pngExists: boolean; anchor: { x: number; y: number }; zone: string }> = []
       for (const resolution of manifest.resolutions) {
         for (const layerDef of manifest.layers) {
-          const pngPath = join(packDir, 'parts', String(resolution), `${layerDef.id}.png`)
+          const pngPath = join(rootPath, 'parts', String(resolution), `${layerDef.id}.png`)
           layers.push({
             id: layerDef.id,
             name: layerDef.name,
@@ -340,7 +350,7 @@ export function registerIpcHandlers(win: BrowserWindow): void {
         }
       }
 
-      return { manifest, palettes, layers, rootPath: packDir }
+      return { manifest, palettes, layers, rootPath }
     } catch {
       return null
     }
@@ -349,8 +359,13 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   // ── Pack editor: update palette ──
 
   ipcMain.handle(IPC_CHANNELS.UPDATE_PACK_PALETTE, async (_event, packId: string, paletteId: string, mappings: Array<{ from: number[]; to: number[] }>) => {
-    const packsDir = join(app.getPath('userData'), 'packs')
-    const palettePath = join(packsDir, packId, 'palettes', `${paletteId}.json`)
+    const rootPath = resolvePackDir(packId)
+    if (!rootPath) return false
+
+    const palettePath = join(rootPath, 'palettes', `${paletteId}.json`)
+    // Guard: palettePath must stay inside rootPath
+    const rel = relative(rootPath, palettePath)
+    if (rel.startsWith('..') || isAbsolute(rel)) return false
     if (!existsSync(palettePath)) return false
 
     try {
@@ -366,9 +381,11 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   // ── Pack editor: replace layer PNG ──
 
   ipcMain.handle(IPC_CHANNELS.REPLACE_LAYER_PNG, async (_event, packId: string, layerId: string, resolution: number) => {
-    const packsDir = join(app.getPath('userData'), 'packs')
-    const packDir = join(packsDir, packId)
-    if (!existsSync(packDir)) return false
+    const rootPath = resolvePackDir(packId)
+    if (!rootPath) return false
+
+    // Guard: layerId must be a valid identifier (no path separators)
+    if (!/^[a-zA-Z0-9_-]+$/.test(layerId)) return false
 
     // Open file dialog for PNG
     const result = await dialog.showOpenDialog(win, {
@@ -380,8 +397,12 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     if (result.canceled || result.filePaths.length === 0) return false
 
     try {
-      const targetDir = join(packDir, 'parts', String(resolution))
+      const targetDir = join(rootPath, 'parts', String(resolution))
+      // Guard: targetDir must stay inside rootPath
+      const rel = relative(rootPath, targetDir)
+      if (rel.startsWith('..') || isAbsolute(rel)) return false
       if (!existsSync(targetDir)) return false
+
       cpSync(result.filePaths[0], join(targetDir, `${layerId}.png`), { force: true })
       return true
     } catch {

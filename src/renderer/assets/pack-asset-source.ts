@@ -171,7 +171,7 @@ export class PackAssetSource {
     const cached = this.getCachedBitmap(key)
     if (cached) return cached
 
-    const bytes = await this.readPackBytes(actionId, `overrides/${characterId}/${resolution}/${layerId}_${frame}.png`)
+    const bytes = await this.readPackBytes(actionId, `overrides/${resolution}/${layerId}_${frame}.png`)
     if (!bytes) return null
     try {
       const bitmap = await this.bytesToImageBitmap(bytes)

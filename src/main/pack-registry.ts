@@ -1,5 +1,5 @@
 import { readFileSync, existsSync, readdirSync, statSync, cpSync, mkdirSync, writeFileSync } from 'fs'
-import { join, isAbsolute, basename } from 'path'
+import { join, isAbsolute, basename, resolve, relative, normalize } from 'path'
 import type { CharacterPackManifest, ActionPackManifest, CharacterPack, ActionPack, PackImportResult } from '../shared/pack-types'
 import type { CharacterPackSummary, ActionPackSummary } from '../shared/pack-types'
 import type { ValidationError } from '../shared/pack-types'
@@ -173,9 +173,10 @@ export class PackRegistry {
     const pack = this.characterPacks.get(packId) ?? this.actionPacks.get(packId)
     if (!pack) return null
 
-    const absolute = join(pack.rootPath, relativePath)
-    // Path traversal guard: must still be inside the pack root
-    if (!absolute.startsWith(pack.rootPath)) return null
+    const absolute = resolve(pack.rootPath, relativePath)
+    // Path traversal guard: resolve + relative to catch /packs/foo2 → /packs/foo
+    const rel = relative(pack.rootPath, absolute)
+    if (rel.startsWith('..') || isAbsolute(rel)) return null
     if (!existsSync(absolute)) return null
 
     return absolute

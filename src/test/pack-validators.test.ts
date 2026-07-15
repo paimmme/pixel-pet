@@ -26,8 +26,8 @@ function validCharManifest(): Record<string, unknown> {
     defaultResolution: 32,
     defaultPalette: 'default',
     layers: [
-      { id: 'body', name: 'Body', zIndex: 0 },
-      { id: 'eyes', name: 'Eyes', zIndex: 1 },
+      { id: 'body', name: 'Body', zIndex: 0, anchor: { x: 0, y: 0 } },
+      { id: 'eyes', name: 'Eyes', zIndex: 1, anchor: { x: 0, y: 0 } },
     ],
     hitArea: { x: 0, y: 0, width: 32, height: 32 },
   }

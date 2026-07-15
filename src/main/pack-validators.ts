@@ -82,6 +82,13 @@ export function validateCharacterManifest(raw: unknown): ValidationResult<Charac
       const l = m.layers[i] as Record<string, unknown>
       if (!l.id || typeof l.id !== 'string') errors.push({ field: `layers[${i}].id`, message: 'Missing layer id' })
       if (typeof l.zIndex !== 'number') errors.push({ field: `layers[${i}].zIndex`, message: 'Expected number' })
+      if (!l.name || typeof l.name !== 'string') errors.push({ field: `layers[${i}].name`, message: 'Missing layer name' })
+      if (!l.anchor || typeof l.anchor !== 'object') errors.push({ field: `layers[${i}].anchor`, message: 'Required {x, y} object' })
+      else {
+        const a = l.anchor as Record<string, unknown>
+        if (typeof a.x !== 'number') errors.push({ field: `layers[${i}].anchor.x`, message: 'Expected number' })
+        if (typeof a.y !== 'number') errors.push({ field: `layers[${i}].anchor.y`, message: 'Expected number' })
+      }
     }
   }
 
@@ -111,8 +118,23 @@ export function validateActionManifest(raw: unknown): ValidationResult<ActionPac
   if (m.schemaVersion !== 1) errors.push({ field: 'schemaVersion', message: `Expected 1, got ${m.schemaVersion}` })
   if (!m.id || typeof m.id !== 'string') errors.push({ field: 'id', message: 'Must be a non-empty string' })
   if (m.type !== 'action') errors.push({ field: 'type', message: `Expected 'action', got ${m.type}` })
+  if (!m.name || typeof m.name !== 'string') errors.push({ field: 'name', message: 'Must be a non-empty string' })
   if (typeof m.frameCount !== 'number' || (m.frameCount as number) < 1) errors.push({ field: 'frameCount', message: 'Must be positive integer' })
   if (typeof m.fps !== 'number' || (m.fps as number) < 1) errors.push({ field: 'fps', message: 'Must be positive integer' })
+  if (typeof m.loop !== 'boolean') errors.push({ field: 'loop', message: 'Expected boolean' })
+  if (typeof m.category !== 'string') errors.push({ field: 'category', message: 'Must be a string' })
+
+  if (m.directions !== undefined && m.directions !== null) {
+    if (typeof m.directions !== 'number' || (m.directions as number) < 1) {
+      errors.push({ field: 'directions', message: 'Must be a positive integer when specified' })
+    }
+  }
+
+  if (m.requiredLayers !== undefined && m.requiredLayers !== null) {
+    if (!Array.isArray(m.requiredLayers)) {
+      errors.push({ field: 'requiredLayers', message: 'Must be an array of strings' })
+    }
+  }
 
   if (errors.length > 0) return { valid: false, errors }
 

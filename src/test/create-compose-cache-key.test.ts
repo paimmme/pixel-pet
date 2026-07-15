@@ -1,27 +1,6 @@
 import { describe, it, expect } from 'vitest'
+import { createComposeCacheKey } from '../renderer/engine/types'
 import type { ComposeConfig } from '../renderer/engine/types'
-
-// Inline the function under test — it's a pure function with no deps.
-// We re-test the source directly to catch drift without importing renderer modules.
-function createComposeCacheKey(config: ComposeConfig): string {
-  const accessories = config.accessories?.length
-    ? [...config.accessories].sort().join(',')
-    : 'none'
-  const expression = config.expression
-    ? `${config.expression.eyes ?? 'neutral'},${config.expression.mouth ?? 'neutral'}`
-    : 'neutral,neutral'
-
-  return [
-    config.animal,
-    config.action,
-    config.resolution,
-    config.palette ?? 'default',
-    config.direction ?? 'none',
-    config.packId ?? 'factory',
-    accessories,
-    expression
-  ].join(':')
-}
 
 // ─── Sample config factory ───
 function makeConfig(overrides: Partial<ComposeConfig> = {}): ComposeConfig {
