@@ -1,3 +1,26 @@
+/**
+ * PixelPet Settings Panel — iOS-style bottom sheet.
+ * Uses the shared design-system.ts helpers for all elements.
+ */
+
+import {
+  injectDesignSystem,
+  FONT_STACK,
+  MONO_STACK,
+  createSection,
+  createCard,
+  createButton,
+  createToggle,
+  createSelect,
+  createBadge,
+  createProgressBar,
+  createRow,
+  createCodeBlock,
+  createSeparator,
+  animateSheetIn,
+  animateSheetOut,
+} from './design-system'
+
 export interface PackImportError {
   field: string
   message: string
@@ -55,541 +78,525 @@ export interface SettingsPanel {
 }
 
 export function createSettingsPanel(options: SettingsPanelOptions): SettingsPanel {
+  injectDesignSystem()
+
   let panelEl: HTMLDivElement | null = null
   let currentOptions = { ...options }
+  // Keep references so update() can patch without full rebuild
+  let toggleRefs = new Map<string, ReturnType<typeof createToggle>>()
+  let progressBarRef: HTMLDivElement | null = null
+  let actionProgressBarRef: HTMLDivElement | null = null
 
-  function updatePaletteOptions(select: HTMLSelectElement, palettes: Array<{ id: string; name: string }>, currentId: string): void {
-    select.innerHTML = ''
-    palettes.forEach(p => {
-      const opt = document.createElement('option')
-      opt.value = p.id
-      opt.textContent = p.name
-      if (p.id === currentId) opt.selected = true
-      select.appendChild(opt)
-    })
-  }
+  // ── Build the overlay + sheet ──
 
   function buildPanel(): HTMLDivElement {
+    toggleRefs.clear()
+    progressBarRef = null
+    actionProgressBarRef = null
+
     const overlay = document.createElement('div')
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.3); z-index: 9998;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 9998;
+      display: flex; align-items: flex-end; justify-content: center;
     `
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) hide()
     })
 
-    const panel = document.createElement('div')
-    panel.style.cssText = `
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
-      padding: 20px; min-width: 240px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      z-index: 9999;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #eee; font-size: 13px;
+    // ── Sheet ──
+    const sheet = document.createElement('div')
+    sheet.className = 'ds-sheet'
+    sheet.style.cssText = `
+      background: #2c2c2e;
+      border-radius: 14px 14px 0 0;
+      width: 100%; max-width: 420px;
+      max-height: 75vh;
+      overflow-y: auto;
+      padding: 24px;
+      font-family: ${FONT_STACK};
+      color: #fff;
+      font-size: 13px;
       user-select: none;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+      transform: translateY(100%);
+      transition: none;
     `
+    sheet.classList.add('ds-scroll')
 
-    // Title
+    // ── Drag handle ──
+    const handle = document.createElement('div')
+    handle.style.cssText = `
+      width: 36px; height: 4px; border-radius: 2px;
+      background: #444446; margin: 0 auto 20px;
+    `
+    sheet.appendChild(handle)
+
+    // ── Title row ──
+    const titleRow = document.createElement('div')
+    titleRow.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;'
+
     const title = document.createElement('div')
-    title.textContent = '\u2699 PixelPet Settings'
-    title.style.cssText = 'font-size: 15px; font-weight: 600; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid #333;'
-    panel.appendChild(title)
+    title.textContent = 'Settings'
+    title.style.cssText = 'font-size: 15px; font-weight: 600;'
 
-    // Animal selector
+    const closeBtn = document.createElement('button')
+    closeBtn.textContent = '✕'
+    closeBtn.style.cssText = `
+      border: none; background: #3a3a3c; color: #fff;
+      width: 28px; height: 28px; border-radius: 14px;
+      cursor: pointer; font-size: 13px; display: flex;
+      align-items: center; justify-content: center;
+      transition: background 0.15s;
+    `
+    closeBtn.addEventListener('mouseenter', () => { closeBtn.style.background = '#444446' })
+    closeBtn.addEventListener('mouseleave', () => { closeBtn.style.background = '#3a3a3c' })
+    closeBtn.addEventListener('click', hide)
+    titleRow.appendChild(title)
+    titleRow.appendChild(closeBtn)
+    sheet.appendChild(titleRow)
+
+    // ═══════════════════════════════════════
+    // SECTION: Character
+    // ═══════════════════════════════════════
+    const charSection = createSection('Character')
+    const charCard = createCard()
+
+    const animalRow = document.createElement('div')
+    animalRow.style.cssText = 'margin-bottom: 10px;'
     const animalLabel = document.createElement('div')
     animalLabel.textContent = 'Animal'
-    animalLabel.style.cssText = 'margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(animalLabel)
+    animalLabel.style.cssText = 'font-size: 11px; color: #98989d; margin-bottom: 4px;'
+    animalRow.appendChild(animalLabel)
+    const animalSelect = createSelect(
+      currentOptions.animals,
+      currentOptions.currentAnimal,
+      (id) => currentOptions.onAnimalChange(id),
+    )
+    animalRow.appendChild(animalSelect)
+    charCard.appendChild(animalRow)
 
-    const animalSelect = document.createElement('select')
-    animalSelect.style.cssText = `
-      width: 100%; padding: 6px 8px; margin-bottom: 12px;
-      background: #252525; border: 1px solid #444; border-radius: 4px;
-      color: #eee; font-size: 13px; outline: none;
-    `
-    currentOptions.animals.forEach(a => {
-      const opt = document.createElement('option')
-      opt.value = a.id
-      opt.textContent = a.name
-      if (a.id === currentOptions.currentAnimal) opt.selected = true
-      animalSelect.appendChild(opt)
-    })
-    animalSelect.addEventListener('change', () => {
-      currentOptions.onAnimalChange(animalSelect.value)
-    })
-    panel.appendChild(animalSelect)
-
-    // Palette selector
+    const paletteRow = document.createElement('div')
+    paletteRow.style.cssText = 'margin-bottom: 0;'
     const paletteLabel = document.createElement('div')
     paletteLabel.textContent = 'Palette'
-    paletteLabel.style.cssText = 'margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(paletteLabel)
+    paletteLabel.style.cssText = 'font-size: 11px; color: #98989d; margin-bottom: 4px;'
+    paletteRow.appendChild(paletteLabel)
+    const paletteSelect = createSelect(
+      currentOptions.palettes,
+      currentOptions.currentPalette,
+      (id) => currentOptions.onPaletteChange(id),
+    )
+    paletteRow.appendChild(paletteSelect)
+    charCard.appendChild(paletteRow)
 
-    const paletteSelect = document.createElement('select')
-    paletteSelect.style.cssText = `
-      width: 100%; padding: 6px 8px; margin-bottom: 12px;
-      background: #252525; border: 1px solid #444; border-radius: 4px;
-      color: #eee; font-size: 13px; outline: none;
-    `
-    updatePaletteOptions(paletteSelect, currentOptions.palettes, currentOptions.currentPalette)
-    paletteSelect.addEventListener('change', () => {
-      currentOptions.onPaletteChange(paletteSelect.value)
-    })
-    panel.appendChild(paletteSelect)
-
-    // Resolution
-    const resLabel = document.createElement('div')
-    resLabel.textContent = 'Resolution'
-    resLabel.style.cssText = 'margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(resLabel)
-
+    // Resolution row inside character card
     const resRow = document.createElement('div')
-    resRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 16px;'
-
+    resRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #48484a;'
+    const resLabel = document.createElement('span')
+    resLabel.textContent = 'Resolution'
+    resLabel.style.cssText = 'flex: 1; font-size: 13px;'
+    resRow.appendChild(resLabel)
     const resDisplay = document.createElement('span')
-    resDisplay.textContent = `${currentOptions.currentResolution}\u00d7${currentOptions.currentResolution}`
-    resDisplay.style.cssText = 'flex: 1;'
+    resDisplay.textContent = `${currentOptions.currentResolution}×${currentOptions.currentResolution}`
+    resDisplay.style.cssText = 'font-size: 11px; color: #98989d; font-family: ' + MONO_STACK + ';'
     resRow.appendChild(resDisplay)
+    const resToggleBtn = createButton('Toggle', 'secondary', () => currentOptions.onResolutionToggle())
+    resToggleBtn.style.cssText = resToggleBtn.style.cssText + ';padding: 4px 12px; font-size: 11px;'
+    resRow.appendChild(resToggleBtn)
+    charCard.appendChild(resRow)
 
-    const resBtn = document.createElement('button')
-    resBtn.textContent = 'Toggle'
-    resBtn.style.cssText = `
-      padding: 4px 10px; background: #333; border: 1px solid #555;
-      border-radius: 4px; color: #eee; cursor: pointer; font-size: 12px;
-    `
-    resBtn.addEventListener('click', () => currentOptions.onResolutionToggle())
-    resRow.appendChild(resBtn)
-    panel.appendChild(resRow)
+    charSection.container.appendChild(charCard)
+    sheet.appendChild(charSection.container)
 
-    // Accessories section
-    const accLabel = document.createElement('div')
-    accLabel.textContent = 'Accessories'
-    accLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(accLabel)
+    // ═══════════════════════════════════════
+    // SECTION: Appearance
+    // ═══════════════════════════════════════
+    const appearSection = createSection('Appearance')
+    const appearCard = createCard()
 
+    // Accessory toggles
     currentOptions.accessories.forEach(acc => {
-      const row = document.createElement('label')
-      row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px; cursor: pointer; font-size: 13px;'
-
-      const checkbox = document.createElement('input')
-      checkbox.type = 'checkbox'
-      checkbox.checked = currentOptions.currentAccessories.includes(acc.id)
-      checkbox.addEventListener('change', () => {
-        currentOptions.onAccessoryToggle?.(acc.id)
-      })
-
-      const text = document.createTextNode(acc.name)
-      row.appendChild(checkbox)
-      row.appendChild(text)
-      panel.appendChild(row)
+      const toggle = createToggle(
+        currentOptions.currentAccessories.includes(acc.id),
+        () => currentOptions.onAccessoryToggle?.(acc.id),
+      )
+      toggleRefs.set(`acc:${acc.id}`, toggle)
+      appearCard.appendChild(createRow(acc.name, toggle.element))
     })
+
+    // Separator between accessories and auto-start
+    if (currentOptions.accessories.length > 0) {
+      const sep = createSeparator()
+      sep.style.margin = '4px 0 8px'
+      appearCard.appendChild(sep)
+    }
 
     // Auto-start toggle
-    const autoStartLabel = document.createElement('div')
-    autoStartLabel.textContent = 'Startup'
-    autoStartLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(autoStartLabel)
+    const autoToggle = createToggle(
+      currentOptions.autoLaunch ?? false,
+      (checked) => currentOptions.onAutoLaunchChange?.(checked),
+    )
+    toggleRefs.set('autoLaunch', autoToggle)
+    appearCard.appendChild(createRow('Auto-start on login', autoToggle.element))
 
-    const autoRow = document.createElement('label')
-    autoRow.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 4px; cursor: pointer; font-size: 13px;'
+    appearSection.container.appendChild(appearCard)
+    sheet.appendChild(appearSection.container)
 
-    const autoCheck = document.createElement('input')
-    autoCheck.type = 'checkbox'
-    autoCheck.checked = currentOptions.autoLaunch ?? false
-    autoCheck.addEventListener('change', () => {
-      currentOptions.onAutoLaunchChange?.(autoCheck.checked)
+    // ═══════════════════════════════════════
+    // SECTION: AI Character Generation
+    // ═══════════════════════════════════════
+    if (currentOptions.onGenerateCharacter) {
+      const genSection = createSection('AI Character')
+      const genCard = createCard()
+
+      const genBtn = createButton(
+        currentOptions.generationStatus === 'running' ? '⏳ Generating...'
+          : currentOptions.generationResult ? 'Generate Another'
+          : 'Generate from Image',
+        'secondary',
+        async () => { await currentOptions.onGenerateCharacter?.() },
+      )
+      genBtn.style.width = '100%'
+      genBtn.disabled = currentOptions.generationStatus === 'running'
+      genCard.appendChild(genBtn)
+
+      // Generation hint
+      const hint = document.createElement('div')
+      hint.textContent = 'Drop an image to generate a matching character'
+      hint.style.cssText = 'font-size: 11px; color: #636366; margin-top: 6px;'
+      genCard.appendChild(hint)
+
+      // Progress bar
+      if (currentOptions.generationProgress !== undefined && currentOptions.generationStatus === 'running') {
+        const pBar = createProgressBar(currentOptions.generationProgress)
+        progressBarRef = pBar
+        pBar.style.marginTop = '8px'
+        genCard.appendChild(pBar)
+      }
+
+      // Result badge
+      if (currentOptions.generationResult) {
+        genCard.appendChild(createBadge(`Saved: ${currentOptions.generationResult.packName}`, '#30d158'))
+      }
+
+      // Error badge
+      if (currentOptions.generationError) {
+        genCard.appendChild(createBadge(currentOptions.generationError, '#ff453a'))
+      }
+
+      genSection.container.appendChild(genCard)
+      sheet.appendChild(genSection.container)
+    }
+
+    // ═══════════════════════════════════════
+    // SECTION: AI Action Generation
+    // ═══════════════════════════════════════
+    if (currentOptions.onGenerateAction) {
+      const actionSection = createSection('AI Action')
+      const actionCard = createCard()
+
+      const promptInput = document.createElement('input')
+      promptInput.type = 'text'
+      promptInput.placeholder = 'Describe an action... e.g. "coffee sip"'
+      promptInput.value = ''
+      promptInput.style.cssText = `
+        width: 100%; padding: 8px 12px; margin-bottom: 8px;
+        background: #2c2c2e; border: 1px solid #48484a;
+        border-radius: 8px; color: #fff;
+        font-family: ${FONT_STACK}; font-size: 13px;
+        outline: none; transition: border-color 0.15s;
+        box-sizing: border-box;
+      `
+      promptInput.addEventListener('focus', () => { promptInput.style.borderColor = '#007aff' })
+      promptInput.addEventListener('blur', () => { promptInput.style.borderColor = '#48484a' })
+      actionCard.appendChild(promptInput)
+
+      const genActionBtn = createButton(
+        currentOptions.actionGenerationStatus === 'running' ? '⏳ Generating...'
+          : currentOptions.actionGenerationResult ? 'Generate Another'
+          : 'Generate Action',
+        'secondary',
+        async () => {
+          const text = promptInput.value.trim()
+          if (!text) {
+            promptInput.style.borderColor = '#ff453a'
+            setTimeout(() => { promptInput.style.borderColor = '#48484a' }, 1500)
+            return
+          }
+          await currentOptions.onGenerateAction?.(text)
+        },
+      )
+      genActionBtn.style.width = '100%'
+      genActionBtn.disabled = currentOptions.actionGenerationStatus === 'running'
+      actionCard.appendChild(genActionBtn)
+
+      // Hint
+      const actionHint = document.createElement('div')
+      actionHint.textContent = 'Describe a short animation or gesture'
+      actionHint.style.cssText = 'font-size: 11px; color: #636366; margin-top: 6px;'
+      actionCard.appendChild(actionHint)
+
+      // Progress bar
+      if (currentOptions.actionGenerationProgress !== undefined && currentOptions.actionGenerationStatus === 'running') {
+        const apBar = createProgressBar(currentOptions.actionGenerationProgress)
+        actionProgressBarRef = apBar
+        apBar.style.marginTop = '8px'
+        actionCard.appendChild(apBar)
+      }
+
+      // Result
+      if (currentOptions.actionGenerationResult) {
+        actionCard.appendChild(createBadge(`Saved: ${currentOptions.actionGenerationResult.packName}`, '#30d158'))
+        const hintBox = document.createElement('div')
+        hintBox.textContent = 'Right-click the pet to find your action in the menu.'
+        hintBox.style.cssText = 'font-size: 10px; color: #636366; margin-top: 4px;'
+        actionCard.appendChild(hintBox)
+      }
+
+      // Error
+      if (currentOptions.actionGenerationError) {
+        actionCard.appendChild(createBadge(currentOptions.actionGenerationError, '#ff453a'))
+      }
+
+      actionSection.container.appendChild(actionCard)
+      sheet.appendChild(actionSection.container)
+    }
+
+    // ═══════════════════════════════════════
+    // SECTION: Packs
+    // ═══════════════════════════════════════
+    const packSection = createSection('Packs')
+    const packCard = createCard()
+
+    // Buttons row
+    const packBtnRow = document.createElement('div')
+    packBtnRow.style.cssText = 'display: flex; gap: 8px; margin-bottom: 8px;'
+
+    const importBtn = createButton('+ Import Pack', 'secondary', async () => {
+      await currentOptions.onImportPack?.()
     })
+    importBtn.style.flex = '1'
+    packBtnRow.appendChild(importBtn)
 
-    const autoText = document.createTextNode('Auto-start on login')
-    autoRow.appendChild(autoCheck)
-    autoRow.appendChild(autoText)
-    panel.appendChild(autoRow)
+    const openFolderBtn = createButton('Open Folder', 'ghost', async () => {
+      await currentOptions.onOpenPacksDir?.()
+    })
+    openFolderBtn.style.flex = '1'
+    packBtnRow.appendChild(openFolderBtn)
 
-    // Separator line
-    const sep = document.createElement('div')
-    sep.style.cssText = 'height: 1px; background: #333; margin: 8px 0;'
-    panel.appendChild(sep)
+    packCard.appendChild(packBtnRow)
 
-    // Diagnostics section
-    const diagLabel = document.createElement('div')
-    diagLabel.textContent = 'Diagnostics'
-    diagLabel.style.cssText = 'margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(diagLabel)
+    // Imported packs list
+    if (currentOptions.importedCharacters && currentOptions.importedCharacters.length > 0) {
+      for (const pack of currentOptions.importedCharacters) {
+        const row = document.createElement('div')
+        row.style.cssText = `
+          display: flex; align-items: center; gap: 8px;
+          padding: 6px 0; border-bottom: 1px solid #48484a;
+          cursor: pointer; min-height: 36px;
+        `
+        row.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('button')) return
+          currentOptions.onAnimalChange(pack.id, pack.id)
+        })
 
+        const isActive = pack.id === currentOptions.currentAnimal
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = pack.name
+        nameSpan.style.cssText = `flex: 1; font-size: 13px; color: ${isActive ? '#fff' : '#98989d'}; font-weight: ${isActive ? '600' : '400'};`
+        row.appendChild(nameSpan)
+
+        const layersSpan = document.createElement('span')
+        layersSpan.textContent = `${pack.layerCount} layers`
+        layersSpan.style.cssText = 'font-size: 11px; color: #636366; font-family: ' + MONO_STACK + ';'
+        row.appendChild(layersSpan)
+
+        // Quality score
+        if (pack.qualityScore !== undefined) {
+          row.appendChild(createBadge(`★${pack.qualityScore}`, pack.qualityScore >= 70 ? '#30d158' : pack.qualityScore >= 40 ? '#ff9f0a' : '#ff453a'))
+        }
+
+        const editBtn = createButton('Edit', 'ghost', (e) => {
+          e.stopPropagation()
+          currentOptions.onEditPack?.(pack.id)
+        })
+        editBtn.style.cssText = editBtn.style.cssText + ';padding: 2px 8px; font-size: 11px;'
+        row.appendChild(editBtn)
+
+        const removeBtn = createButton('✕', 'ghost', (e) => {
+          e.stopPropagation()
+          currentOptions.onRemovePack?.(pack.id)
+        })
+        removeBtn.style.cssText = removeBtn.style.cssText + ';padding: 2px 6px; font-size: 11px; color: #ff453a;'
+        removeBtn.addEventListener('mouseenter', () => { removeBtn.style.background = '#3a3a3c'; removeBtn.style.color = '#ff6259' })
+        removeBtn.addEventListener('mouseleave', () => { removeBtn.style.background = 'transparent'; removeBtn.style.color = '#ff453a' })
+        row.appendChild(removeBtn)
+
+        packCard.appendChild(row)
+      }
+    }
+
+    // Import errors
+    if (currentOptions.importErrors && currentOptions.importErrors.length > 0) {
+      const errBadge = createBadge('Import errors', '#ff453a')
+      errBadge.style.marginBottom = '6px'
+      packCard.appendChild(errBadge)
+      for (const err of currentOptions.importErrors) {
+        const errLine = document.createElement('div')
+        errLine.textContent = `${err.field}: ${err.message}`
+        errLine.style.cssText = `font-size: 11px; color: #ff453a; margin-bottom: 2px; font-family: ${MONO_STACK};`
+        packCard.appendChild(errLine)
+      }
+    }
+
+    packSection.container.appendChild(packCard)
+    sheet.appendChild(packSection.container)
+
+    // ═══════════════════════════════════════
+    // SECTION: Actions
+    // ═══════════════════════════════════════
+    const actionSection = createSection('Actions')
+    const actionCard = createCard()
+
+    if (currentOptions.actionPacks && currentOptions.actionPacks.length > 0) {
+      for (const ap of currentOptions.actionPacks) {
+        const row = document.createElement('div')
+        row.style.cssText = `
+          display: flex; align-items: center; gap: 8px;
+          padding: 6px 0; border-bottom: 1px solid #48484a;
+          min-height: 36px;
+        `
+
+        const nameSpan = document.createElement('span')
+        nameSpan.textContent = ap.name
+        nameSpan.style.cssText = 'flex: 1; font-size: 13px; color: #fff;'
+        row.appendChild(nameSpan)
+
+        const metaSpan = document.createElement('span')
+        metaSpan.textContent = `${ap.frameCount}f · ${ap.category}`
+        metaSpan.style.cssText = 'font-size: 11px; color: #636366;'
+        row.appendChild(metaSpan)
+
+        const previewBtn = createButton('▶', 'ghost', (e) => {
+          e.stopPropagation()
+          currentOptions.onPreviewAction?.(ap.id)
+        })
+        previewBtn.style.cssText = previewBtn.style.cssText + ';padding: 2px 8px; font-size: 11px; color: #30d158;'
+        previewBtn.title = 'Preview action'
+        row.appendChild(previewBtn)
+
+        const equipToggle = createToggle(ap.equipped, (checked) => {
+          currentOptions.onToggleActionEquip?.(ap.id, checked)
+        })
+        toggleRefs.set(`equip:${ap.id}`, equipToggle)
+        row.appendChild(equipToggle.element)
+
+        const equipLabel = document.createElement('span')
+        equipLabel.textContent = 'Menu'
+        equipLabel.style.cssText = 'font-size: 11px; color: #636366;'
+        row.appendChild(equipLabel)
+
+        actionCard.appendChild(row)
+      }
+    } else {
+      const empty = document.createElement('div')
+      empty.textContent = 'No action packs imported'
+      empty.style.cssText = 'font-size: 13px; color: #636366; padding: 4px 0;'
+      actionCard.appendChild(empty)
+    }
+
+    actionSection.container.appendChild(actionCard)
+    sheet.appendChild(actionSection.container)
+
+    // ═══════════════════════════════════════
+    // SECTION: Diagnostics
+    // ═══════════════════════════════════════
     const diag = currentOptions.diagnostics
     if (diag) {
+      const diagSection = createSection('Diagnostics')
       const uptime = Math.floor(diag.uptimeMs / 1000)
       const uptimeStr = `${Math.floor(uptime / 60)}m ${uptime % 60}s`
       const lines = [
         `Version: ${diag.version}`,
         `Platform: ${diag.platform}`,
         `Electron: ${diag.electronVersion}`,
-        `Uptime: ${uptimeStr}`
+        `Uptime: ${uptimeStr}`,
       ]
-      lines.forEach(line => {
-        const el = document.createElement('div')
-        el.textContent = line
-        el.style.cssText = 'font-size: 11px; color: #888; margin-bottom: 2px;'
-        panel.appendChild(el)
-      })
+      diagSection.container.appendChild(createCodeBlock(lines))
+      sheet.appendChild(diagSection.container)
     }
 
-    // ── AI Generation section ──
-    const genLabel = document.createElement('div')
-    genLabel.textContent = 'AI Character'
-    genLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(genLabel)
-
-    const genBtn = document.createElement('button')
-    genBtn.textContent = currentOptions.generationStatus === 'running' ? '⏳ Generating...'
-      : currentOptions.generationResult ? '✅ Generate Another'
-      : '🎨 Generate from Image'
-    genBtn.style.cssText = `
-      width: 100%; padding: 6px; background: #2a2a4a; border: 1px solid #4a4a6a;
-      border-radius: 4px; color: #88c; cursor: pointer; font-size: 12px;
-      margin-bottom: 6px;
-    `
-    genBtn.disabled = currentOptions.generationStatus === 'running'
-    genBtn.addEventListener('click', async () => {
-      await currentOptions.onGenerateCharacter?.()
-    })
-    panel.appendChild(genBtn)
-
-    // Generation progress bar
-    if (currentOptions.generationProgress !== undefined && currentOptions.generationStatus === 'running') {
-      const progressBar = document.createElement('div')
-      progressBar.style.cssText = `
-        width: 100%; height: 4px; background: #333; border-radius: 2px;
-        margin-bottom: 6px; overflow: hidden;
-      `
-      const progressFill = document.createElement('div')
-      progressFill.style.cssText = `
-        width: ${currentOptions.generationProgress}%; height: 100%;
-        background: #558; border-radius: 2px; transition: width 0.3s;
-      `
-      progressBar.appendChild(progressFill)
-      panel.appendChild(progressBar)
-    }
-
-    // Generation result
-    if (currentOptions.generationResult) {
-      const resultBox = document.createElement('div')
-      resultBox.style.cssText = `
-        background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 4px;
-        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #7c7;
-      `
-      resultBox.textContent = `✔ Saved: ${currentOptions.generationResult.packName}`
-      panel.appendChild(resultBox)
-    }
-
-    // Generation error
-    if (currentOptions.generationError) {
-      const errorBox = document.createElement('div')
-      errorBox.style.cssText = `
-        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
-        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
-      `
-      errorBox.textContent = `✖ ${currentOptions.generationError}`
-      panel.appendChild(errorBox)
-    }
-
-    // ── AI Action section ──
-    const actionLabel = document.createElement('div')
-    actionLabel.textContent = 'AI Action'
-    actionLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(actionLabel)
-
-    const actionPrompt = document.createElement('input')
-    actionPrompt.type = 'text'
-    actionPrompt.placeholder = 'Describe an action... e.g. "coffee sip" or "happy dance"'
-    actionPrompt.value = ''
-    actionPrompt.style.cssText = `
-      width: 100%; padding: 6px 8px; margin-bottom: 6px;
-      background: #252525; border: 1px solid #444; border-radius: 4px;
-      color: #eee; font-size: 12px; outline: none; box-sizing: border-box;
-    `
-    panel.appendChild(actionPrompt)
-
-    const genActionBtn = document.createElement('button')
-    genActionBtn.textContent = currentOptions.actionGenerationStatus === 'running' ? '⏳ Generating...'
-      : currentOptions.actionGenerationResult ? '✅ Generate Another'
-      : 'Generate Action'
-    genActionBtn.style.cssText = `
-      width: 100%; padding: 6px; background: #2a4a4a; border: 1px solid #3a6a6a;
-      border-radius: 4px; color: #7cc; cursor: pointer; font-size: 12px;
-      margin-bottom: 6px;
-    `
-    genActionBtn.disabled = currentOptions.actionGenerationStatus === 'running'
-    genActionBtn.addEventListener('click', async () => {
-      const prompt = actionPrompt.value.trim()
-      if (!prompt) {
-        actionPrompt.style.borderColor = '#c44'
-        setTimeout(() => { actionPrompt.style.borderColor = '#444' }, 1500)
-        return
-      }
-      await currentOptions.onGenerateAction?.(prompt)
-    })
-    panel.appendChild(genActionBtn)
-
-    // Action generation progress bar
-    if (currentOptions.actionGenerationProgress !== undefined && currentOptions.actionGenerationStatus === 'running') {
-      const actionProgressBar = document.createElement('div')
-      actionProgressBar.style.cssText = `
-        width: 100%; height: 4px; background: #333; border-radius: 2px;
-        margin-bottom: 6px; overflow: hidden;
-      `
-      const actionProgressFill = document.createElement('div')
-      actionProgressFill.style.cssText = `
-        width: ${currentOptions.actionGenerationProgress}%; height: 100%;
-        background: #488; border-radius: 2px; transition: width 0.3s;
-      `
-      actionProgressBar.appendChild(actionProgressFill)
-      panel.appendChild(actionProgressBar)
-    }
-
-    // Action generation result with save indication
-    if (currentOptions.actionGenerationResult) {
-      const actionResultBox = document.createElement('div')
-      actionResultBox.style.cssText = `
-        background: #1a2a2a; border: 1px solid #2a4a4a; border-radius: 4px;
-        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #7cc;
-      `
-      actionResultBox.textContent = `✔ Saved: ${currentOptions.actionGenerationResult.packName}`
-      panel.appendChild(actionResultBox)
-
-      // Hint: right-click to find in context menu
-      const hintBox = document.createElement('div')
-      hintBox.style.cssText = 'font-size: 10px; color: #666; margin-bottom: 6px;'
-      hintBox.textContent = 'Right-click the pet to find your action in the menu.'
-      panel.appendChild(hintBox)
-    }
-
-    // Action generation error
-    if (currentOptions.actionGenerationError) {
-      const actionErrorBox = document.createElement('div')
-      actionErrorBox.style.cssText = `
-        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
-        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
-      `
-      actionErrorBox.textContent = `✖ ${currentOptions.actionGenerationError}`
-      panel.appendChild(actionErrorBox)
-    }
-
-    // ── Packs section ──
-    const packLabel = document.createElement('div')
-    packLabel.textContent = 'Packs'
-    packLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(packLabel)
-
-    // Import button
-    const importBtn = document.createElement('button')
-    importBtn.textContent = '+ Import Pack'
-    importBtn.style.cssText = `
-      width: 100%; padding: 6px; background: #2a4a2a; border: 1px solid #3a6a3a;
-      border-radius: 4px; color: #7c7; cursor: pointer; font-size: 12px;
-      margin-bottom: 6px;
-    `
-    importBtn.addEventListener('click', async () => {
-      await currentOptions.onImportPack?.()
-    })
-    panel.appendChild(importBtn)
-
-    // Open packs folder button
-    const openFolderBtn = document.createElement('button')
-    openFolderBtn.textContent = 'Open Packs Folder'
-    openFolderBtn.style.cssText = `
-      width: 100%; padding: 6px; background: #2a304a; border: 1px solid #3a4a6a;
-      border-radius: 4px; color: #88c; cursor: pointer; font-size: 12px;
-      margin-bottom: 6px;
-    `
-    openFolderBtn.addEventListener('click', async () => {
-      await currentOptions.onOpenPacksDir?.()
-    })
-    panel.appendChild(openFolderBtn)
-
-    // Imported packs list
-    if (currentOptions.importedCharacters && currentOptions.importedCharacters.length > 0) {
-      for (const pack of currentOptions.importedCharacters) {
-        const row = document.createElement('div')
-        row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 3px; font-size: 12px;'
-
-        row.style.cursor = 'pointer'
-        row.addEventListener('click', (e) => {
-          if (e.target === removeBtn) return
-          currentOptions.onAnimalChange(pack.id, pack.id)
-        })
-
-        const nameSpan = document.createElement('span')
-        const isActive = pack.id === currentOptions.currentAnimal
-        nameSpan.textContent = `${pack.name}`
-        nameSpan.style.cssText = `flex: 1; color: ${isActive ? '#fff' : '#ccc'}; font-weight: ${isActive ? '600' : '400'};`
-        row.appendChild(nameSpan)
-
-        const layersSpan = document.createElement('span')
-        layersSpan.textContent = `${pack.layerCount} layers`
-        layersSpan.style.cssText = 'font-size: 10px; color: #666;'
-        row.appendChild(layersSpan)
-
-        // Quality score badge for generated packs
-        if (pack.qualityScore !== undefined) {
-          const scoreBadge = document.createElement('span')
-          const scoreVal = pack.qualityScore
-          scoreBadge.textContent = `★${scoreVal}`
-          const scoreColor = scoreVal >= 70 ? '#5a5' : scoreVal >= 40 ? '#aa5' : '#a55'
-          scoreBadge.style.cssText = `font-size: 10px; color: ${scoreColor}; font-weight: 600; padding: 0 3px;`
-          row.appendChild(scoreBadge)
-        }
-
-        const editBtn = document.createElement('button')
-        editBtn.textContent = 'Edit'
-        editBtn.style.cssText = `
-          background: #3a3a5e; border: 1px solid #555; border-radius: 3px;
-          color: #ccc; cursor: pointer; font-size: 10px; padding: 1px 6px;
-        `
-        editBtn.addEventListener('click', (e) => {
-          e.stopPropagation()
-          currentOptions.onEditPack?.(pack.id)
-        })
-        row.appendChild(editBtn)
-
-        const removeBtn = document.createElement('button')
-        removeBtn.textContent = '✕'
-        removeBtn.style.cssText = `
-          background: none; border: none; color: #855; cursor: pointer;
-          font-size: 12px; padding: 0 2px;
-        `
-        removeBtn.addEventListener('click', (e) => {
-          e.stopPropagation()
-          currentOptions.onRemovePack?.(pack.id)
-        })
-        row.appendChild(removeBtn)
-
-        panel.appendChild(row)
-      }
-    }
-
-    // Import errors display
-    if (currentOptions.importErrors && currentOptions.importErrors.length > 0) {
-      const errorBox = document.createElement('div')
-      errorBox.style.cssText = `
-        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
-        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
-      `
-      const errorTitle = document.createElement('div')
-      errorTitle.textContent = 'Import errors:'
-      errorTitle.style.cssText = 'font-weight: 600; margin-bottom: 3px;'
-      errorBox.appendChild(errorTitle)
-
-      for (const err of currentOptions.importErrors) {
-        const errLine = document.createElement('div')
-        errLine.textContent = `  ${err.field}: ${err.message}`
-        errLine.style.cssText = 'margin-bottom: 1px;'
-        errorBox.appendChild(errLine)
-      }
-      panel.appendChild(errorBox)
-    }
-
-    const packSep = document.createElement('div')
-    packSep.style.cssText = 'height: 1px; background: #333; margin: 8px 0;'
-    panel.appendChild(packSep)
-
-    // ── Actions section ──
-    const actionPackLabel = document.createElement('div')
-    actionPackLabel.textContent = 'Actions'
-    actionPackLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
-    panel.appendChild(actionPackLabel)
-
-    if (currentOptions.actionPacks && currentOptions.actionPacks.length > 0) {
-      for (const ap of currentOptions.actionPacks) {
-        const row = document.createElement('div')
-        row.style.cssText = 'display: flex; align-items: center; gap: 6px; margin-bottom: 3px; font-size: 12px;'
-
-        const nameSpan = document.createElement('span')
-        nameSpan.textContent = `${ap.name}`
-        nameSpan.style.cssText = 'flex: 1; color: #ccc;'
-        row.appendChild(nameSpan)
-
-        const metaSpan = document.createElement('span')
-        metaSpan.textContent = `${ap.frameCount}f · ${ap.category}`
-        metaSpan.style.cssText = 'font-size: 10px; color: #666;'
-        row.appendChild(metaSpan)
-
-        // Preview button
-        const previewBtn = document.createElement('button')
-        previewBtn.textContent = '▶'
-        previewBtn.title = 'Preview action'
-        previewBtn.style.cssText = `
-          background: none; border: 1px solid #555; border-radius: 3px;
-          color: #5a5; cursor: pointer; font-size: 10px; padding: 1px 4px;
-        `
-        previewBtn.addEventListener('click', (e) => {
-          e.stopPropagation()
-          currentOptions.onPreviewAction?.(ap.id)
-        })
-        row.appendChild(previewBtn)
-
-        // Equip toggle
-        const equipCheck = document.createElement('input')
-        equipCheck.type = 'checkbox'
-        equipCheck.checked = ap.equipped
-        equipCheck.title = 'Show in context menu'
-        equipCheck.addEventListener('change', () => {
-          currentOptions.onToggleActionEquip?.(ap.id, equipCheck.checked)
-        })
-        row.appendChild(equipCheck)
-
-        const equipLabel = document.createElement('span')
-        equipLabel.textContent = 'Menu'
-        equipLabel.style.cssText = 'font-size: 10px; color: #666;'
-        row.appendChild(equipLabel)
-
-        panel.appendChild(row)
-      }
-    } else {
-      const empty = document.createElement('div')
-      empty.textContent = 'No action packs imported'
-      empty.style.cssText = 'font-size: 11px; color: #555; padding: 4px 0;'
-      panel.appendChild(empty)
-    }
-
-    // Close button
-    const closeBtn = document.createElement('button')
-    closeBtn.textContent = 'Close'
-    closeBtn.style.cssText = `
-      width: 100%; padding: 8px; background: #333; border: 1px solid #555;
-      border-radius: 6px; color: #eee; cursor: pointer; font-size: 13px;
-    `
-    closeBtn.addEventListener('click', hide)
-    panel.appendChild(closeBtn)
-
-    overlay.appendChild(panel)
+    overlay.appendChild(sheet)
     return overlay
   }
+
+  // ── show / hide / destroy / update ──
 
   function show(): void {
     hide()
     panelEl = buildPanel()
     document.body.appendChild(panelEl)
+    animateSheetIn(panelEl)
   }
 
-  function hide(): void {
+  async function hide(): Promise<void> {
     if (panelEl) {
+      await animateSheetOut(panelEl)
       panelEl.remove()
       panelEl = null
     }
   }
 
   function destroy(): void {
-    hide()
+    if (panelEl) {
+      panelEl.remove()
+      panelEl = null
+    }
   }
 
   function update(newOpts: Partial<SettingsPanelOptions>): void {
     Object.assign(currentOptions, newOpts)
-    // If panel is visible, rebuild it
+    // Update toggle refs without full rebuild for fast responsive feel
     if (panelEl) {
-      show() // rebuild
+      // If progress or result changed, full rebuild is simplest
+      if (
+        newOpts.generationProgress !== undefined ||
+        newOpts.generationStatus !== undefined ||
+        newOpts.generationResult !== undefined ||
+        newOpts.generationError !== undefined ||
+        newOpts.actionGenerationProgress !== undefined ||
+        newOpts.actionGenerationStatus !== undefined ||
+        newOpts.actionGenerationResult !== undefined ||
+        newOpts.actionGenerationError !== undefined ||
+        newOpts.importErrors !== undefined ||
+        newOpts.importedCharacters !== undefined ||
+        newOpts.actionPacks !== undefined ||
+        newOpts.animals !== undefined ||
+        newOpts.palettes !== undefined
+      ) {
+        show()
+        return
+      }
+
+      // Quick patches for toggles and selects
+      if (newOpts.currentAccessories !== undefined) {
+        currentOptions.accessories.forEach(acc => {
+          const ref = toggleRefs.get(`acc:${acc.id}`)
+          if (ref) ref.setChecked(newOpts.currentAccessories!.includes(acc.id))
+        })
+      }
+      if (newOpts.autoLaunch !== undefined) {
+        const ref = toggleRefs.get('autoLaunch')
+        if (ref) ref.setChecked(newOpts.autoLaunch)
+      }
+      if (newOpts.currentPalette !== undefined) {
+        const select = panelEl.querySelector('select') as HTMLSelectElement | null
+        // We rebuild if palette list changes, so just sync selection
+      }
     }
   }
 

@@ -1,5 +1,11 @@
+/**
+ * PixelPet Welcome Screen — card grid with 3 columns per row.
+ * Apple-inspired card selection with hover lift and blue accent.
+ */
+
 import type { ElectronAPI } from '../../shared/ipc-types'
 import { ANIMALS, getPalettesForAnimal } from '../assets/catalog'
+import { injectDesignSystem, FONT_STACK, createButton } from './design-system'
 
 export interface WelcomeScreen {
   readonly element: HTMLElement
@@ -7,79 +13,164 @@ export interface WelcomeScreen {
 }
 
 const ANIMAL_COLORS: Record<string, string> = {
-  raccoon: '#808080', cat: '#d4a574', fox: '#e87020',
-  rabbit: '#c0b0a0', panda: '#e8e8e8', frog: '#6abf40',
-  penguin: '#406080', mouse: '#a0a0a0', bear: '#8b6914',
-  koala: '#808068', owl: '#604020',
+  raccoon: '#808080',
+  cat: '#d4a574',
+  fox: '#e87020',
+  rabbit: '#c0b0a0',
+  panda: '#e8e8e8',
+  frog: '#6abf40',
+  penguin: '#406080',
+  mouse: '#a0a0a0',
+  bear: '#8b6914',
+  koala: '#808068',
+  owl: '#604020',
 }
 
-export function createWelcomeScreen(api: ElectronAPI, onSelect: (animalId: string) => void): WelcomeScreen {
+export function createWelcomeScreen(
+  api: ElectronAPI,
+  onSelect: (animalId: string) => void,
+): WelcomeScreen {
+  injectDesignSystem()
+
   const container = document.createElement('div')
   container.style.cssText = `
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: linear-gradient(135deg, #0f0f2a 0%, #1a1a3e 50%, #0f0f2a 100%);
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 10000; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    color: #e0e0e0;
+    font-family: ${FONT_STACK};
+    color: #fff;
   `
 
   let selected = 'raccoon'
 
   function buildGrid(): void {
-    const gridRows: string[] = []
-    const chunkSize = 4
-    for (let i = 0; i < ANIMALS.length; i += chunkSize) {
-      const chunk = ANIMALS.slice(i, i + chunkSize)
-      const cells = chunk.map(a => {
-        const color = ANIMAL_COLORS[a.id] ?? '#666'
-        return `
-          <div class="wc-card" data-id="${a.id}" style="
-            width:120px; padding:14px 8px; border-radius:10px;
-            background: ${selected === a.id ? '#3a3a6e' : '#1a1a36'};
-            border: 2px solid ${selected === a.id ? '#6a6af7' : '#2a2a4a'};
-            cursor: pointer; text-align: center;
-            transition: all 0.15s ease;
-          ">
-            <div style="width:64px;height:64px;margin:0 auto 6px;border-radius:6px;background:${color};display:flex;align-items:center;justify-content:center;font-size:28px;border:1px solid #444;">
-              ${a.id[0].toUpperCase()}
-            </div>
-            <div style="font-size:13px;font-weight:500;color:${selected === a.id ? '#fff' : '#aaa'};">${a.name}</div>
-          </div>
-        `
-      }).join('')
-      gridRows.push(`<div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;">${cells}</div>`)
-    }
+    // Clear everything
+    container.innerHTML = ''
 
-    container.innerHTML = `
-      <div style="text-align:center;margin-bottom:28px;">
-        <div style="font-size:36px;margin-bottom:4px;">👾</div>
-        <h1 style="margin:0;font-size:22px;font-weight:700;background:linear-gradient(90deg,#7af,#a7f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">PixelPet</h1>
-        <p style="margin:4px 0 0;font-size:13px;color:#888;">Pick your new companion</p>
-      </div>
-      <div>${gridRows.join('')}</div>
-      <div style="margin-top:20px;display:flex;gap:10px;">
-        <button id="wc-confirm" style="
-          padding:10px 32px; border-radius:8px; border:none; cursor:pointer;
-          background:linear-gradient(90deg,#4a6cf7,#7a4cf7); color:#fff;
-          font-size:15px; font-weight:600;
-        ">Adopt ${ANIMALS.find(a => a.id === selected)?.name ?? '...'}!</button>
-      </div>
-      <p style="margin-top:12px;font-size:11px;color:#555;">You can change your companion later in Settings</p>
+    // ── Header ──
+    const header = document.createElement('div')
+    header.style.cssText = 'text-align: center; margin-bottom: 32px;'
+
+    const icon = document.createElement('div')
+    icon.textContent = '👾'
+    icon.style.cssText = 'font-size: 40px; margin-bottom: 8px;'
+    header.appendChild(icon)
+
+    const title = document.createElement('h1')
+    title.textContent = 'PixelPet'
+    title.style.cssText = `
+      margin: 0; font-size: 24px; font-weight: 700;
+      background: linear-gradient(90deg, #007aff, #bf5af2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    `
+    header.appendChild(title)
+
+    const subtitle = document.createElement('p')
+    subtitle.textContent = 'Pick your new companion'
+    subtitle.style.cssText = 'margin: 4px 0 0; font-size: 14px; color: #98989d;'
+    header.appendChild(subtitle)
+
+    container.appendChild(header)
+
+    // ── Card Grid (3 columns) ──
+    const grid = document.createElement('div')
+    grid.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      max-width: 420px;
+      width: 100%;
+      padding: 0 24px;
     `
 
-    // Bind card clicks
-    container.querySelectorAll('.wc-card').forEach(card => {
+    ANIMALS.forEach((a) => {
+      const color = ANIMAL_COLORS[a.id] ?? '#666'
+      const isSelected = selected === a.id
+
+      const card = document.createElement('div')
+      card.dataset.id = a.id
+      card.style.cssText = `
+        display: flex; flex-direction: column; align-items: center;
+        gap: 8px; padding: 16px 8px 12px;
+        border-radius: 14px;
+        cursor: pointer; text-align: center;
+        background: ${isSelected ? '#3a3a3c' : '#2c2c2e'};
+        border: 2px solid ${isSelected ? '#007aff' : '#38383a'};
+        transition: transform 0.2s ${'cubic-bezier(0.22, 1, 0.36, 1)'},
+                    box-shadow 0.2s ease,
+                    background 0.15s,
+                    border-color 0.15s;
+        box-shadow: ${isSelected ? '0 4px 12px rgba(0,122,255,0.3)' : '0 1px 3px rgba(0,0,0,0.2)'};
+      `
+
+      // Hover lift
+      card.addEventListener('mouseenter', () => {
+        if (selected !== a.id) {
+          card.style.transform = 'translateY(-2px)'
+          card.style.boxShadow = '0 6px 16px rgba(0,0,0,0.4)'
+        }
+      })
+      card.addEventListener('mouseleave', () => {
+        if (selected !== a.id) {
+          card.style.transform = 'translateY(0)'
+          card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.2)'
+        }
+      })
+
       card.addEventListener('click', () => {
-        selected = (card as HTMLElement).dataset.id!
+        selected = a.id
         buildGrid()
       })
+
+      // Icon
+      const iconEl = document.createElement('div')
+      iconEl.textContent = a.id[0].toUpperCase()
+      iconEl.style.cssText = `
+        width: 48px; height: 48px; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; font-weight: 700; color: #fff;
+        background: ${color};
+        border: 1px solid rgba(255,255,255,0.1);
+      `
+      card.appendChild(iconEl)
+
+      // Name
+      const name = document.createElement('div')
+      name.textContent = a.name
+      name.style.cssText = `
+        font-size: 13px; font-weight: 500;
+        color: ${isSelected ? '#fff' : '#98989d'};
+      `
+      card.appendChild(name)
+
+      grid.appendChild(card)
     })
 
-    // Bind confirm
-    container.querySelector('#wc-confirm')!.addEventListener('click', () => {
+    container.appendChild(grid)
+
+    // ── Button row ──
+    const btnRow = document.createElement('div')
+    btnRow.style.cssText = 'margin-top: 24px; text-align: center;'
+
+    const animalName = ANIMALS.find((a) => a.id === selected)?.name ?? '...'
+    const getStartedBtn = createButton(`Adopt ${animalName}!`, 'primary', () => {
       onSelect(selected)
     })
+    getStartedBtn.style.cssText = getStartedBtn.style.cssText + ';padding: 10px 36px; font-size: 15px; font-weight: 600;'
+    btnRow.appendChild(getStartedBtn)
+
+    container.appendChild(btnRow)
+
+    // ── Hint ──
+    const hint = document.createElement('p')
+    hint.textContent = 'You can change your companion later in Settings'
+    hint.style.cssText = 'margin-top: 12px; font-size: 11px; color: #636366;'
+    container.appendChild(hint)
   }
 
   buildGrid()
@@ -87,6 +178,8 @@ export function createWelcomeScreen(api: ElectronAPI, onSelect: (animalId: strin
 
   return {
     element: container,
-    destroy() { container.remove() },
+    destroy() {
+      container.remove()
+    },
   }
 }
