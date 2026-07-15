@@ -18,6 +18,7 @@ import { createExpressionController } from './state/expression-controller'
 import { createActivityController } from './state/activity-controller'
 import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES, mergeAnimals, registerActionPack, customActions, type PackCharacterInfo } from './assets/catalog'
 import { createPackEditor, type PackEditor } from './ui/pack-editor'
+import { createWelcomeScreen } from './ui/welcome-screen'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
 import { createSettingsPanel } from './ui/settings-panel'
@@ -84,6 +85,8 @@ async function main(): Promise<void> {
     triggerAction(actionId)
   })
 
+  let isFirstLaunch = false
+
   // Restore saved state on startup
   api.onRestoreState((savedState) => {
     if (savedState.selection) {
@@ -97,6 +100,9 @@ async function main(): Promise<void> {
       })
       // Trigger the restored action
       triggerAction(savedState.selection.action)
+    } else {
+      // First launch — no saved state, will show welcome screen
+      isFirstLaunch = true
     }
     // Restore auto-launch state
     if (savedState.settings?.autoLaunch !== undefined) {
@@ -803,6 +809,31 @@ async function main(): Promise<void> {
   }
 
   // --- Start everything ---
+
+  // First launch — show welcome screen before starting the pet
+  if (isFirstLaunch) {
+    await new Promise<void>((resolve) => {
+      const welcome = createWelcomeScreen(api, (animalId) => {
+        selectionStore.setAnimal(animalId)
+        const palettes = getPalettesForAnimal(animalId)
+        if (palettes.length > 0) selectionStore.setPalette(palettes[0].id)
+        // Save state so next launch skips welcome screen
+        api.saveState({
+          window: { x: -1, y: -1 },
+          selection: {
+            animal: animalId,
+            action: 'idle',
+            resolution: selectionStore.resolution,
+            palette: selectionStore.palette,
+            accessories: [],
+          },
+        })
+        welcome.destroy()
+        resolve()
+      })
+    })
+  }
+
   await playAction('idle')
   requestAnimationFrame(gameLoop)
 
