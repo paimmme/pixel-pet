@@ -389,6 +389,16 @@ async function main(): Promise<void> {
                                   actionGenerationStatus: actionGenStatus,
                                   actionGenerationProgress: 100,
                                 })
+                                // Refresh action pack list in settings
+                                api.listActionPacks().then(list => {
+                                  actionPacksList = list.map(p => ({
+                                    id: p.id, name: p.name, frameCount: p.frameCount, category: p.category ?? 'custom',
+                                    equipped: equippedActionIds.has(p.id),
+                                  }))
+                                  if (settingsPanel) {
+                                    settingsPanel.update({ actionPacks: actionPacksList })
+                                  }
+                                }).catch(() => {})
                               } else {
                                 actionGenError = saveResult.errors?.map(e => e.message).join('; ') ?? 'Save failed'
                                 settingsPanel!.update({ actionGenerationError: actionGenError, actionGenerationStatus: 'failed' })
@@ -429,9 +439,11 @@ async function main(): Promise<void> {
               const editor = createPackEditor({
                 packId,
                 onClose: () => { editorPanel = null },
-                onSave: () => {
-                  loader.clearCache()
-                },
+            onSave: () => {
+              loader.clearCache()
+              // Re-trigger animation to pick up fresh assets
+              stateMachine.feedEvent({ type: 'change' })
+            },
               })
               editorPanel = editor
               document.body.appendChild(editor.element)
@@ -663,6 +675,8 @@ async function main(): Promise<void> {
     } catch (err) {
       if (requestId === playRequestId) {
         console.error('Failed to compose animation:', err)
+        // Reset state machine to Idle so the pet doesn't get stuck in Acting
+        stateMachine.feedEvent({ type: 'animation-complete' })
       }
     }
   }
