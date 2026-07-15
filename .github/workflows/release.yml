@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      - name: Lint assets
+        run: npm run lint:assets
+
+      - name: Build packages
+        run: npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pixel-pet-${{ matrix.os }}
+          path: release/
+
+  create-release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pixel-pet-*
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -laR
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: PixelPet ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          files: |
+            **/*.dmg
+            **/*.exe
+            **/*.AppImage
+          fail_on_unmatched_files: false
