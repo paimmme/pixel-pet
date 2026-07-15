@@ -123,6 +123,7 @@ export function createComposeCacheKey(config: ComposeConfig): string {
     config.palette ?? 'default',
     config.direction ?? 'none',
     config.packId ?? 'factory',
+    config.packActionId ?? 'none',
     accessories,
     expression
   ].join(':')

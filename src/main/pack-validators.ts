@@ -125,8 +125,15 @@ export function validateActionManifest(raw: unknown): ValidationResult<ActionPac
   if (typeof m.category !== 'string') errors.push({ field: 'category', message: 'Must be a string' })
 
   if (m.directions !== undefined && m.directions !== null) {
-    if (typeof m.directions !== 'number' || (m.directions as number) < 1) {
-      errors.push({ field: 'directions', message: 'Must be a positive integer when specified' })
+    const validDirections = ['down', 'left', 'right', 'up']
+    if (!Array.isArray(m.directions) || m.directions.length < 1) {
+      errors.push({ field: 'directions', message: 'Must be a non-empty array of Direction (down/left/right/up) when specified' })
+    } else {
+      for (const d of m.directions) {
+        if (typeof d !== 'string' || !validDirections.includes(d)) {
+          errors.push({ field: 'directions', message: `Invalid direction "${String(d)}". Must be one of: ${validDirections.join(', ')}` })
+        }
+      }
     }
   }
 

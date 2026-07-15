@@ -90,10 +90,16 @@ describe('createComposeCacheKey', () => {
     expect(factory).not.toBe(pack)
   })
 
-  it('produces a colon-separated 8-part key', () => {
+  it('differs when packActionId changes', () => {
+    const a = createComposeCacheKey(makeConfig({ packActionId: 'act_abc' }))
+    const b = createComposeCacheKey(makeConfig({ packActionId: 'act_xyz' }))
+    expect(a).not.toBe(b)
+  })
+
+  it('produces a colon-separated 9-part key', () => {
     const key = createComposeCacheKey(makeConfig())
     const parts = key.split(':')
-    expect(parts).toHaveLength(8)
+    expect(parts).toHaveLength(9)
     expect(parts[0]).toBe('raccoon')
     expect(parts[1]).toBe('idle')
     expect(parts[2]).toBe('32')

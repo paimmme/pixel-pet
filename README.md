@@ -178,7 +178,7 @@ pixel-pet/
 │   │   ├── index.ts           # App entry, window creation
 │   │   ├── generation.ts      # AI character/action generation
 │   │   ├── pack-registry.ts   # Pack file management
-│   │   ├── pack-validators.ts # Zod schema validators
+│   │   ├── pack-validators.ts # Schema + file-existence validators
 │   │   ├── ipc-handlers.ts    # IPC bridge handlers
 │   │   ├── quality-score.ts   # Pack quality scoring
 │   │   └── settings.ts        # Persistent state
@@ -216,7 +216,7 @@ Unit test coverage:
 | File | Tests | Area |
 |------|-------|------|
 | `create-compose-cache-key.test.ts` | 12 | Cache key generation |
-| `pack-validators.test.ts` | 25 | Zod schema + file validation |
+| `pack-validators.test.ts` | 25 | Schema + file validation |
 | `settings.test.ts` | 4 | State persistence |
 | `palette-swapper.test.ts` | 4 | Palette compilation |
 | `behavior-scheduler.test.ts` | 17 | Cooldowns, fatigue, context triggers |

@@ -362,6 +362,9 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     const rootPath = resolvePackDir(packId)
     if (!rootPath) return false
 
+    // Guard: paletteId must be a safe identifier (no path separators)
+    if (!/^[a-zA-Z0-9_-]+$/.test(paletteId)) return false
+
     const palettePath = join(rootPath, 'palettes', `${paletteId}.json`)
     // Guard: palettePath must stay inside rootPath
     const rel = relative(rootPath, palettePath)

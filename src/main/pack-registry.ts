@@ -1,9 +1,9 @@
-import { readFileSync, existsSync, readdirSync, statSync, cpSync, mkdirSync, writeFileSync } from 'fs'
+import { readFileSync, existsSync, readdirSync, statSync, cpSync, mkdirSync, writeFileSync, rmSync } from 'fs'
 import { join, isAbsolute, basename, resolve, relative, normalize } from 'path'
 import type { CharacterPackManifest, ActionPackManifest, CharacterPack, ActionPack, PackImportResult } from '../shared/pack-types'
 import type { CharacterPackSummary, ActionPackSummary } from '../shared/pack-types'
 import type { ValidationError } from '../shared/pack-types'
-import { validateCharacterManifest, validateActionManifest } from './pack-validators'
+import { validateCharacterManifest, validateActionManifest, validatePackFiles } from './pack-validators'
 
 export type PackType = 'character' | 'action'
 
@@ -254,6 +254,15 @@ export class PackRegistry {
       }
 
       cpSync(sourcePath, destDir, { recursive: true })
+
+      // Validate file integrity before registering
+      if (raw.type === 'character') {
+        const fileErrors = validatePackFiles(destDir, raw as CharacterPackManifest)
+        if (fileErrors.length > 0) {
+          rmSync(destDir, { recursive: true, force: true })
+          return { success: false, packId, errors: fileErrors }
+        }
+      }
 
       // Register the pack
       if (raw.type === 'character') {
