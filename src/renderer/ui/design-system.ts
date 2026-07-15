@@ -20,7 +20,7 @@ export function injectDesignSystem(): void {
   const style = document.createElement('style')
   style.textContent = `
     :root {
-      --ds-backdrop: rgba(0,0,0,0.5);
+      --ds-bg-primary: #1c1c1e;
       --ds-panel-bg: #2c2c2e;
       --ds-secondary-fill: #3a3a3c;
       --ds-tertiary-fill: #444446;
@@ -38,29 +38,78 @@ export function injectDesignSystem(): void {
       --ds-radius-md: 10px;
       --ds-radius-lg: 14px;
       --ds-shadow-lg: 0 8px 30px rgba(0,0,0,0.5);
+      --ds-shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+      --ds-frosted-bg: rgba(28,28,30,0.85);
+      --ds-frosted-border: rgba(255,255,255,0.08);
+      --ds-backdrop: rgba(0,0,0,0.5);
       --ds-ease-spring: ${SPRING};
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      --ds-bg-primary: #f5f5f7;
+      --ds-panel-bg: #ffffff;
+      --ds-secondary-fill: #f2f2f4;
+      --ds-tertiary-fill: #e8e8ec;
+      --ds-text-primary: #1d1d1f;
+      --ds-text-secondary: #86868b;
+      --ds-text-tertiary: #aeaeb2;
+      --ds-separator: #d2d2d5;
+      --ds-shadow-lg: 0 8px 30px rgba(0,0,0,0.1);
+      --ds-shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+      --ds-frosted-bg: rgba(255,255,255,0.85);
+      --ds-frosted-border: rgba(0,0,0,0.05);
+      --ds-backdrop: rgba(0,0,0,0.15);
+      color-scheme: light;
+    }
+
+    /* Theme transition */
+    .ds-themed, .ds-themed * {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Default background */
+    body {
+      background: var(--ds-bg-primary) !important;
     }
 
     /* Scrollbar styling for panels */
-    .ds-scroll::-webkit-scrollbar {
-      width: 4px;
-    }
-    .ds-scroll::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    .ds-scroll::-webkit-scrollbar { width: 4px; }
+    .ds-scroll::-webkit-scrollbar-track { background: transparent; }
     .ds-scroll::-webkit-scrollbar-thumb {
-      background: #3a3a3c;
+      background: var(--ds-tertiary-fill);
       border-radius: 2px;
     }
 
-    /* Native select reset for custom-style dropdowns */
+    /* Native select reset */
     .ds-select {
-      -webkit-appearance: none;
-      appearance: none;
+      -webkit-appearance: none; appearance: none;
     }
   `
   document.head.appendChild(style)
 }
+
+// ── Theme management ──
+
+/** Restore persisted theme or fall back to 'dark' */
+export function getTheme(): 'dark' | 'light' {
+  const saved = localStorage.getItem('ds-theme')
+  if (saved === 'light' || saved === 'dark') return saved
+  return 'dark'
+}
+
+export function setTheme(theme: 'dark' | 'light'): void {
+  document.documentElement.dataset.theme = theme
+  localStorage.setItem('ds-theme', theme)
+}
+
+export function toggleTheme(): void {
+  const next = getTheme() === 'dark' ? 'light' : 'dark'
+  setTheme(next)
+}
+
+// Apply theme immediately on module load
+setTheme(getTheme())
 
 // ── Exported constants ──
 
@@ -88,7 +137,7 @@ export function createSection(label: string): Section {
   labelEl.style.cssText = `
     font-size: 12px; font-weight: 600;
     letter-spacing: 0.5px; text-transform: uppercase;
-    color: #98989d; margin-bottom: 10px;
+    color: var(--ds-text-secondary); margin-bottom: 10px;
     font-family: ${FONT};
   `
 
@@ -101,8 +150,9 @@ export function createSection(label: string): Section {
  */
 export function createCard(...children: HTMLElement[]): HTMLDivElement {
   const card = document.createElement('div')
+  card.className = 'ds-themed'
   card.style.cssText = `
-    background: #3a3a3c; border-radius: 12px;
+    background: var(--ds-secondary-fill); border-radius: 12px;
     padding: 16px; margin-bottom: 12px;
   `
   children.forEach(c => card.appendChild(c))
@@ -125,32 +175,36 @@ export function createButton(
   const base = `
     border: none; border-radius: 10px; cursor: pointer;
     font-family: ${FONT}; font-size: 13px; font-weight: 500;
-    padding: 8px 20px; transition: transform 0.1s, background 0.15s;
+    padding: 8px 20px; transition: transform 0.1s, background 0.15s, color 0.15s;
     user-select: none; outline: none;
   `
 
   switch (variant) {
     case 'primary':
+      btn.className = 'ds-themed'
       btn.style.cssText = base + 'background: #007aff; color: #fff;'
       btn.addEventListener('mouseenter', () => { btn.style.background = '#0a84ff' })
       btn.addEventListener('mouseleave', () => { btn.style.background = '#007aff' })
       break
     case 'secondary':
-      btn.style.cssText = base + 'background: #3a3a3c; color: #fff; border: 1px solid #48484a;'
-      btn.addEventListener('mouseenter', () => { btn.style.background = '#444446' })
-      btn.addEventListener('mouseleave', () => { btn.style.background = '#3a3a3c' })
+      btn.className = 'ds-themed'
+      btn.style.cssText = base + 'background: var(--ds-secondary-fill); color: var(--ds-text-primary); border: 1px solid var(--ds-separator);'
+      btn.addEventListener('mouseenter', () => { btn.style.background = 'var(--ds-tertiary-fill)' })
+      btn.addEventListener('mouseleave', () => { btn.style.background = 'var(--ds-secondary-fill)' })
       break
     case 'danger':
+      btn.className = 'ds-themed'
       btn.style.cssText = base + 'background: #ff453a; color: #fff;'
       btn.addEventListener('mouseenter', () => { btn.style.background = '#ff6259' })
       btn.addEventListener('mouseleave', () => { btn.style.background = '#ff453a' })
       break
     case 'ghost':
-      btn.style.cssText = base + 'background: transparent; color: #98989d; padding: 4px 12px;'
-      btn.addEventListener('mouseenter', () => { btn.style.background = '#3a3a3c'; btn.style.color = '#fff' })
-      btn.addEventListener('mouseleave', () => { btn.style.background = 'transparent'; btn.style.color = '#98989d' })
+      btn.style.cssText = base + 'background: transparent; color: var(--ds-text-secondary); padding: 4px 12px;'
+      btn.addEventListener('mouseenter', () => { btn.style.background = 'var(--ds-secondary-fill)'; btn.style.color = 'var(--ds-text-primary)' })
+      btn.addEventListener('mouseleave', () => { btn.style.background = 'transparent'; btn.style.color = 'var(--ds-text-secondary)' })
       break
     case 'outline':
+      btn.className = 'ds-themed'
       btn.style.cssText = base + 'background: transparent; color: #007aff; border: 1px solid #007aff;'
       btn.addEventListener('mouseenter', () => { btn.style.background = '#007aff'; btn.style.color = '#fff' })
       btn.addEventListener('mouseleave', () => { btn.style.background = 'transparent'; btn.style.color = '#007aff' })
@@ -177,9 +231,10 @@ export function createToggle(
   onChange: (checked: boolean) => void,
 ): ToggleControl {
   const track = document.createElement('div')
+  track.className = 'ds-themed'
   track.style.cssText = `
     width: 44px; height: 26px; border-radius: 13px;
-    background: ${checked ? '#007aff' : '#3a3a3c'};
+    background: ${checked ? '#007aff' : 'var(--ds-tertiary-fill)'};
     cursor: pointer; position: relative; transition: background 0.2s;
     flex-shrink: 0;
   `
@@ -198,7 +253,7 @@ export function createToggle(
   const toggle = () => {
     const next = !checked
     checked = next
-    track.style.background = next ? '#007aff' : '#3a3a3c'
+    track.style.background = next ? '#007aff' : 'var(--ds-tertiary-fill)'
     thumb.style.left = next ? '20px' : '2px'
     onChange(next)
   }
@@ -209,7 +264,7 @@ export function createToggle(
     element: track,
     setChecked(v) {
       checked = v
-      track.style.background = v ? '#007aff' : '#3a3a3c'
+      track.style.background = v ? '#007aff' : 'var(--ds-tertiary-fill)'
       thumb.style.left = v ? '20px' : '2px'
     },
   }
@@ -234,17 +289,17 @@ export function createSelect(
     select.appendChild(opt)
   })
 
-  select.className = 'ds-select'
+  select.className = 'ds-select ds-themed'
   select.style.cssText = `
     -webkit-appearance: none; appearance: none;
     width: 100%; padding: 8px 32px 8px 12px;
-    background: #3a3a3c; border: 1px solid #48484a; border-radius: 8px;
-    color: #fff; font-family: ${FONT}; font-size: 13px;
+    background: var(--ds-secondary-fill); border: 1px solid var(--ds-secondary-fill); border-radius: 8px;
+    color: var(--ds-text-primary); font-family: ${FONT}; font-size: 13px;
     outline: none; cursor: pointer; transition: border-color 0.15s;
   `
 
   select.addEventListener('focus', () => { select.style.borderColor = '#007aff' })
-  select.addEventListener('blur', () => { select.style.borderColor = '#48484a' })
+  select.addEventListener('blur', () => { select.style.borderColor = 'var(--ds-secondary-fill)' })
   select.addEventListener('change', () => { onChange(select.value) })
 
   // Custom chevron
@@ -253,13 +308,22 @@ export function createSelect(
   chevron.style.cssText = `
     position: absolute; right: 10px; top: 50%;
     transform: translateY(-50%);
-    color: #98989d; font-size: 10px; pointer-events: none;
+    color: var(--ds-text-secondary); font-size: 10px; pointer-events: none;
     line-height: 1;
   `
 
   container.appendChild(select)
   container.appendChild(chevron)
   return container
+}
+
+// ── Separator ──
+
+export function createSeparator(): HTMLDivElement {
+  const sep = document.createElement('div')
+  sep.className = 'ds-themed'
+  sep.style.cssText = 'height: 1px; background: var(--ds-separator); margin: 12px 0;'
+  return sep
 }
 
 // ── Badge (coloured dot + text) ──
@@ -292,7 +356,8 @@ export function createBadge(text: string, color: string): HTMLSpanElement {
 
 export function createProgressBar(percent: number): HTMLDivElement {
   const bar = document.createElement('div')
-  bar.style.cssText = 'width: 100%; height: 3px; background: #3a3a3c; border-radius: 2px; overflow: hidden;'
+  bar.className = 'ds-themed'
+  bar.style.cssText = 'width: 100%; height: 3px; background: var(--ds-tertiary-fill); border-radius: 2px; overflow: hidden;'
 
   const fill = document.createElement('div')
   fill.style.cssText = `
@@ -316,7 +381,7 @@ export function createRow(label: string, control: HTMLElement): HTMLDivElement {
 
   const labelSpan = document.createElement('span')
   labelSpan.textContent = label
-  labelSpan.style.cssText = `flex: 1; font-size: 13px; color: #fff; font-family: ${FONT};`
+  labelSpan.style.cssText = `flex: 1; font-size: 13px; color: var(--ds-text-primary); font-family: ${FONT};`
 
   row.appendChild(labelSpan)
   row.appendChild(control)
@@ -327,22 +392,15 @@ export function createRow(label: string, control: HTMLElement): HTMLDivElement {
 
 export function createCodeBlock(lines: string[]): HTMLDivElement {
   const block = document.createElement('div')
+  block.className = 'ds-themed'
   block.style.cssText = `
-    background: #2c2c2e; border-radius: 8px;
+    background: var(--ds-panel-bg); border-radius: 8px;
     padding: 10px 12px; font-family: ${MONO};
-    font-size: 11px; line-height: 1.6; color: #98989d;
+    font-size: 11px; line-height: 1.6; color: var(--ds-text-secondary);
     overflow-x: auto;
   `
   block.textContent = lines.join('\n')
   return block
-}
-
-// ── Separator ──
-
-export function createSeparator(): HTMLDivElement {
-  const sep = document.createElement('div')
-  sep.style.cssText = 'height: 1px; background: #38383a; margin: 12px 0;'
-  return sep
 }
 
 // ── Icon (large letter avatar for animal cards) ──

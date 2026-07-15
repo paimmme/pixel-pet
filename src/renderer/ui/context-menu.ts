@@ -13,16 +13,10 @@ export interface ContextMenuAction {
 export interface ContextMenuOptions {
   actions: ContextMenuAction[]
   onAction: (actionId: string) => void
-  theme?: 'light' | 'dark'
 }
 
 /**
  * Create and show an HTML overlay context menu at the given position.
- *
- * - Positioned at (x, y) relative to the viewport
- * - Click outside closes the menu
- * - Click on an action item calls onAction and closes
- * - Returns cleanup function
  */
 export function createContextMenu(
   canvas: HTMLCanvasElement,
@@ -30,7 +24,7 @@ export function createContextMenu(
 ): { show: (x: number, y: number, extraActions?: ContextMenuAction[]) => void; hide: () => void; destroy: () => void } {
   injectDesignSystem()
 
-  const { actions, onAction, theme = 'dark' } = options
+  const { actions, onAction } = options
 
   let menuEl: HTMLDivElement | null = null
 
@@ -56,12 +50,12 @@ export function createContextMenu(
     const menu = document.createElement('div')
     menu.style.cssText = `
       position: fixed;
-      background: ${theme === 'dark' ? '#2c2c2e' : '#ffffff'};
-      border: 1px solid ${theme === 'dark' ? '#38383a' : '#e5e5ea'};
+      background: var(--ds-panel-bg);
+      border: 1px solid var(--ds-separator);
       border-radius: 12px;
       padding: 6px 0;
       min-width: 140px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      box-shadow: var(--ds-shadow-lg);
       z-index: 9999;
       font-family: ${FONT_STACK};
       font-size: 13px;
@@ -73,11 +67,7 @@ export function createContextMenu(
     allItems.forEach((item) => {
       if (item.actionId === 'separator' || item.actionId === 'separator-custom') {
         const sep = document.createElement('div')
-        sep.style.cssText = `
-          height: 1px;
-          background: ${theme === 'dark' ? '#38383a' : '#e5e5ea'};
-          margin: 6px 8px;
-        `
+        sep.style.cssText = `height: 1px; background: var(--ds-separator); margin: 6px 8px;`
         menu.appendChild(sep)
         return
       }
@@ -89,18 +79,18 @@ export function createContextMenu(
         min-height: 36px;
         display: flex; align-items: center;
         cursor: pointer;
-        color: ${theme === 'dark' ? '#fff' : '#333'};
+        color: var(--ds-text-primary);
         transition: background 0.15s;
         margin: 0 6px;
         border-radius: 8px;
       `
       el.addEventListener('mouseenter', () => {
-        el.style.background = theme === 'dark' ? '#007aff' : '#007aff'
+        el.style.background = '#007aff'
         el.style.color = '#fff'
       })
       el.addEventListener('mouseleave', () => {
         el.style.background = 'transparent'
-        el.style.color = theme === 'dark' ? '#fff' : '#333'
+        el.style.color = 'var(--ds-text-primary)'
       })
       el.addEventListener('click', (e) => {
         e.stopPropagation()

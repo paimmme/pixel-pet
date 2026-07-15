@@ -8,6 +8,7 @@ import {
   MIN_IDLE_BEFORE_SCHEDULE,
   ACTIVITY_TRIGGER_DELAY,
   NEVER_SCHEDULE,
+  SPECIAL_AUTO_SCHEDULE,
   AUTO_SCHEDULE_CATEGORIES,
 } from '../renderer/state/behavior-scheduler'
 import { ACTIONS } from '../renderer/assets/catalog'
@@ -62,10 +63,16 @@ describe('isAutoSchedulable', () => {
 
   it('excludes non-auto categories', () => {
     const excluded = ACTIONS.filter(
-      a => !NEVER_SCHEDULE.has(a.id) && !a.loop && !AUTO_SCHEDULE_CATEGORIES.has(a.category!)
+      a => !NEVER_SCHEDULE.has(a.id) && !SPECIAL_AUTO_SCHEDULE.has(a.id) && !a.loop && !AUTO_SCHEDULE_CATEGORIES.has(a.category!)
     )
     for (const def of excluded) {
       expect(isAutoSchedulable(def), `${def.id} (${def.category}) should not be auto-schedulable`).toBe(false)
+    }
+  })
+
+  it('includes special auto-schedule actions regardless of category', () => {
+    for (const def of ACTIONS.filter(a => SPECIAL_AUTO_SCHEDULE.has(a.id))) {
+      expect(isAutoSchedulable(def), `${def.id} should be auto-schedulable`).toBe(true)
     }
   })
 

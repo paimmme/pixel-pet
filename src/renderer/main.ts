@@ -539,7 +539,6 @@ async function main(): Promise<void> {
       }
       triggerAction(actionId)
     },
-    theme: 'dark'
   })
 
   // --- Settings panel ---

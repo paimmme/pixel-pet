@@ -19,7 +19,11 @@ import {
   createSeparator,
   animateSheetIn,
   animateSheetOut,
+  getTheme,
+  setTheme,
+  toggleTheme,
 } from './design-system'
+import { t, getLocale, setLocale } from '../assets/locale'
 
 export interface PackImportError {
   field: string
@@ -97,7 +101,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     const overlay = document.createElement('div')
     overlay.style.cssText = `
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: var(--ds-backdrop);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       z-index: 9998;
@@ -111,17 +115,17 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     const sheet = document.createElement('div')
     sheet.className = 'ds-sheet'
     sheet.style.cssText = `
-      background: #2c2c2e;
+      background: var(--ds-panel-bg);
       border-radius: 14px 14px 0 0;
       width: 100%; max-width: 420px;
       max-height: 75vh;
       overflow-y: auto;
       padding: 24px;
       font-family: ${FONT_STACK};
-      color: #fff;
+      color: var(--ds-text-primary);
       font-size: 13px;
       user-select: none;
-      box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 -4px 30px var(--ds-shadow-color);
       transform: translateY(100%);
       transition: none;
     `
@@ -131,7 +135,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     const handle = document.createElement('div')
     handle.style.cssText = `
       width: 36px; height: 4px; border-radius: 2px;
-      background: #444446; margin: 0 auto 20px;
+      background: var(--ds-tertiary-fill); margin: 0 auto 20px;
     `
     sheet.appendChild(handle)
 
@@ -140,20 +144,20 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     titleRow.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;'
 
     const title = document.createElement('div')
-    title.textContent = 'Settings'
+    title.textContent = t('settings.title')
     title.style.cssText = 'font-size: 15px; font-weight: 600;'
 
     const closeBtn = document.createElement('button')
     closeBtn.textContent = '✕'
     closeBtn.style.cssText = `
-      border: none; background: #3a3a3c; color: #fff;
+      border: none; background: var(--ds-secondary-fill); color: var(--ds-text-secondary);
       width: 28px; height: 28px; border-radius: 14px;
       cursor: pointer; font-size: 13px; display: flex;
       align-items: center; justify-content: center;
       transition: background 0.15s;
     `
-    closeBtn.addEventListener('mouseenter', () => { closeBtn.style.background = '#444446' })
-    closeBtn.addEventListener('mouseleave', () => { closeBtn.style.background = '#3a3a3c' })
+    closeBtn.addEventListener('mouseenter', () => { closeBtn.style.background = 'var(--ds-tertiary-fill)' })
+    closeBtn.addEventListener('mouseleave', () => { closeBtn.style.background = 'var(--ds-secondary-fill)' })
     closeBtn.addEventListener('click', hide)
     titleRow.appendChild(title)
     titleRow.appendChild(closeBtn)
@@ -162,14 +166,14 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // ═══════════════════════════════════════
     // SECTION: Character
     // ═══════════════════════════════════════
-    const charSection = createSection('Character')
+    const charSection = createSection(t('settings.character'))
     const charCard = createCard()
 
     const animalRow = document.createElement('div')
     animalRow.style.cssText = 'margin-bottom: 10px;'
     const animalLabel = document.createElement('div')
-    animalLabel.textContent = 'Animal'
-    animalLabel.style.cssText = 'font-size: 11px; color: #98989d; margin-bottom: 4px;'
+    animalLabel.textContent = t('settings.animal')
+    animalLabel.style.cssText = 'font-size: 11px; color: var(--ds-text-secondary); margin-bottom: 4px;'
     animalRow.appendChild(animalLabel)
     const animalSelect = createSelect(
       currentOptions.animals,
@@ -182,8 +186,8 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     const paletteRow = document.createElement('div')
     paletteRow.style.cssText = 'margin-bottom: 0;'
     const paletteLabel = document.createElement('div')
-    paletteLabel.textContent = 'Palette'
-    paletteLabel.style.cssText = 'font-size: 11px; color: #98989d; margin-bottom: 4px;'
+    paletteLabel.textContent = t('settings.palette')
+    paletteLabel.style.cssText = 'font-size: 11px; color: var(--ds-text-secondary); margin-bottom: 4px;'
     paletteRow.appendChild(paletteLabel)
     const paletteSelect = createSelect(
       currentOptions.palettes,
@@ -195,16 +199,16 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
     // Resolution row inside character card
     const resRow = document.createElement('div')
-    resRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #48484a;'
+    resRow.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ds-separator);'
     const resLabel = document.createElement('span')
-    resLabel.textContent = 'Resolution'
+    resLabel.textContent = t('settings.resolution')
     resLabel.style.cssText = 'flex: 1; font-size: 13px;'
     resRow.appendChild(resLabel)
     const resDisplay = document.createElement('span')
     resDisplay.textContent = `${currentOptions.currentResolution}×${currentOptions.currentResolution}`
-    resDisplay.style.cssText = 'font-size: 11px; color: #98989d; font-family: ' + MONO_STACK + ';'
+    resDisplay.style.cssText = 'font-size: 11px; color: var(--ds-text-secondary); font-family: ' + MONO_STACK + ';'
     resRow.appendChild(resDisplay)
-    const resToggleBtn = createButton('Toggle', 'secondary', () => currentOptions.onResolutionToggle())
+    const resToggleBtn = createButton(t('settings.toggle'), 'secondary', () => currentOptions.onResolutionToggle())
     resToggleBtn.style.cssText = resToggleBtn.style.cssText + ';padding: 4px 12px; font-size: 11px;'
     resRow.appendChild(resToggleBtn)
     charCard.appendChild(resRow)
@@ -215,7 +219,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // ═══════════════════════════════════════
     // SECTION: Appearance
     // ═══════════════════════════════════════
-    const appearSection = createSection('Appearance')
+    const appearSection = createSection(t('settings.appearance'))
     const appearCard = createCard()
 
     // Accessory toggles
@@ -241,7 +245,25 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
       (checked) => currentOptions.onAutoLaunchChange?.(checked),
     )
     toggleRefs.set('autoLaunch', autoToggle)
-    appearCard.appendChild(createRow('Auto-start on login', autoToggle.element))
+    appearCard.appendChild(createRow(t('settings.autostart'), autoToggle.element))
+
+    // Theme toggle
+    const themeToggle = createToggle(
+      getTheme() === 'light',
+      () => { toggleTheme() },
+    )
+    appearCard.appendChild(createRow(t('settings.lightmode'), themeToggle.element))
+
+    // Language toggle
+    const langToggle = createToggle(
+      getLocale() === 'en',
+      (checked) => {
+        setLocale(checked ? 'en' : 'zh')
+        // Rebuild the whole panel on language switch
+        buildPanel()
+      },
+    )
+    appearCard.appendChild(createRow(t('settings.language'), langToggle.element))
 
     appearSection.container.appendChild(appearCard)
     sheet.appendChild(appearSection.container)
@@ -250,13 +272,13 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // SECTION: AI Character Generation
     // ═══════════════════════════════════════
     if (currentOptions.onGenerateCharacter) {
-      const genSection = createSection('AI Character')
+      const genSection = createSection(t('settings.aicharacter'))
       const genCard = createCard()
 
       const genBtn = createButton(
-        currentOptions.generationStatus === 'running' ? '⏳ Generating...'
-          : currentOptions.generationResult ? 'Generate Another'
-          : 'Generate from Image',
+        currentOptions.generationStatus === 'running' ? '⏳ ' + t('settings.generating')
+          : currentOptions.generationResult ? t('settings.generate')
+          : t('settings.generate'),
         'secondary',
         async () => { await currentOptions.onGenerateCharacter?.() },
       )
@@ -267,7 +289,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
       // Generation hint
       const hint = document.createElement('div')
       hint.textContent = 'Drop an image to generate a matching character'
-      hint.style.cssText = 'font-size: 11px; color: #636366; margin-top: 6px;'
+      hint.style.cssText = 'font-size: 11px; color: var(--ds-text-tertiary); margin-top: 6px;'
       genCard.appendChild(hint)
 
       // Progress bar
@@ -296,7 +318,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // SECTION: AI Action Generation
     // ═══════════════════════════════════════
     if (currentOptions.onGenerateAction) {
-      const actionSection = createSection('AI Action')
+      const actionSection = createSection(t('settings.aiaction'))
       const actionCard = createCard()
 
       const promptInput = document.createElement('input')
@@ -305,14 +327,14 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
       promptInput.value = ''
       promptInput.style.cssText = `
         width: 100%; padding: 8px 12px; margin-bottom: 8px;
-        background: #2c2c2e; border: 1px solid #48484a;
-        border-radius: 8px; color: #fff;
+        background: var(--ds-panel-bg); border: 1px solid var(--ds-separator);
+        border-radius: 8px; color: var(--ds-text-primary);
         font-family: ${FONT_STACK}; font-size: 13px;
         outline: none; transition: border-color 0.15s;
         box-sizing: border-box;
       `
       promptInput.addEventListener('focus', () => { promptInput.style.borderColor = '#007aff' })
-      promptInput.addEventListener('blur', () => { promptInput.style.borderColor = '#48484a' })
+      promptInput.addEventListener('blur', () => { promptInput.style.borderColor = 'var(--ds-separator)' })
       actionCard.appendChild(promptInput)
 
       const genActionBtn = createButton(
@@ -324,7 +346,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
           const text = promptInput.value.trim()
           if (!text) {
             promptInput.style.borderColor = '#ff453a'
-            setTimeout(() => { promptInput.style.borderColor = '#48484a' }, 1500)
+            setTimeout(() => { promptInput.style.borderColor = 'var(--ds-separator)' }, 1500)
             return
           }
           await currentOptions.onGenerateAction?.(text)
@@ -337,7 +359,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
       // Hint
       const actionHint = document.createElement('div')
       actionHint.textContent = 'Describe a short animation or gesture'
-      actionHint.style.cssText = 'font-size: 11px; color: #636366; margin-top: 6px;'
+      actionHint.style.cssText = 'font-size: 11px; color: var(--ds-text-tertiary); margin-top: 6px;'
       actionCard.appendChild(actionHint)
 
       // Progress bar
@@ -353,7 +375,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         actionCard.appendChild(createBadge(`Saved: ${currentOptions.actionGenerationResult.packName}`, '#30d158'))
         const hintBox = document.createElement('div')
         hintBox.textContent = 'Right-click the pet to find your action in the menu.'
-        hintBox.style.cssText = 'font-size: 10px; color: #636366; margin-top: 4px;'
+        hintBox.style.cssText = 'font-size: 10px; color: var(--ds-text-tertiary); margin-top: 4px;'
         actionCard.appendChild(hintBox)
       }
 
@@ -369,14 +391,14 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // ═══════════════════════════════════════
     // SECTION: Packs
     // ═══════════════════════════════════════
-    const packSection = createSection('Packs')
+    const packSection = createSection(t('settings.packs'))
     const packCard = createCard()
 
     // Buttons row
     const packBtnRow = document.createElement('div')
     packBtnRow.style.cssText = 'display: flex; gap: 8px; margin-bottom: 8px;'
 
-    const importBtn = createButton('+ Import Pack', 'secondary', async () => {
+    const importBtn = createButton('+ ' + t('settings.importpack'), 'secondary', async () => {
       await currentOptions.onImportPack?.()
     })
     importBtn.style.flex = '1'
@@ -396,7 +418,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         const row = document.createElement('div')
         row.style.cssText = `
           display: flex; align-items: center; gap: 8px;
-          padding: 6px 0; border-bottom: 1px solid #48484a;
+          padding: 6px 0; border-bottom: 1px solid var(--ds-separator);
           cursor: pointer; min-height: 36px;
         `
         row.addEventListener('click', (e) => {
@@ -407,12 +429,12 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         const isActive = pack.id === currentOptions.currentAnimal
         const nameSpan = document.createElement('span')
         nameSpan.textContent = pack.name
-        nameSpan.style.cssText = `flex: 1; font-size: 13px; color: ${isActive ? '#fff' : '#98989d'}; font-weight: ${isActive ? '600' : '400'};`
+        nameSpan.style.cssText = `flex: 1; font-size: 13px; color: ${isActive ? 'var(--ds-text-primary)' : 'var(--ds-text-secondary)'}; font-weight: ${isActive ? '600' : '400'};`
         row.appendChild(nameSpan)
 
         const layersSpan = document.createElement('span')
         layersSpan.textContent = `${pack.layerCount} layers`
-        layersSpan.style.cssText = 'font-size: 11px; color: #636366; font-family: ' + MONO_STACK + ';'
+        layersSpan.style.cssText = 'font-size: 11px; color: var(--ds-text-tertiary); font-family: ' + MONO_STACK + ';'
         row.appendChild(layersSpan)
 
         // Quality score
@@ -459,7 +481,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // ═══════════════════════════════════════
     // SECTION: Actions
     // ═══════════════════════════════════════
-    const actionSection = createSection('Actions')
+    const actionSection = createSection(t('settings.actions'))
     const actionCard = createCard()
 
     if (currentOptions.actionPacks && currentOptions.actionPacks.length > 0) {
@@ -467,18 +489,18 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         const row = document.createElement('div')
         row.style.cssText = `
           display: flex; align-items: center; gap: 8px;
-          padding: 6px 0; border-bottom: 1px solid #48484a;
+          padding: 6px 0; border-bottom: 1px solid var(--ds-separator);
           min-height: 36px;
         `
 
         const nameSpan = document.createElement('span')
         nameSpan.textContent = ap.name
-        nameSpan.style.cssText = 'flex: 1; font-size: 13px; color: #fff;'
+        nameSpan.style.cssText = 'flex: 1; font-size: 13px; color: var(--ds-text-primary);'
         row.appendChild(nameSpan)
 
         const metaSpan = document.createElement('span')
         metaSpan.textContent = `${ap.frameCount}f · ${ap.category}`
-        metaSpan.style.cssText = 'font-size: 11px; color: #636366;'
+        metaSpan.style.cssText = 'font-size: 11px; color: var(--ds-text-tertiary);'
         row.appendChild(metaSpan)
 
         const previewBtn = createButton('▶', 'ghost', (e) => {
@@ -497,7 +519,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
         const equipLabel = document.createElement('span')
         equipLabel.textContent = 'Menu'
-        equipLabel.style.cssText = 'font-size: 11px; color: #636366;'
+        equipLabel.style.cssText = 'font-size: 11px; color: var(--ds-text-tertiary);'
         row.appendChild(equipLabel)
 
         actionCard.appendChild(row)
@@ -505,7 +527,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     } else {
       const empty = document.createElement('div')
       empty.textContent = 'No action packs imported'
-      empty.style.cssText = 'font-size: 13px; color: #636366; padding: 4px 0;'
+      empty.style.cssText = 'font-size: 13px; color: var(--ds-text-tertiary); padding: 4px 0;'
       actionCard.appendChild(empty)
     }
 
@@ -517,7 +539,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     // ═══════════════════════════════════════
     const diag = currentOptions.diagnostics
     if (diag) {
-      const diagSection = createSection('Diagnostics')
+      const diagSection = createSection(t('settings.diagnostics'))
       const uptime = Math.floor(diag.uptimeMs / 1000)
       const uptimeStr = `${Math.floor(uptime / 60)}m ${uptime % 60}s`
       const lines = [

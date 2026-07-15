@@ -52,7 +52,10 @@ export const ACTIVITY_CONTEXT_ACTIONS: Record<string, string[]> = {
 export const AUTO_SCHEDULE_CATEGORIES = new Set(['rest', 'basic', 'ballet', 'custom'])
 
 /** Actions never picked by scheduler */
-export const NEVER_SCHEDULE = new Set(['idle', 'walk', 'wave'])
+export const NEVER_SCHEDULE = new Set(['idle', 'walk'])
+
+// Actions auto-schedulable regardless of category
+export const SPECIAL_AUTO_SCHEDULE = new Set(['wave'])
 
 // ─── Helpers ───
 
@@ -61,6 +64,7 @@ export function cooldownFor(action: ActionDef): number {
 }
 
 export function isAutoSchedulable(def: ActionDef): boolean {
+  if (SPECIAL_AUTO_SCHEDULE.has(def.id)) return true
   if (NEVER_SCHEDULE.has(def.id)) return false
   if (def.loop) return false
   if (!AUTO_SCHEDULE_CATEGORIES.has(def.category!)) return false

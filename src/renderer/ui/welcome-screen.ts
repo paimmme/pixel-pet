@@ -6,6 +6,7 @@
 import type { ElectronAPI } from '../../shared/ipc-types'
 import { ANIMALS, getPalettesForAnimal } from '../assets/catalog'
 import { injectDesignSystem, FONT_STACK, createButton } from './design-system'
+import { t } from '../assets/locale'
 
 export interface WelcomeScreen {
   readonly element: HTMLElement
@@ -35,13 +36,13 @@ export function createWelcomeScreen(
   const container = document.createElement('div')
   container.style.cssText = `
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
+    background: var(--ds-backdrop);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     z-index: 10000; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     font-family: ${FONT_STACK};
-    color: #fff;
+    color: var(--ds-text-primary);
   `
 
   let selected = 'raccoon'
@@ -71,8 +72,8 @@ export function createWelcomeScreen(
     header.appendChild(title)
 
     const subtitle = document.createElement('p')
-    subtitle.textContent = 'Pick your new companion'
-    subtitle.style.cssText = 'margin: 4px 0 0; font-size: 14px; color: #98989d;'
+    subtitle.textContent = t('welcome.subtitle')
+    subtitle.style.cssText = 'margin: 4px 0 0; font-size: 14px; color: var(--ds-text-secondary);'
     header.appendChild(subtitle)
 
     container.appendChild(header)
@@ -99,8 +100,8 @@ export function createWelcomeScreen(
         gap: 8px; padding: 16px 8px 12px;
         border-radius: 14px;
         cursor: pointer; text-align: center;
-        background: ${isSelected ? '#3a3a3c' : '#2c2c2e'};
-        border: 2px solid ${isSelected ? '#007aff' : '#38383a'};
+        background: ${isSelected ? 'var(--ds-secondary-fill)' : 'var(--ds-panel-bg)'};
+        border: 2px solid ${isSelected ? '#007aff' : 'var(--ds-separator)'};
         transition: transform 0.2s ${'cubic-bezier(0.22, 1, 0.36, 1)'},
                     box-shadow 0.2s ease,
                     background 0.15s,
@@ -144,7 +145,7 @@ export function createWelcomeScreen(
       name.textContent = a.name
       name.style.cssText = `
         font-size: 13px; font-weight: 500;
-        color: ${isSelected ? '#fff' : '#98989d'};
+        color: ${isSelected ? 'var(--ds-text-primary)' : 'var(--ds-text-secondary)'};
       `
       card.appendChild(name)
 
@@ -169,7 +170,7 @@ export function createWelcomeScreen(
     // ── Hint ──
     const hint = document.createElement('p')
     hint.textContent = 'You can change your companion later in Settings'
-    hint.style.cssText = 'margin-top: 12px; font-size: 11px; color: #636366;'
+    hint.style.cssText = 'margin-top: 12px; font-size: 11px; color: var(--ds-text-tertiary);'
     container.appendChild(hint)
   }
 

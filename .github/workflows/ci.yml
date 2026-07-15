@@ -62,3 +62,27 @@ jobs:
           name: build-${{ matrix.os }}
           path: out/
           retention-days: 3
+
+  e2e:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-ubuntu-latest
+          path: out/
+
+      - name: E2E test (xvfb)
+        run: xvfb-run --auto-servernum npx vitest run --config vitest-e2e.config.ts

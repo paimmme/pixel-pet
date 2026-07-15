@@ -11,6 +11,7 @@ import {
   createButton,
   createSeparator,
 } from './design-system'
+import { t } from '../assets/locale'
 
 export interface PackEditorOptions {
   packId: string
@@ -37,13 +38,13 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
   container.id = 'pack-editor'
   container.style.cssText = `
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.75);
+    background: var(--ds-backdrop);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     z-index: 9999;
     display: flex; justify-content: center; align-items: center;
     font-family: ${FONT_STACK};
-    color: #fff;
+    color: var(--ds-text-primary);
   `
 
   let packData: EditorPackData | null = null
@@ -67,41 +68,41 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
   function build(): void {
     container.innerHTML = `
       <div class="ds-panel" style="
-        background: #2c2c2e; border-radius: 14px;
+        background: var(--ds-panel-bg); border-radius: 14px;
         width: 90%; max-width: 960px; max-height: 88vh;
         display: flex; flex-direction: column;
         overflow: hidden;
         box-shadow: 0 8px 30px rgba(0,0,0,0.5);
       ">
         <!-- Header -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #38383a;flex-shrink:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--ds-separator);flex-shrink:0;">
           <h2 style="margin:0;font-size:15px;font-weight:600;">
             <span id="pe-pack-name">${packId}</span>
           </h2>
           <div style="display:flex;gap:8px;">
-            <button id="pe-save-btn" class="pe-pill pe-pill-primary" disabled>Save</button>
-            <button id="pe-close-btn" class="pe-pill">Close</button>
+            <button id="pe-save-btn" class="pe-pill pe-pill-primary" disabled>${t('editor.save')}</button>
+            <button id="pe-close-btn" class="pe-pill">${t('editor.close')}</button>
           </div>
         </div>
         <div style="display:flex;flex:1;min-height:0;">
           <!-- Left: Layer grid -->
-          <div style="width:50%;border-right:1px solid #38383a;display:flex;flex-direction:column;">
-            <div style="padding:10px 16px;font-size:12px;font-weight:600;border-bottom:1px solid #38383a;color:#98989d;flex-shrink:0;letter-spacing:0.5px;text-transform:uppercase;">
-              Layers ${RESOLUTION}px
+          <div style="width:50%;border-right:1px solid var(--ds-separator);display:flex;flex-direction:column;">
+            <div style="padding:10px 16px;font-size:12px;font-weight:600;border-bottom:1px solid var(--ds-separator);color:var(--ds-text-secondary);flex-shrink:0;letter-spacing:0.5px;text-transform:uppercase;">
+              ${t('editor.layers')} ${RESOLUTION}px
             </div>
             <div id="pe-layer-grid" class="ds-scroll" style="flex:1;overflow-y:auto;padding:8px;">
             </div>
           </div>
           <!-- Right: Palettes + preview -->
           <div style="flex:1;display:flex;flex-direction:column;">
-            <div style="padding:10px 16px;font-size:12px;font-weight:600;border-bottom:1px solid #38383a;color:#98989d;flex-shrink:0;letter-spacing:0.5px;text-transform:uppercase;">
-              Palettes
+            <div style="padding:10px 16px;font-size:12px;font-weight:600;border-bottom:1px solid var(--ds-separator);color:var(--ds-text-secondary);flex-shrink:0;letter-spacing:0.5px;text-transform:uppercase;">
+              ${t('editor.palettes')}
             </div>
-            <div id="pe-palette-section" style="padding:12px 16px;border-bottom:1px solid #38383a;flex-shrink:0;overflow-y:auto;max-height:200px;" class="ds-scroll"></div>
+            <div id="pe-palette-section" style="padding:12px 16px;border-bottom:1px solid var(--ds-separator);flex-shrink:0;overflow-y:auto;max-height:200px;" class="ds-scroll"></div>
             <!-- Full composite preview -->
-            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1c1c1e;padding:16px;">
-              <div style="font-size:11px;color:#636366;margin-bottom:8px;">Composite Preview</div>
-              <canvas id="pe-composite-canvas" width="128" height="128" style="image-rendering:pixelated;border:1px solid #38383a;border-radius:8px;max-width:100%;"></canvas>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--ds-bg-primary);padding:16px;">
+              <div style="font-size:11px;color:var(--ds-text-tertiary);margin-bottom:8px;">${t('editor.preview')}</div>
+              <canvas id="pe-composite-canvas" width="128" height="128" style="image-rendering:pixelated;border:1px solid var(--ds-separator);border-radius:8px;max-width:100%;"></canvas>
             </div>
           </div>
         </div>
@@ -112,13 +113,13 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
     const style = document.createElement('style')
     style.textContent = `
       .pe-pill {
-        padding: 6px 16px; border-radius: 10px; border: 1px solid #48484a;
-        background: #3a3a3c; color: #fff; cursor: pointer;
+        padding: 6px 16px; border-radius: 10px; border: 1px solid var(--ds-separator);
+        background: var(--ds-secondary-fill); color: var(--ds-text-primary); cursor: pointer;
         font-size: 12px; font-family: ${FONT_STACK};
         transition: background 0.15s, transform 0.1s;
         user-select: none;
       }
-      .pe-pill:hover { background: #444446; }
+      .pe-pill:hover { background: var(--ds-tertiary-fill); }
       .pe-pill:active { transform: scale(0.97); }
       .pe-pill-primary {
         background: #007aff; border-color: #007aff; color: #fff;
@@ -129,15 +130,20 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
         background: transparent; border-color: #ff453a; color: #ff453a;
       }
       .pe-pill-danger:hover { background: #ff453a22; }
+      .pe-layer { position: relative; }
+      .pe-layer[data-drop-indicator="above"]::before {
+        content: ''; position: absolute; top: 0; left: 16px; right: 16px;
+        height: 2px; background: #007aff; border-radius: 1px; pointer-events: none;
+      }
       .ds-scroll::-webkit-scrollbar { width: 4px; }
       .ds-scroll::-webkit-scrollbar-track { background: transparent; }
-      .ds-scroll::-webkit-scrollbar-thumb { background: #3a3a3c; border-radius: 2px; }
+      .ds-scroll::-webkit-scrollbar-thumb { background: var(--ds-secondary-fill); border-radius: 2px; }
     `
     document.head.appendChild(style)
 
     // Bind
     container.querySelector('#pe-close-btn')!.addEventListener('click', () => {
-      if (dirty && !confirm('Unsaved changes will be lost. Close anyway?')) return
+      if (dirty && !confirm(t('editor.unsaved'))) return
       destroy()
     })
     container.querySelector('#pe-save-btn')!.addEventListener('click', () => {
@@ -170,20 +176,24 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
 
     grid.innerHTML = ''
 
+    let dragLayerId: string | null = null
+
     for (const layer of layers) {
       const exists = packData!.layers.some(l => l.id === layer.id && l.resolution === RESOLUTION && l.pngExists)
       const isSelected = layer.id === selectedLayerId
       const thumb = await getThumbUrl(layer.id)
 
       const row = document.createElement('div')
+      row.draggable = true
+      row.className = 'pe-layer'
       row.style.cssText = `
         display: flex; align-items: center; gap: 10px;
         padding: 8px 12px; margin-bottom: 4px;
         border-radius: 8px;
         cursor: pointer;
-        background: ${isSelected ? '#3a3a3c' : 'transparent'};
+        background: ${isSelected ? 'var(--ds-secondary-fill)' : 'transparent'};
         border-left: 3px solid ${isSelected ? '#007aff' : 'transparent'};
-        transition: background 0.15s;
+        transition: background 0.15s, box-shadow 0.15s;
         min-height: 44px;
       `
       row.dataset.layer = layer.id
@@ -191,6 +201,53 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
 
       row.addEventListener('click', () => {
         selectedLayerId = layer.id
+        populateLayers()
+      })
+
+      // Drag-and-drop layer reorder
+      row.addEventListener('dragstart', (e) => {
+        dragLayerId = layer.id
+        row.style.opacity = '0.5'
+        e.dataTransfer?.setData('text/plain', layer.id)
+        e.dataTransfer!.effectAllowed = 'move'
+      })
+
+      row.addEventListener('dragend', () => {
+        row.style.opacity = '1'
+        dragLayerId = null
+        // Remove all drop indicators
+        grid.querySelectorAll<HTMLDivElement>('[data-drop-indicator]').forEach(el => delete el.dataset.dropIndicator)
+      })
+
+      row.addEventListener('dragover', (e) => {
+        e.preventDefault()
+        if (dragLayerId && dragLayerId !== layer.id) {
+          e.dataTransfer!.dropEffect = 'move'
+          row.dataset.dropIndicator = 'above'
+        }
+      })
+
+      row.addEventListener('dragleave', () => {
+        delete row.dataset.dropIndicator
+      })
+
+      row.addEventListener('drop', (e) => {
+        e.preventDefault()
+        if (!dragLayerId || dragLayerId === layer.id || !packData) return
+        const srcIdx = packData.manifest.layers.findIndex(l => l.id === dragLayerId)
+        const dstIdx = packData.manifest.layers.findIndex(l => l.id === layer.id)
+        if (srcIdx === -1 || dstIdx === -1) return
+
+        // Reorder by swapping zIndex values
+        const srcZ = packData.manifest.layers[srcIdx].zIndex
+        const dstZ = packData.manifest.layers[dstIdx].zIndex
+        packData.manifest.layers[srcIdx].zIndex = dstZ
+        packData.manifest.layers[dstIdx].zIndex = srcZ
+
+        setDirty()
+        delete row.dataset.dropIndicator
+        // Keep selection on the dragged layer
+        selectedLayerId = dragLayerId
         populateLayers()
       })
 
@@ -202,7 +259,7 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
         img.style.cssText = `
           width: 32px; height: 32px; border-radius: 4px;
           image-rendering: pixelated;
-          border: 1px solid #48484a; flex-shrink: 0;
+          border: 1px solid var(--ds-separator); flex-shrink: 0;
           object-fit: cover;
         `
         row.appendChild(img)
@@ -212,8 +269,8 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
         placeholder.style.cssText = `
           width: 32px; height: 32px; border-radius: 4px;
           display: flex; align-items: center; justify-content: center;
-          background: #1c1c1e; border: 1px solid #48484a;
-          color: #636366; font-size: 16px; flex-shrink: 0;
+          background: var(--ds-bg-primary); border: 1px solid var(--ds-separator);
+          color: var(--ds-text-tertiary); font-size: 16px; flex-shrink: 0;
         `
         row.appendChild(placeholder)
       }
@@ -223,7 +280,7 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
       nameSpan.textContent = layer.name
       nameSpan.style.cssText = `
         flex: 1; font-size: 13px;
-        color: ${isSelected ? '#fff' : '#98989d'};
+          color: ${isSelected ? 'var(--ds-text-primary)' : 'var(--ds-text-secondary)'};
         font-weight: ${isSelected ? '500' : '400'};
         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
       `
@@ -274,7 +331,7 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
 
       const nameSpan = document.createElement('span')
       nameSpan.textContent = pal.name
-      nameSpan.style.cssText = 'font-size: 12px; font-weight: 500; color: #fff;'
+      nameSpan.style.cssText = 'font-size: 12px; font-weight: 500; color: var(--ds-text-primary);'
       header.appendChild(nameSpan)
 
       const editBtn = document.createElement('button')
@@ -297,7 +354,7 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
         swatch.style.cssText = `
           width: 16px; height: 16px; border-radius: 4px;
           background: ${hex};
-          border: 1px solid #48484a;
+          border: 1px solid var(--ds-separator);
           cursor: default;
           flex-shrink: 0;
         `
@@ -315,14 +372,14 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
 
     const selectorLabel = document.createElement('label')
     selectorLabel.textContent = 'Show:'
-    selectorLabel.style.cssText = 'font-size: 11px; color: #98989d;'
+    selectorLabel.style.cssText = 'font-size: 11px; color: var(--ds-text-secondary);'
     selectorRow.appendChild(selectorLabel)
 
     const select = document.createElement('select')
     select.id = 'pe-palette-select'
     select.style.cssText = `
-      background: #3a3a3c; color: #fff;
-      border: 1px solid #48484a; border-radius: 6px;
+      background: var(--ds-secondary-fill); color: var(--ds-text-primary);
+      border: 1px solid var(--ds-separator); border-radius: 6px;
       padding: 4px 8px; font-size: 12px;
       font-family: ${FONT_STACK};
       outline: none; cursor: pointer;
@@ -432,18 +489,18 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
       const fromHex = '#' + m.from.map(v => v.toString(16).padStart(2, '0')).join('')
       const toHex = '#' + m.to.map(v => v.toString(16).padStart(2, '0')).join('')
       return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px;font-family:${MONO_STACK};">
-        <span style="width:40px;color:#636366;">C${i}</span>
-        <span style="width:56px;color:#636366;">${fromHex}</span>
-        <span style="color:#48484a;">→</span>
+        <span style="width:40px;color:var(--ds-text-tertiary);">C${i}</span>
+        <span style="width:56px;color:var(--ds-text-tertiary);">${fromHex}</span>
+        <span style="color:var(--ds-separator);">→</span>
         <input type="color" class="pe-color-input" value="${toHex}" data-index="${i}" style="width:28px;height:24px;border:none;cursor:pointer;background:transparent;padding:0;border-radius:4px;">
-        <input type="text" class="pe-color-text" value="${toHex}" data-index="${i}" style="width:64px;background:#2c2c2e;border:1px solid #48484a;border-radius:6px;color:#fff;padding:2px 6px;font-family:${MONO_STACK};font-size:11px;outline:none;">
+        <input type="text" class="pe-color-text" value="${toHex}" data-index="${i}" style="width:64px;background:var(--ds-panel-bg);border:1px solid var(--ds-separator);border-radius:6px;color:var(--ds-text-primary);padding:2px 6px;font-family:${MONO_STACK};font-size:11px;outline:none;">
       </div>`
     }).join('')
 
-    overlay.innerHTML = `<div style="background:#2c2c2e;border-radius:14px;padding:20px;min-width:380px;max-width:460px;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
+    overlay.innerHTML = `<div style="background:var(--ds-panel-bg);border-radius:14px;padding:20px;min-width:380px;max-width:460px;box-shadow:0 8px 30px rgba(0,0,0,0.5);">
       <h3 style="margin:0 0 12px;font-size:14px;font-weight:600;">Edit: ${palette.name}</h3>
       <div class="ds-scroll" style="max-height:350px;overflow-y:auto;">${rows}</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;border-top:1px solid #38383a;padding-top:12px;">
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px;border-top:1px solid var(--ds-separator);padding-top:12px;">
         <button class="pe-pill" id="pe-pal-cancel">Cancel</button>
         <button class="pe-pill pe-pill-primary" id="pe-pal-save">Save</button>
       </div>
@@ -465,7 +522,7 @@ export function createPackEditor(options: PackEditorOptions): PackEditor {
           const idx = input.dataset.index!
           const ci = overlay.querySelector(`.pe-color-input[data-index="${idx}"]`) as HTMLInputElement
           if (ci) ci.value = v
-          input.style.borderColor = '#48484a'
+          input.style.borderColor = 'var(--ds-separator)'
         } else {
           input.style.borderColor = '#ff453a'
         }
