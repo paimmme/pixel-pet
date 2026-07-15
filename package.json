@@ -8,7 +8,8 @@
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit",
     "dist": "npm run build && electron-builder",
-    "lint:assets": "node scripts/validate-assets.js"
+    "lint:assets": "node scripts/validate-assets.js",
+    "test": "vitest run"
   },
   "build": {
     "appId": "com.pixelpet.app",
@@ -24,7 +25,10 @@
       "target": [
         {
           "target": "dmg",
-          "arch": ["x64", "arm64"]
+          "arch": [
+            "x64",
+            "arm64"
+          ]
         }
       ],
       "category": "public.app-category.entertainment"
@@ -42,6 +46,7 @@
     "electron-builder": "^26.0.0",
     "electron-vite": "^5.0.0",
     "typescript": "^5.8.0",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "vitest": "^4.1.10"
   }
 }

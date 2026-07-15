@@ -23,6 +23,7 @@ import { createSettingsPanel } from './ui/settings-panel'
 import { createWalkController } from './state/walk-controller'
 import { SkillSystem } from './state/skill-system'
 import { ChoreographyController, CHOREOGRAPHY_PRESETS } from './state/choreography'
+import { createBehaviorScheduler } from './state/behavior-scheduler'
 
 declare global {
   interface Window {
@@ -65,6 +66,17 @@ async function main(): Promise<void> {
   const skills = new SkillSystem()
   const choreo = new ChoreographyController()
 
+  // --- Phase 5: Behavior scheduler ---
+  const behavior = createBehaviorScheduler({
+    activity,
+    skills,
+    triggerAction: (actionId) => {
+      // Scheduler calls triggerAction directly — drag guard is in main triggerAction
+      pendingAction = actionId
+      stateMachine.feedEvent({ type: 'action' })
+    }
+  })
+
   // Wire tray action menu → pending buffer
   api.onAction((actionId: string) => {
     if (actionId === 'idle' && stateMachine.state === PetState.Idle) return
@@ -96,8 +108,10 @@ async function main(): Promise<void> {
   })
 
   // Wire up activity detection
-  const stopActivity = api.onActivityChanged((info) => {
+  const stopActivity = api.onActivityChanged((info: any) => {
+    const prev = activity.currentActivity
     activity.updateActivity(info)
+    behavior.onActivityChanged(prev as any, info.type as any)
   })
 
   // --- Phase 2 interaction ---
@@ -507,6 +521,7 @@ async function main(): Promise<void> {
 
   // Walk controller (auto-walk behavior)
   const walk = createWalkController(api, stateMachine, selectionStore, movement, () => {
+    behavior.onActionStarted()
     triggerAction('walk')
   })
 
@@ -526,6 +541,7 @@ async function main(): Promise<void> {
   function triggerAction(actionId: string): void {
     if (drag.isDragging) return
     pendingAction = actionId
+    behavior.onActionStarted()
     stateMachine.feedEvent({ type: 'action' })
   }
 
@@ -580,6 +596,7 @@ async function main(): Promise<void> {
       const result = await composeAnimation(loader, compositor, config)
       // Only apply if this is still the latest request
       if (requestId !== playRequestId) return
+      lastPlayedActionId = actionId
       animController.setFrames(result.frames, actionDef.fps, actionDef.loop)
       animController.start()
 
@@ -630,9 +647,11 @@ async function main(): Promise<void> {
     }
   })
 
-  // --- Handle animation complete → notify state machine ---
+  // --- Handle animation complete → notify state machine + scheduler ---
+  let lastPlayedActionId = 'idle'
   animController.onComplete(() => {
     stateMachine.feedEvent({ type: 'animation-complete' })
+    behavior.onActionCompleted(lastPlayedActionId)
   })
 
   // --- Handle state machine state changes ---
@@ -700,6 +719,7 @@ async function main(): Promise<void> {
     movement.tick(dt)
     expression.tick(dt)  // micro-expression timing (blinks, emotion decay)
     activity.tick(dt)
+    behavior.tick(dt)
     skills.restTick(dt)
     gestureDetector.tick(now)
 
@@ -723,6 +743,7 @@ async function main(): Promise<void> {
     animController.destroy()
     stopActivity()
     activity.destroy()
+    behavior.destroy()
     expression.destroy()
     if (settingsPanel) settingsPanel.destroy()
     ctxMenu.destroy()

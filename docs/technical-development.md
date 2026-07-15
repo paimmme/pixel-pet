@@ -563,11 +563,12 @@ Current code already has the inputs for this phase: `ActionDef.category`, `phase
 
 Deliverables:
 
-- Behavior scheduler using existing `ActionDef.category`, `phases`, `staminaCost`, skill records, fatigue, activity detection, and choreography hooks.
-- Cooldowns.
-- Context triggers.
-- Idle variation.
-- Personality weights.
+- Behavior scheduler (`src/renderer/state/behavior-scheduler.ts`) using existing `ActionDef.category`, `phases`, `staminaCost`, skill records, fatigue, activity detection, and choreography hooks.
+- Cooldowns per action category (rest=4s, basic=8s, ballet=15s, custom=12s, default=10s).
+- Context triggers: prolonged coding → sit, gaming → jump/dance, idle → jump/dance.
+- Idle variation: random weighted selection from top-3 scored actions after 2.5s idle.
+- Personality weights: fatigue-aware scoring (high fatigue penalizes stamina cost, boosts rest; low energy prefers active actions).
+- Integration: wired into main.ts game loop (`behavior.tick(dt)`), animation complete handler (`onActionCompleted`), trigger action (`onActionStarted`), and activity changes (`onActivityChanged`).
 
 Acceptance:
 
@@ -595,26 +596,35 @@ Deliverables:
 
 These should happen before AI work:
 
-1. Add regression coverage for `createComposeCacheKey`; it must stay synchronized with visible `ComposeConfig` fields, including accessories and expression.
-2. Define `CharacterPack` and `ActionPack` TypeScript interfaces.
-3. Define pack schemas or runtime validators from those interfaces.
-4. Add file-backed pack loader with factory fallback.
-5. Add pack validation command.
-6. Add at least one real sample pack under a dev fixture directory.
+1. ~~Add regression coverage for `createComposeCacheKey`; it must stay synchronized with visible `ComposeConfig` fields, including accessories and expression.~~ ✅ Done (12 tests)
+2. ~~Define `CharacterPack` and `ActionPack` TypeScript interfaces.~~ ✅ Done
+3. ~~Define pack schemas or runtime validators from those interfaces.~~ ✅ Done
+4. ~~Add file-backed pack loader with factory fallback.~~ ✅ Done
+5. ~~Add pack validation command.~~ ✅ Done (run via `validatePackFiles()`)
+6. ~~Add at least one real sample pack under a dev fixture directory.~~ ✅ Done (dev-packs with placeholder PNGs)
 
 ## 14. Testing Strategy
 
+Test runner: `vitest` (`npm test` or `vitest run`).
+
+Implemented tests (66 total, 5 files):
+
+| Test file | Tests | Area |
+|-----------|-------|------|
+| `src/test/create-compose-cache-key.test.ts` | 12 | Cache key includes all ComposeConfig fields, deterministic, discriminates factory vs pack |
+| `src/test/settings.test.ts` | 4 | `patchState` preserves skillData, selection, settings; uses defaults on missing file |
+| `src/test/pack-validators.test.ts` | 25 | Character/action manifest validation, on-disk file existence checks, optional layer skipping |
+| `src/test/palette-swapper.test.ts` | 4 | Palette compilation: empty, single, override, single-channel |
+| `src/test/behavior-scheduler.test.ts` | 17 | Cooldowns, auto-schedulable filtering, fatigue-aware scoring (low/high), idle timer, activity triggers, enable/disable lifecycle |
+
+Still needed (not yet implemented):
+
 Unit tests:
 
-- Cache key generation.
-- `patchState` preserves `skillData`.
 - `composeAnimation` passes character ID to pose loading.
-- Pack schema validation.
-- Pose frame selection.
-- Palette compilation.
-- State patch persistence.
+- `selectPoseFrames` direction-based frame selection (function not exported).
 
-Integration tests:
+Integration tests (require Electron runtime):
 
 - Load sample character pack.
 - Load sample action pack.
