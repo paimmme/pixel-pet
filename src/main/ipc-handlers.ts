@@ -226,6 +226,10 @@ export function registerIpcHandlers(win: BrowserWindow): void {
     return createJob('character', input)
   })
 
+  ipcMain.handle(IPC_CHANNELS.CREATE_ACTION_JOB, async (_event, input) => {
+    return createJob('action', input)
+  })
+
   ipcMain.handle(IPC_CHANNELS.START_GENERATION, async (_event, jobId: string) => {
     generationService.startGeneration(jobId).catch(err => {
       console.error(`[Generation] Job ${jobId} failed:`, err)
@@ -241,8 +245,18 @@ export function registerIpcHandlers(win: BrowserWindow): void {
   })
 
   ipcMain.handle(IPC_CHANNELS.SAVE_GENERATED_PACK, async (_event, jobId: string) => {
+    const job = getJob(jobId)
+    if (!job) return { success: false, errors: [{ field: 'job', message: 'Job not found' }] }
+
     const packsDir = join(app.getPath('userData'), 'packs')
-    const packId = generationService.saveCharacterResult(jobId, packsDir)
+
+    let packId: string | null = null
+    if (job.type === 'character') {
+      packId = generationService.saveCharacterResult(jobId, packsDir)
+    } else if (job.type === 'action') {
+      packId = generationService.saveActionResult(jobId, packsDir)
+    }
+
     if (!packId) return { success: false, errors: [{ field: 'job', message: 'No result to save' }] }
 
     // Re-scan pack registry to pick up the new pack

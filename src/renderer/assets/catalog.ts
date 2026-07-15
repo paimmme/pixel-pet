@@ -591,6 +591,20 @@ export function getAnimal(id: string): AnimalDef | undefined {
   return ANIMALS.find(a => a.id === id)
 }
 
+/**
+ * Dynamic registry for custom action pack actions.
+ * Populated by pack import and AI generation.
+ */
+export const customActions = new Map<string, ActionDef>()
+
+export function registerActionPack(id: string, def: ActionDef): void {
+  customActions.set(id, def)
+}
+
+export function unregisterActionPack(id: string): void {
+  customActions.delete(id)
+}
+
 export function getAction(id: string): ActionDef | undefined {
-  return ACTIONS.find(a => a.id === id)
+  return ACTIONS.find(a => a.id === id) ?? customActions.get(id)
 }

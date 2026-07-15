@@ -9,6 +9,7 @@ export interface SelectionSnapshot {
   palette: string
   direction?: Direction
   accessories?: string[]
+  packId?: string
 }
 
 export class SelectionStore {
@@ -18,6 +19,7 @@ export class SelectionStore {
   private _palette = 'raccoon'
   private _direction: Direction | undefined = undefined
   private _accessories: string[] = []
+  private _packId: string | undefined = undefined
   private subscribers: Set<SelectionChangeCallback> = new Set()
 
   get animal(): string {
@@ -44,6 +46,15 @@ export class SelectionStore {
     return this._accessories
   }
 
+  get packId(): string | undefined {
+    return this._packId
+  }
+
+  /** True if the current character comes from a file-backed pack */
+  get isPackCharacter(): boolean {
+    return this._packId !== undefined
+  }
+
   setAccessories(ids: string[]): void {
     if (JSON.stringify(ids) === JSON.stringify(this._accessories)) return
     this._accessories = ids
@@ -60,9 +71,10 @@ export class SelectionStore {
     this.notify()
   }
 
-  setAnimal(id: string): void {
-    if (id === this._animal) return
+  setAnimal(id: string, options?: { packId?: string }): void {
+    if (id === this._animal && (options?.packId ?? undefined) === this._packId) return
     this._animal = id
+    this._packId = options?.packId
     this.notify()
   }
 
@@ -97,7 +109,8 @@ export class SelectionStore {
       resolution: this._resolution,
       palette: this._palette,
       direction: this._direction,
-      accessories: [...this._accessories]
+      accessories: [...this._accessories],
+      packId: this._packId,
     }
   }
 
@@ -108,6 +121,7 @@ export class SelectionStore {
     if (data.palette !== undefined) this._palette = data.palette
     if (data.direction !== undefined) this._direction = data.direction
     if (data.accessories !== undefined) this._accessories = data.accessories
+    if (data.packId !== undefined) this._packId = data.packId
     // Don't notify subscribers here — the caller will trigger the first animation
   }
 

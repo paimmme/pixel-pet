@@ -1,0 +1,23 @@
+{
+  "action": "sleep",
+  "resolution": 32,
+  "frames": [
+    {
+      "index": 0,
+      "parts": {
+        "body": {
+          "dx": -1,
+          "dy": 0
+        },
+        "eyes": {
+          "dx": -1,
+          "dy": 0
+        },
+        "mouth": {
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    }
+  ]
+}

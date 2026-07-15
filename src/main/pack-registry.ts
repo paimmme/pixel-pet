@@ -35,8 +35,14 @@ export class PackRegistry {
    *       manifest.json
    *       poses/32.json
    *       overrides/raccoon/...png
+   *
+   * In development (unpackaged), also syncs from a dev-packs directory if provided.
    */
-  async initialize(packsDir: string): Promise<PackScanResult> {
+  async initialize(packsDir: string, devPacksDir?: string): Promise<PackScanResult> {
+    // Dev-mode: auto-copy dev-packs that aren't in userData yet
+    if (devPacksDir && existsSync(devPacksDir)) {
+      this.syncDevPacks(devPacksDir, packsDir)
+    }
     this.characterPacks.clear()
     this.actionPacks.clear()
 
@@ -154,6 +160,29 @@ export class PackRegistry {
     if (!existsSync(absolute)) return null
 
     return absolute
+  }
+
+  /**
+   * Copy dev-packs from source to userData packs directory.
+   * Only copies packs that don't already exist in userData.
+   */
+  private syncDevPacks(srcDir: string, destDir: string): void {
+    if (!existsSync(destDir)) {
+      mkdirSync(destDir, { recursive: true })
+    }
+
+    const entries = readdirSync(srcDir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue
+      const packManifest = join(srcDir, entry.name, 'manifest.json')
+      if (!existsSync(packManifest)) continue
+
+      const destPackDir = join(destDir, entry.name)
+      if (existsSync(destPackDir)) continue
+
+      console.log(`[PackRegistry] Copying dev-pack: ${entry.name} -> ${destDir}`)
+      cpSync(join(srcDir, entry.name), destPackDir, { recursive: true })
+    }
   }
 
   /**

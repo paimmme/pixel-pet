@@ -20,7 +20,7 @@ export interface ContextMenuOptions {
 export function createContextMenu(
   canvas: HTMLCanvasElement,
   options: ContextMenuOptions
-): { show: (x: number, y: number) => void; hide: () => void; destroy: () => void } {
+): { show: (x: number, y: number, extraActions?: ContextMenuAction[]) => void; hide: () => void; destroy: () => void } {
   const { actions, onAction, theme = 'dark' } = options
 
   let menuEl: HTMLDivElement | null = null
@@ -39,7 +39,14 @@ export function createContextMenu(
     }
   }
 
-  function buildMenu(): HTMLDivElement {
+  function buildMenu(extraActions?: ContextMenuAction[]): HTMLDivElement {
+    const allItems = [...actions]
+    if (extraActions && extraActions.length > 0) {
+      // Add separator before custom actions
+      allItems.push({ actionId: 'separator-custom', label: '' })
+      allItems.push(...extraActions)
+    }
+
     const menu = document.createElement('div')
     menu.style.cssText = `
       position: fixed;
@@ -55,8 +62,8 @@ export function createContextMenu(
       user-select: none;
     `
 
-    actions.forEach((item) => {
-      if (item.actionId === 'separator') {
+    allItems.forEach((item) => {
+      if (item.actionId === 'separator' || item.actionId === 'separator-custom') {
         const sep = document.createElement('div')
         sep.style.cssText = `
           height: 1px;
@@ -92,9 +99,9 @@ export function createContextMenu(
     return menu
   }
 
-  function show(x: number, y: number): void {
+  function show(x: number, y: number, extraActions?: ContextMenuAction[]): void {
     hide()
-    menuEl = buildMenu()
+    menuEl = buildMenu(extraActions)
     // Adjust position to stay within viewport
     const maxX = window.innerWidth - 130
     const maxY = window.innerHeight - 200

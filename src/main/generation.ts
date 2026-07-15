@@ -1,8 +1,17 @@
 import { randomUUID } from 'crypto'
 import { existsSync, mkdirSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import type { GenerationProvider, CharacterGenerationInput, CharacterGenerationResult, GenerationJob } from '../shared/generation-types'
-import type { CharacterPackManifest } from '../shared/pack-types'
+import type {
+  GenerationProvider,
+  CharacterGenerationInput,
+  CharacterGenerationResult,
+  ActionGenerationInput,
+  ActionGenerationResult,
+  GenerationJob,
+  GenerationInput,
+} from '../shared/generation-types'
+import type { ActionPackManifest, CharacterPackManifest } from '../shared/pack-types'
+import type { ActionPhase, Direction, ActionPhaseType } from '../shared/app-types'
 
 // ──────────────────────────────────────
 // In-memory job store
@@ -18,7 +27,7 @@ export function listJobs(): GenerationJob[] {
   return Array.from(jobs.values())
 }
 
-export function createJob(type: 'character' | 'action', input: CharacterGenerationInput): string {
+export function createJob(type: 'character' | 'action', input: GenerationInput): string {
   const id = `gen_${randomUUID().slice(0, 8)}`
   const job: GenerationJob = {
     id,
@@ -206,6 +215,149 @@ Return ONLY valid JSON matching this exact schema:
       throw new Error(`Generation failed: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
+
+  async generateAction(input: ActionGenerationInput, onProgress?: (pct: number) => void): Promise<ActionGenerationResult> {
+    onProgress?.(10)
+
+    const resolution = input.resolution ?? 32
+    const packId = `act_${randomUUID().slice(0, 8)}`
+
+    const systemPrompt = `You are a pixel art animation designer for a desktop pet application called PixelPet.
+
+Your task: Given a user's action prompt, design a ${resolution}x${resolution} pixel art animation sequence (pose template).
+
+The pet character has these layers: shadow, tail, back_arm, body, ears, front_arm, eyes, mouth.
+Each layer is a ${resolution}x${resolution} transparent PNG. Layers are composed top-to-bottom by zIndex.
+
+Output requirements:
+1. Generate a structured action plan (name, category, loop, frameCount, fps, directions, phases).
+2. Generate pose JSON for EVERY frame: each frame has per-layer transforms { dx, dy, rotation }.
+3. dx/dy are pixel offsets from the idle position (typically -${resolution/4} to ${resolution/4} pixels).
+4. rotation is in degrees (typically -30 to 30 degrees for subtle tilts).
+5. "directions" tells which orientations the pet faces: null means symmetrical (mirrored), ["left","right"] means distinct left/right poses.
+6. For layers that cannot express the motion via transforms alone (e.g. open mouth, closed eye), set "overrideLayer": true in the frame's part entry and also generate a base64 PNG for that specific frame+layer.
+7. All positions should keep the character centered in the ${resolution}x${resolution} canvas.
+
+Return ONLY valid JSON matching this exact schema:
+{
+  "plan": {
+    "name": "Action Name",
+    "category": "rest | locomotion | interaction | ballet | choreography | custom",
+    "loop": false,
+    "frameCount": 4,
+    "fps": 8,
+    "directions": null,
+    "phases": ["ready", "action", "recover"],
+    "needsOverrideFrames": [],
+    "notes": "Brief description of the motion"
+  },
+  "poses": {
+    "32": {
+      "action": "action_id",
+      "resolution": 32,
+      "directions": {
+        "left": [
+          { "index": 0, "parts": { "body": { "dx": 0, "dy": 0 }, "eyes": { "dx": 0, "dy": -1 }, ... } },
+          { "index": 1, "parts": { "body": { "dx": 1, "dy": -1 }, "eyes": { "dx": 0, "dy": -2, "rotation": 5 }, ... } }
+        ],
+        "right": [...]
+      }
+    }
+  },
+  "overridePngs": {
+    "32/mouth_1": "<base64 PNG>",
+    "32/eyes_2": "<base64 PNG>"
+  }
+}`
+
+    onProgress?.(20)
+
+    try {
+      const response = await fetch(ANTHROPIC_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': this.apiKey,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 8192,
+          system: systemPrompt,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: `Design a pixel art animation for a desktop pet. Prompt: "${input.prompt}"
+
+Generate ${resolution}x${resolution} pose template. Include a semantic plan and per-frame transforms for each direction. Use override PNGs only for frames where transforms are insufficient.
+
+The animation should be ${resolution}x${resolution} pixels per frame. Keep all limbs in bounds. Use smooth motion between frames.`,
+                },
+              ],
+            },
+          ],
+        }),
+      })
+
+      onProgress?.(60)
+
+      if (!response.ok) {
+        const errText = await response.text()
+        throw new Error(`Claude API error ${response.status}: ${errText}`)
+      }
+
+      const data = await response.json()
+      onProgress?.(70)
+
+      const content = data.content?.[0]?.text
+      if (!content) throw new Error('No content in Claude response')
+
+      const jsonMatch = content.match(/```(?:json)?\s*({[\s\S]*?})\s*```/) || content.match(/{[\s\S]*?}/)
+      if (!jsonMatch) throw new Error('Could not parse JSON from Claude response')
+
+      const parsed = JSON.parse(jsonMatch[1] ?? jsonMatch[0])
+      onProgress?.(80)
+
+      if (!parsed.plan || !parsed.poses) {
+        throw new Error('Claude response missing plan or poses')
+      }
+
+      // Sanitize the action ID from the prompt
+      const actionId = input.prompt
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_|_$/g, '')
+        .slice(0, 32) || `action_${packId.slice(4)}`
+
+      onProgress?.(90)
+
+      const result: ActionGenerationResult = {
+        packId,
+        packName: parsed.plan.name || input.prompt,
+        plan: {
+          name: parsed.plan.name || input.prompt,
+          category: parsed.plan.category || 'custom',
+          loop: !!parsed.plan.loop,
+          frameCount: parsed.plan.frameCount || 4,
+          fps: parsed.plan.fps || 8,
+          directions: parsed.plan.directions ?? null,
+          phases: Array.isArray(parsed.plan.phases) ? parsed.plan.phases : [],
+          needsOverrideFrames: Array.isArray(parsed.plan.needsOverrideFrames) ? parsed.plan.needsOverrideFrames : [],
+          notes: parsed.plan.notes || '',
+        },
+        poses: parsed.poses,
+        overridePngs: parsed.overridePngs || undefined,
+      }
+
+      onProgress?.(100)
+      return result
+    } catch (err) {
+      throw new Error(`Action generation failed: ${err instanceof Error ? err.message : String(err)}`)
+    }
+  }
 }
 
 // ──────────────────────────────────────
@@ -239,16 +391,27 @@ export class GenerationService {
     updateJob(jobId, { status: 'running', progress: 0 })
 
     try {
-      const result = await this.provider.generateCharacter(job.input, (pct) => {
-        updateJob(jobId, { progress: pct })
-      })
-
-      updateJob(jobId, {
-        status: 'completed',
-        progress: 100,
-        result,
-        completedAt: Date.now(),
-      })
+      if (job.type === 'character') {
+        const result = await this.provider.generateCharacter(job.input as CharacterGenerationInput, (pct) => {
+          updateJob(jobId, { progress: pct })
+        })
+        updateJob(jobId, {
+          status: 'completed',
+          progress: 100,
+          result,
+          completedAt: Date.now(),
+        })
+      } else if (job.type === 'action') {
+        const result = await this.provider.generateAction(job.input as ActionGenerationInput, (pct) => {
+          updateJob(jobId, { progress: pct })
+        })
+        updateJob(jobId, {
+          status: 'completed',
+          progress: 100,
+          result,
+          completedAt: Date.now(),
+        })
+      }
     } catch (err) {
       updateJob(jobId, {
         status: 'failed',
@@ -258,23 +421,23 @@ export class GenerationService {
   }
 
   /**
-   * Save a completed generation result as a file-backed character pack.
+   * Save a completed character generation result as a file-backed character pack.
    */
   saveCharacterResult(jobId: string, packsDir: string): string | null {
     const job = jobs.get(jobId)
-    if (!job || !job.result) return null
+    if (!job || !job.result || job.type !== 'character') return null
 
-    const result = job.result
+    const result = job.result as CharacterGenerationResult
     const packDir = join(packsDir, result.packId)
     mkdirSync(packDir, { recursive: true })
 
     // Layout layers
-    const layers = result.layersOrder.map((l, i) => ({
+    const layers = result.layersOrder.map((l) => ({
       id: l.id,
       name: l.name,
       zIndex: l.zIndex,
       anchor: { x: Math.floor(32 / 2), y: Math.floor(32 / 2) },
-      zone: i === 0 ? 'body' as const : i === 5 ? 'head' as const : 'body' as const,
+      zone: l.zIndex <= 1 ? 'body' as const : l.zIndex >= 6 ? 'head' as const : 'body' as const,
     }))
 
     const manifest: CharacterPackManifest = {
@@ -305,6 +468,76 @@ export class GenerationService {
     mkdirSync(paletteDir, { recursive: true })
     for (const pal of result.palettes) {
       writeFileSync(join(paletteDir, `${pal.id}.json`), JSON.stringify(pal, null, 2))
+    }
+
+    return result.packId
+  }
+
+  /**
+   * Save a completed action generation result as a file-backed action pack.
+   */
+  saveActionResult(jobId: string, packsDir: string): string | null {
+    const job = jobs.get(jobId)
+    if (!job || !job.result || job.type !== 'action') return null
+
+    const result = job.result as ActionGenerationResult
+    const packDir = join(packsDir, result.packId)
+    mkdirSync(packDir, { recursive: true })
+
+    // Build manifest
+    const phases: ActionPhase[] = result.plan.phases.map((name, i) => {
+      const frameSpan = Math.floor(result.plan.frameCount / Math.max(result.plan.phases.length, 1))
+      const phaseType: ActionPhaseType = i === 0 ? 'prepare' : i === result.plan.phases.length - 1 ? 'recover' : 'execute'
+      return {
+        name,
+        phaseType,
+        startFrame: i * frameSpan,
+        endFrame: Math.min((i + 1) * frameSpan - 1, result.plan.frameCount - 1),
+        staminaCostPerTick: 0,
+        gracePotential: 0,
+      }
+    })
+
+    // Convert direction string array from AI to Direction[] format
+    const directions: Direction[] | null = result.plan.directions
+      ? (Array.isArray(result.plan.directions) ? (result.plan.directions as string[])
+        .filter((d): d is Direction => ['down', 'left', 'right', 'up'].includes(d))
+      : [])
+      : null
+
+    const manifest: ActionPackManifest = {
+      schemaVersion: 1,
+      id: result.packId,
+      name: result.packName,
+      type: 'action',
+      category: result.plan.category,
+      frameCount: result.plan.frameCount,
+      fps: result.plan.fps,
+      loop: result.plan.loop,
+      directions: directions && directions.length > 0 ? directions : null,
+      requiredLayers: ['body', 'eyes', 'mouth', 'front_arm'],
+      phases: phases.length > 0 ? phases : undefined,
+    }
+
+    writeFileSync(join(packDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
+
+    // Write pose files
+    const posesDir = join(packDir, 'poses')
+    mkdirSync(posesDir, { recursive: true })
+    for (const [resKey, poseData] of Object.entries(result.poses)) {
+      writeFileSync(join(posesDir, `${resKey}.json`), JSON.stringify(poseData, null, 2))
+    }
+
+    // Write override PNGs if any
+    if (result.overridePngs) {
+      const overridesDir = join(packDir, 'overrides')
+      for (const [key, pngBase64] of Object.entries(result.overridePngs)) {
+        const [res, layerFrame] = key.split('/')
+        const overrideDir = join(overridesDir, res)
+        mkdirSync(overrideDir, { recursive: true })
+        const pngBuffer = Buffer.from(pngBase64, 'base64')
+        writeFileSync(join(overrideDir, `${layerFrame}.png`), pngBuffer)
+      }
     }
 
     return result.packId

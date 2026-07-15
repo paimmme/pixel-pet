@@ -85,6 +85,9 @@ export interface ComposeConfig {
   direction?: Direction
   accessories?: string[]
   expression?: { eyes?: string; mouth?: string }
+  packId?: string
+  /** Set when the action comes from an action pack (AI-generated or imported) */
+  packActionId?: string
 }
 
 export interface ComposedLayer {
@@ -119,6 +122,7 @@ export function createComposeCacheKey(config: ComposeConfig): string {
     config.resolution,
     config.palette ?? 'default',
     config.direction ?? 'none',
+    config.packId ?? 'factory',
     accessories,
     expression
   ].join(':')

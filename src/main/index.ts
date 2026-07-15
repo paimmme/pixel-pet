@@ -55,8 +55,11 @@ app.whenReady().then(() => {
 
   // Initialize pack registry
   const packsDir = path.join(app.getPath('userData'), 'packs')
-  packRegistry.initialize(packsDir).then(result => {
-    if (result.loaded > 0) {
+  const devPacksDir = app.isPackaged
+    ? undefined
+    : path.join(app.getAppPath(), 'resources', 'dev-packs')
+  packRegistry.initialize(packsDir, devPacksDir).then(result => {
+    if (result.loaded > 0 || result.errors.length > 0) {
       console.log(`[PackRegistry] Loaded ${result.loaded}/${result.total} packs (${result.errors.length} errors)`)
     }
   })

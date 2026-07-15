@@ -16,7 +16,7 @@ import { SelectionStore } from './state/selection-store'
 import { PetStateMachine, PetState } from './state/pet-state-machine'
 import { createExpressionController } from './state/expression-controller'
 import { createActivityController } from './state/activity-controller'
-import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES, mergeAnimals, type PackCharacterInfo } from './assets/catalog'
+import { getAction, ANIMALS, getAnimal, getPalettesForAnimal, ACCESSORIES, mergeAnimals, registerActionPack, customActions, type PackCharacterInfo } from './assets/catalog'
 import type { ElectronAPI } from '../shared/ipc-types'
 import type { ComposeConfig } from './engine/types'
 import { createSettingsPanel } from './ui/settings-panel'
@@ -79,7 +79,8 @@ async function main(): Promise<void> {
         action: savedState.selection.action,
         resolution: savedState.selection.resolution,
         palette: savedState.selection.palette,
-        accessories: savedState.selection.accessories
+        accessories: savedState.selection.accessories,
+        packId: savedState.selection.packId,
       })
       // Trigger the restored action
       triggerAction(savedState.selection.action)
@@ -145,12 +146,16 @@ async function main(): Promise<void> {
           const animal = getAnimal(selectionStore.animal)
           const availablePalettes = getPalettesForAnimal(selectionStore.animal)
 
-          let packChars: PackCharacterInfo[] = []
-          let importErrors: Array<{ field: string; message: string }> = []
-          let generationStatus = ''
-          let generationProgress = 0
-          let generationResult: { packId: string; packName: string } | undefined
-          let generationError = ''
+  let packChars: PackCharacterInfo[] = []
+  let importErrors: Array<{ field: string; message: string }> = []
+  let generationStatus = ''
+  let generationProgress = 0
+  let generationResult: { packId: string; packName: string } | undefined
+  let generationError = ''
+  let actionGenStatus = ''
+  let actionGenProgress = 0
+  let actionGenResult: { packId: string; packName: string } | undefined
+  let actionGenError = ''
 
           // Fetch pack data async after panel creation
           api.listCharacterPacks().then(list => {
@@ -212,6 +217,10 @@ async function main(): Promise<void> {
             generationProgress,
             generationResult,
             generationError,
+            actionGenerationStatus: actionGenStatus,
+            actionGenerationProgress: actionGenProgress,
+            actionGenerationResult: actionGenResult,
+            actionGenerationError: actionGenError,
             onGenerateCharacter: () => {
               return api.openImageDialog()
                 .then(imageResult => {
@@ -287,6 +296,92 @@ async function main(): Promise<void> {
                   })
                 })
             },
+            // ── Action generation handler ──
+            onGenerateAction: (prompt: string) => {
+              actionGenStatus = 'running'
+              actionGenProgress = 0
+              actionGenError = ''
+              actionGenResult = undefined
+              settingsPanel!.update({
+                actionGenerationStatus: actionGenStatus,
+                actionGenerationProgress: actionGenProgress,
+                actionGenerationResult: undefined,
+                actionGenerationError: undefined,
+              })
+
+              // Build action input with current character as reference
+              const actionInput = {
+                prompt,
+                characterId: selectionStore.animal,
+                characterPackId: selectionStore.packId,
+                resolution: selectionStore.resolution,
+              }
+
+              return api.createActionJob(actionInput)
+                .then(jobId => {
+                  return api.startGeneration(jobId).then(() => {
+                    return new Promise<void>((resolve, reject) => {
+                      const poll = () => {
+                        api.getGenerationJob(jobId).then(job => {
+                          if (!job) { reject(new Error('Job not found')); return }
+                          actionGenProgress = job.progress
+                          actionGenStatus = job.status
+                          settingsPanel!.update({ actionGenerationProgress: actionGenProgress, actionGenerationStatus: actionGenStatus })
+
+                          if (job.status === 'completed') {
+                            // Save the generated action pack
+                            api.saveGeneratedPack(jobId).then(saveResult => {
+                              if (saveResult.success && saveResult.packId) {
+                                actionGenResult = { packId: saveResult.packId, packName: job.result?.packName ?? prompt }
+                                actionGenStatus = 'completed'
+                                // Register the action in the dynamic catalog
+                                api.getActionPackManifest(saveResult.packId).then(manifest => {
+                                  if (manifest) {
+                                    registerActionPack(manifest.id, {
+                                      id: manifest.id,
+                                      name: manifest.name,
+                                      frameCount: manifest.frameCount,
+                                      fps: manifest.fps,
+                                      loop: manifest.loop,
+                                      directions: manifest.directions,
+                                      poseTemplate: `pack:${manifest.id}`,
+                                      staminaCost: 0,
+                                      category: (manifest.category as any) ?? 'custom',
+                                      phases: manifest.phases,
+                                    })
+                                  }
+                                })
+                                settingsPanel!.update({
+                                  actionGenerationResult: actionGenResult,
+                                  actionGenerationStatus: actionGenStatus,
+                                  actionGenerationProgress: 100,
+                                })
+                              } else {
+                                actionGenError = saveResult.errors?.map(e => e.message).join('; ') ?? 'Save failed'
+                                settingsPanel!.update({ actionGenerationError: actionGenError, actionGenerationStatus: 'failed' })
+                              }
+                              resolve()
+                            })
+                          } else if (job.status === 'failed') {
+                            actionGenError = job.error ?? 'Generation failed'
+                            actionGenStatus = 'failed'
+                            settingsPanel!.update({ actionGenerationError: actionGenError, actionGenerationStatus: 'failed' })
+                            resolve()
+                          } else {
+                            setTimeout(poll, 500)
+                          }
+                        }).catch(reject)
+                      }
+                      poll()
+                    })
+                  })
+                })
+                .catch(err => {
+                  actionGenError = err instanceof Error ? err.message : String(err)
+                  actionGenStatus = 'failed'
+                  settingsPanel!.update({ actionGenerationError: actionGenError, actionGenerationStatus: 'failed' })
+                })
+            },
             onRemovePack: (packId: string) => {
               api.removePack(packId).then(() => {
                 packChars = packChars.filter(p => p.id !== packId)
@@ -297,12 +392,14 @@ async function main(): Promise<void> {
                 })
               })
             },
-            onAnimalChange: (animalId) => {
-              selectionStore.setAnimal(animalId)
+            onAnimalChange: (animalId, packId) => {
+              selectionStore.setAnimal(animalId, { packId })
               // Auto-select default palette for new animal
-              const newAnimal = getAnimal(animalId)
-              if (newAnimal) {
-                selectionStore.setPalette(newAnimal.defaultPalette)
+              if (!packId) {
+                const newAnimal = getAnimal(animalId)
+                if (newAnimal) {
+                  selectionStore.setPalette(newAnimal.defaultPalette)
+                }
               }
               // Clear asset cache so new animal's assets are loaded fresh
               loader.clearCache()
@@ -343,6 +440,13 @@ async function main(): Promise<void> {
         choreo.playPreset(presetId, (id) => triggerAction(id))
         return
       }
+      // Handle custom action pack actions
+      if (actionId.startsWith('pack-action:')) {
+        const packRef = actionId.slice(12)
+        // packRef is the pack ID — we'll compose using the action name from manifest
+        triggerAction(packRef)
+        return
+      }
       triggerAction(actionId)
     },
     theme: 'dark'
@@ -363,9 +467,19 @@ async function main(): Promise<void> {
     }
   }
 
-  // Wire context menu trigger
-  interaction.onContextMenu = (x: number, y: number) => {
-    ctxMenu.show(x, y)
+  // Wire context menu trigger — fetch custom action packs
+  interaction.onContextMenu = async (x: number, y: number) => {
+    let customActions: Array<{ actionId: string; label: string }> = []
+    try {
+      const actionPacks = await api.listActionPacks()
+      if (actionPacks.length > 0) {
+        customActions = actionPacks.map(p => ({
+          actionId: `pack-action:${p.id}`,
+          label: `🎬 ${p.name}`,
+        }))
+      }
+    } catch (_) { /* ignore fetch errors */ }
+    ctxMenu.show(x, y, customActions)
   }
 
   // Drag handler (with drag state machine events)
@@ -418,6 +532,35 @@ async function main(): Promise<void> {
   // --- Compose and play an action ---
   async function playAction(actionId: string): Promise<void> {
     const requestId = ++playRequestId
+
+    let actionDef = getAction(actionId)
+    // Lazy-load: if not found in catalog, try fetching from action pack via IPC
+    if (!actionDef) {
+      try {
+        const manifest = await api.getActionPackManifest(actionId)
+        if (manifest) {
+          registerActionPack(manifest.id, {
+            id: manifest.id,
+            name: manifest.name,
+            frameCount: manifest.frameCount,
+            fps: manifest.fps,
+            loop: manifest.loop,
+            directions: manifest.directions,
+            poseTemplate: `pack:${manifest.id}`,
+            staminaCost: 0,
+            category: (manifest.category as any) ?? 'custom',
+            phases: manifest.phases,
+          })
+          actionDef = getAction(actionId)
+        }
+      } catch { /* ignore IPC errors */ }
+    }
+    if (!actionDef) {
+      console.error(`Unknown action: ${actionId}`)
+      return
+    }
+
+    const isCustomAction = customActions.has(actionDef.id)
     const config: ComposeConfig = {
       animal: selectionStore.animal,
       action: actionId,
@@ -428,13 +571,9 @@ async function main(): Promise<void> {
       expression: {
         eyes: expression.current.eyes !== 'neutral' ? expression.current.eyes : undefined,
         mouth: expression.current.mouth !== 'neutral' ? expression.current.mouth : undefined
-      }
-    }
-
-    const actionDef = getAction(actionId)
-    if (!actionDef) {
-      console.error(`Unknown action: ${actionId}`)
-      return
+      },
+      packId: selectionStore.packId,
+      packActionId: isCustomAction ? actionId : undefined,
     }
 
     try {
@@ -538,7 +677,8 @@ async function main(): Promise<void> {
         action: store.action,
         resolution: store.resolution,
         palette: store.palette,
-        accessories: store.accessories.length > 0 ? store.accessories : undefined
+        accessories: store.accessories.length > 0 ? store.accessories : undefined,
+        packId: store.packId,
       },
       skillData: skills.snapshot()
     })

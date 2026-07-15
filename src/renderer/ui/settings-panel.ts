@@ -20,7 +20,7 @@ export interface SettingsPanelOptions {
   }
   importedCharacters?: Array<{ id: string; name: string; layerCount: number }>
   importErrors?: PackImportError[]
-  onAnimalChange: (animalId: string) => void
+  onAnimalChange: (animalId: string, packId?: string) => void
   onPaletteChange: (paletteId: string) => void
   onResolutionToggle: () => void
   onAutoLaunchChange?: (enabled: boolean) => void
@@ -33,6 +33,12 @@ export interface SettingsPanelOptions {
   generationProgress?: number
   generationResult?: { packId: string; packName: string }
   generationError?: string
+  // AI Action Generation
+  onGenerateAction?: (prompt: string) => Promise<void>
+  actionGenerationStatus?: string
+  actionGenerationProgress?: number
+  actionGenerationResult?: { packId: string; packName: string }
+  actionGenerationError?: string
 }
 
 export interface SettingsPanel {
@@ -283,6 +289,88 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
       panel.appendChild(errorBox)
     }
 
+    // ── AI Action section ──
+    const actionLabel = document.createElement('div')
+    actionLabel.textContent = 'AI Action'
+    actionLabel.style.cssText = 'margin-top: 8px; margin-bottom: 4px; color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;'
+    panel.appendChild(actionLabel)
+
+    const actionPrompt = document.createElement('input')
+    actionPrompt.type = 'text'
+    actionPrompt.placeholder = 'Describe an action... e.g. "coffee sip" or "happy dance"'
+    actionPrompt.value = ''
+    actionPrompt.style.cssText = `
+      width: 100%; padding: 6px 8px; margin-bottom: 6px;
+      background: #252525; border: 1px solid #444; border-radius: 4px;
+      color: #eee; font-size: 12px; outline: none; box-sizing: border-box;
+    `
+    panel.appendChild(actionPrompt)
+
+    const genActionBtn = document.createElement('button')
+    genActionBtn.textContent = currentOptions.actionGenerationStatus === 'running' ? '⏳ Generating...'
+      : currentOptions.actionGenerationResult ? '✅ Generate Another'
+      : 'Generate Action'
+    genActionBtn.style.cssText = `
+      width: 100%; padding: 6px; background: #2a4a4a; border: 1px solid #3a6a6a;
+      border-radius: 4px; color: #7cc; cursor: pointer; font-size: 12px;
+      margin-bottom: 6px;
+    `
+    genActionBtn.disabled = currentOptions.actionGenerationStatus === 'running'
+    genActionBtn.addEventListener('click', async () => {
+      const prompt = actionPrompt.value.trim()
+      if (!prompt) {
+        actionPrompt.style.borderColor = '#c44'
+        setTimeout(() => { actionPrompt.style.borderColor = '#444' }, 1500)
+        return
+      }
+      await currentOptions.onGenerateAction?.(prompt)
+    })
+    panel.appendChild(genActionBtn)
+
+    // Action generation progress bar
+    if (currentOptions.actionGenerationProgress !== undefined && currentOptions.actionGenerationStatus === 'running') {
+      const actionProgressBar = document.createElement('div')
+      actionProgressBar.style.cssText = `
+        width: 100%; height: 4px; background: #333; border-radius: 2px;
+        margin-bottom: 6px; overflow: hidden;
+      `
+      const actionProgressFill = document.createElement('div')
+      actionProgressFill.style.cssText = `
+        width: ${currentOptions.actionGenerationProgress}%; height: 100%;
+        background: #488; border-radius: 2px; transition: width 0.3s;
+      `
+      actionProgressBar.appendChild(actionProgressFill)
+      panel.appendChild(actionProgressBar)
+    }
+
+    // Action generation result with save indication
+    if (currentOptions.actionGenerationResult) {
+      const actionResultBox = document.createElement('div')
+      actionResultBox.style.cssText = `
+        background: #1a2a2a; border: 1px solid #2a4a4a; border-radius: 4px;
+        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #7cc;
+      `
+      actionResultBox.textContent = `✔ Saved: ${currentOptions.actionGenerationResult.packName}`
+      panel.appendChild(actionResultBox)
+
+      // Hint: right-click to find in context menu
+      const hintBox = document.createElement('div')
+      hintBox.style.cssText = 'font-size: 10px; color: #666; margin-bottom: 6px;'
+      hintBox.textContent = 'Right-click the pet to find your action in the menu.'
+      panel.appendChild(hintBox)
+    }
+
+    // Action generation error
+    if (currentOptions.actionGenerationError) {
+      const actionErrorBox = document.createElement('div')
+      actionErrorBox.style.cssText = `
+        background: #2a1a1a; border: 1px solid #5a2a2a; border-radius: 4px;
+        padding: 6px 8px; margin-bottom: 6px; font-size: 11px; color: #c77;
+      `
+      actionErrorBox.textContent = `✖ ${currentOptions.actionGenerationError}`
+      panel.appendChild(actionErrorBox)
+    }
+
     // ── Packs section ──
     const packLabel = document.createElement('div')
     packLabel.textContent = 'Packs'
@@ -308,9 +396,16 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         const row = document.createElement('div')
         row.style.cssText = 'display: flex; align-items: center; gap: 8px; margin-bottom: 3px; font-size: 12px;'
 
+        row.style.cursor = 'pointer'
+        row.addEventListener('click', (e) => {
+          if (e.target === removeBtn) return
+          currentOptions.onAnimalChange(pack.id, pack.id)
+        })
+
         const nameSpan = document.createElement('span')
-        nameSpan.textContent = `📦 ${pack.name}`
-        nameSpan.style.cssText = 'flex: 1; color: #ccc;'
+        const isActive = pack.id === currentOptions.currentAnimal
+        nameSpan.textContent = `${pack.name}`
+        nameSpan.style.cssText = `flex: 1; color: ${isActive ? '#fff' : '#ccc'}; font-weight: ${isActive ? '600' : '400'};`
         row.appendChild(nameSpan)
 
         const layersSpan = document.createElement('span')
@@ -324,7 +419,10 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
           background: none; border: none; color: #855; cursor: pointer;
           font-size: 12px; padding: 0 2px;
         `
-        removeBtn.addEventListener('click', () => currentOptions.onRemovePack?.(pack.id))
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation()
+          currentOptions.onRemovePack?.(pack.id)
+        })
         row.appendChild(removeBtn)
 
         panel.appendChild(row)

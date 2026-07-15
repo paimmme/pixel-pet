@@ -1,0 +1,69 @@
+{
+  "action": "dodge",
+  "resolution": 32,
+  "frames": [
+    {
+      "index": 0,
+      "parts": {
+        "body": {
+          "dx": -1,
+          "dy": 0
+        },
+        "front_arm": {
+          "dx": -1,
+          "dy": 0
+        },
+        "eyes": {
+          "dx": -1,
+          "dy": 0
+        },
+        "mouth": {
+          "dx": -1,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "index": 1,
+      "parts": {
+        "body": {
+          "dx": 0,
+          "dy": 0
+        },
+        "front_arm": {
+          "dx": 0,
+          "dy": 0
+        },
+        "eyes": {
+          "dx": 0,
+          "dy": 0
+        },
+        "mouth": {
+          "dx": 0,
+          "dy": 0
+        }
+      }
+    },
+    {
+      "index": 2,
+      "parts": {
+        "body": {
+          "dx": 1,
+          "dy": 1
+        },
+        "front_arm": {
+          "dx": 1,
+          "dy": 1
+        },
+        "eyes": {
+          "dx": 1,
+          "dy": 1
+        },
+        "mouth": {
+          "dx": 1,
+          "dy": 1
+        }
+      }
+    }
+  ]
+}

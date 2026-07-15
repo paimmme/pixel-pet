@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "id": "penguin",
+  "name": "Penguin",
+  "type": "character",
+  "resolutions": [
+    16,
+    32
+  ],
+  "defaultResolution": 32,
+  "defaultPalette": "penguin",
+  "layers": [
+    {
+      "id": "shadow",
+      "name": "Shadow",
+      "zIndex": 0,
+      "anchor": {
+        "x": 16,
+        "y": 28
+      },
+      "zone": "none",
+      "optional": true
+    },
+    {
+      "id": "body",
+      "name": "Body",
+      "zIndex": 1,
+      "anchor": {
+        "x": 16,
+        "y": 18
+      },
+      "zone": "belly"
+    },
+    {
+      "id": "front_arm",
+      "name": "Front Arm",
+      "zIndex": 2,
+      "anchor": {
+        "x": 16,
+        "y": 22
+      },
+      "zone": "body"
+    },
+    {
+      "id": "eyes",
+      "name": "Eyes",
+      "zIndex": 3,
+      "anchor": {
+        "x": 16,
+        "y": 12
+      },
+      "zone": "head"
+    },
+    {
+      "id": "mouth",
+      "name": "Mouth",
+      "zIndex": 4,
+      "anchor": {
+        "x": 16,
+        "y": 20
+      },
+      "zone": "head"
+    }
+  ],
+  "hitArea": {
+    "x": 2,
+    "y": 2,
+    "width": 28,
+    "height": 28
+  }
+}

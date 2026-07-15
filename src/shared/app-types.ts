@@ -54,6 +54,8 @@ export interface Selection {
   resolution: PixelResolution
   palette: string
   accessories?: string[]
+  /** Pack ID when the source is a file-backed pack, undefined for factory */
+  packId?: string
 }
 
 export interface SkillData {

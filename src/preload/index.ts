@@ -48,6 +48,7 @@ const electronAPI: ElectronAPI = {
   // AI Generation
   openImageDialog: () => ipcRenderer.invoke(IPC_CHANNELS.OPEN_IMAGE_DIALOG),
   createGenerationJob: (input) => ipcRenderer.invoke(IPC_CHANNELS.CREATE_GENERATION_JOB, input),
+  createActionJob: (input) => ipcRenderer.invoke(IPC_CHANNELS.CREATE_ACTION_JOB, input),
   startGeneration: (jobId) => ipcRenderer.invoke(IPC_CHANNELS.START_GENERATION, jobId),
   listGenerationJobs: () => ipcRenderer.invoke(IPC_CHANNELS.LIST_GENERATION_JOBS),
   getGenerationJob: (jobId) => ipcRenderer.invoke(IPC_CHANNELS.GET_GENERATION_JOB, jobId),

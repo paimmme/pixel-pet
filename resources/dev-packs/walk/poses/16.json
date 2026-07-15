@@ -1,0 +1,476 @@
+{
+  "action": "walk",
+  "resolution": 16,
+  "frames": [
+    {
+      "index": 0,
+      "parts": {
+        "default": {
+          "body": {
+            "dx": -1,
+            "dy": 0
+          },
+          "front_arm": {
+            "dx": -1,
+            "dy": 0
+          },
+          "eyes": {
+            "dx": -1,
+            "dy": 0
+          },
+          "mouth": {
+            "dx": -1,
+            "dy": 0
+          }
+        }
+      }
+    },
+    {
+      "index": 1,
+      "parts": {
+        "default": {
+          "body": {
+            "dx": 0,
+            "dy": 0
+          },
+          "front_arm": {
+            "dx": 0,
+            "dy": 0
+          },
+          "eyes": {
+            "dx": 0,
+            "dy": 0
+          },
+          "mouth": {
+            "dx": 0,
+            "dy": 0
+          }
+        }
+      }
+    },
+    {
+      "index": 2,
+      "parts": {
+        "default": {
+          "body": {
+            "dx": 1,
+            "dy": 1
+          },
+          "front_arm": {
+            "dx": 1,
+            "dy": 1
+          },
+          "eyes": {
+            "dx": 1,
+            "dy": 1
+          },
+          "mouth": {
+            "dx": 1,
+            "dy": 1
+          }
+        }
+      }
+    },
+    {
+      "index": 3,
+      "parts": {
+        "default": {
+          "body": {
+            "dx": -1,
+            "dy": 1
+          },
+          "front_arm": {
+            "dx": -1,
+            "dy": 1
+          },
+          "eyes": {
+            "dx": -1,
+            "dy": 1
+          },
+          "mouth": {
+            "dx": -1,
+            "dy": 1
+          }
+        }
+      }
+    }
+  ],
+  "directions": {
+    "down": [
+      {
+        "index": 0,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 1,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 0,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": 0,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": 0,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": 0,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 2,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": 1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": 1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": 1,
+              "dy": 1
+            }
+          }
+        }
+      },
+      {
+        "index": 3,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 1
+            }
+          }
+        }
+      }
+    ],
+    "left": [
+      {
+        "index": 0,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 1,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 0,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": 0,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": 0,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": 0,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 2,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": 1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": 1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": 1,
+              "dy": 1
+            }
+          }
+        }
+      },
+      {
+        "index": 3,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 1
+            }
+          }
+        }
+      }
+    ],
+    "right": [
+      {
+        "index": 0,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 1,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 0,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": 0,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": 0,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": 0,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 2,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": 1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": 1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": 1,
+              "dy": 1
+            }
+          }
+        }
+      },
+      {
+        "index": 3,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 1
+            }
+          }
+        }
+      }
+    ],
+    "up": [
+      {
+        "index": 0,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 1,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 0,
+              "dy": 0
+            },
+            "front_arm": {
+              "dx": 0,
+              "dy": 0
+            },
+            "eyes": {
+              "dx": 0,
+              "dy": 0
+            },
+            "mouth": {
+              "dx": 0,
+              "dy": 0
+            }
+          }
+        }
+      },
+      {
+        "index": 2,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": 1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": 1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": 1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": 1,
+              "dy": 1
+            }
+          }
+        }
+      },
+      {
+        "index": 3,
+        "parts": {
+          "default": {
+            "body": {
+              "dx": -1,
+              "dy": 1
+            },
+            "front_arm": {
+              "dx": -1,
+              "dy": 1
+            },
+            "eyes": {
+              "dx": -1,
+              "dy": 1
+            },
+            "mouth": {
+              "dx": -1,
+              "dy": 1
+            }
+          }
+        }
+      }
+    ]
+  }
+}

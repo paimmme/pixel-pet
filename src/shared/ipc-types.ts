@@ -1,7 +1,7 @@
 import type { SavedState } from './app-types'
 import type { ActivityInfo } from './activity-types'
 import type { CharacterPackSummary, ActionPackSummary, CharacterPackManifest, ActionPackManifest, PackImportResult } from './pack-types'
-import type { GenerationJob, CharacterGenerationInput } from './generation-types'
+import type { GenerationJob, CharacterGenerationInput, ActionGenerationInput } from './generation-types'
 
 export const IPC_CHANNELS = {
   SET_IGNORE_MOUSE_EVENTS: 'set-ignore-mouse-events',
@@ -28,6 +28,7 @@ export const IPC_CHANNELS = {
   // AI Generation
   OPEN_IMAGE_DIALOG: 'open-image-dialog',
   CREATE_GENERATION_JOB: 'create-generation-job',
+  CREATE_ACTION_JOB: 'create-action-job',
   START_GENERATION: 'start-generation',
   LIST_GENERATION_JOBS: 'list-generation-jobs',
   GET_GENERATION_JOB: 'get-generation-job',
@@ -68,6 +69,7 @@ export interface ElectronAPI {
   // AI Generation
   openImageDialog(): Promise<{ data: string; mimeType: string } | null>
   createGenerationJob(input: CharacterGenerationInput): Promise<string>
+  createActionJob(input: ActionGenerationInput): Promise<string>
   startGeneration(jobId: string): Promise<void>
   listGenerationJobs(): Promise<GenerationJob[]>
   getGenerationJob(jobId: string): Promise<GenerationJob | null>

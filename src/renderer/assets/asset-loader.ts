@@ -59,12 +59,13 @@ export class AssetLoader {
 
   // ── Public load API ──
 
-  async loadAnimalParts(animalId: string, resolution: number, layers: Array<{ id: string }>): Promise<Map<string, ImageBitmap>> {
-    // Try pack source first
-    if (await this.hasPackCharacter(animalId)) {
+  async loadAnimalParts(animalId: string, resolution: number, layers: Array<{ id: string }>, packId?: string): Promise<Map<string, ImageBitmap>> {
+    // Use explicit pack source if packId is set
+    const srcId = packId ?? animalId
+    if (packId || await this.hasPackCharacter(animalId)) {
       const result = new Map<string, ImageBitmap>()
       for (const layer of layers) {
-        const bitmap = await this.packSource.loadLayerBitmap(animalId, layer.id, resolution)
+        const bitmap = await this.packSource.loadLayerBitmap(srcId, layer.id, resolution)
         if (bitmap) result.set(layer.id, bitmap)
       }
       if (result.size > 0) return result
@@ -80,13 +81,13 @@ export class AssetLoader {
     return result
   }
 
-  async loadPoseTemplate(actionId: string, resolution: number, animalId?: string): Promise<PoseTemplate> {
-    // Try pack source first
+  async loadPoseTemplate(actionId: string, resolution: number, srcId?: string): Promise<PoseTemplate> {
+    // Try pack source first (if srcId is a pack ID)
     const fromPack = await this.packSource.loadPoseTemplate(actionId, resolution)
     if (fromPack) return fromPack
 
     // Fallback to factory
-    const assets = await this.ensureFactory(animalId ?? 'raccoon', resolution)
+    const assets = await this.ensureFactory(srcId ?? 'raccoon', resolution)
     const pose = assets.poses.get(actionId)
     if (!pose) throw new Error(`Pose template not found: ${actionId}`)
     return pose
@@ -96,11 +97,13 @@ export class AssetLoader {
     animalId: string,
     actionId: string,
     resolution: number,
-    poseFrames: Array<{ parts: Record<string, { override?: { layer: string; frame: number } }> }>
+    poseFrames: Array<{ parts: Record<string, { override?: { layer: string; frame: number } }> }>,
+    packId?: string
   ): Promise<Map<string, Map<number, ImageBitmap>>> {
     const result = new Map<string, Map<number, ImageBitmap>>()
 
-    const loadFromPack = await this.hasPackCharacter(animalId)
+    const srcId = packId ?? animalId
+    const loadFromPack = packId !== undefined || await this.hasPackCharacter(animalId)
     for (const pose of poseFrames) {
       for (const [layerId, transform] of Object.entries(pose.parts)) {
         if (transform.override) {
@@ -108,7 +111,7 @@ export class AssetLoader {
 
           if (loadFromPack) {
             const bitmap = await this.packSource.loadOverrideFrame(
-              actionId, animalId, transform.override.layer, transform.override.frame, resolution
+              actionId, srcId, transform.override.layer, transform.override.frame, resolution
             )
             if (bitmap) {
               const sheet = new Map<number, ImageBitmap>()
@@ -129,16 +132,15 @@ export class AssetLoader {
     return result
   }
 
-  async loadPalette(paletteId: string, animalId?: string): Promise<PaletteDef> {
-    const aid = animalId ?? 'raccoon'
-
+  async loadPalette(paletteId: string, srcId?: string): Promise<PaletteDef> {
     // Try pack source first
-    if (await this.hasPackCharacter(aid)) {
-      const fromPack = await this.packSource.loadPaletteDef(aid, paletteId)
+    if (srcId && await this.hasPackCharacter(srcId)) {
+      const fromPack = await this.packSource.loadPaletteDef(srcId, paletteId)
       if (fromPack) return fromPack
     }
 
     // Fallback to factory
+    const aid = srcId ?? 'raccoon'
     const assets = await this.ensureFactory(aid, 32)
     const palette = assets.palettes.find(p => p.id === paletteId)
     return palette ?? assets.palettes[0] ?? { id: 'default', name: 'Default', mappings: [] }
