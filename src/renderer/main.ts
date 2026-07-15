@@ -26,6 +26,7 @@ import { createWalkController } from './state/walk-controller'
 import { SkillSystem } from './state/skill-system'
 import { ChoreographyController, CHOREOGRAPHY_PRESETS } from './state/choreography'
 import { createBehaviorScheduler } from './state/behavior-scheduler'
+import { createProfiler } from './engine/profiler'
 
 declare global {
   interface Window {
@@ -52,6 +53,10 @@ async function main(): Promise<void> {
   // --- Phase 1 engine ---
   const display = createDisplaySurface(canvas, 32, 3)
   const packSource = new PackAssetSource(api)
+
+  // --- Phase 6: Profiler ---
+  const profiler = createProfiler()
+  PackAssetSource.profiler = profiler
   const loader = new AssetLoader(packSource)
   const compositor = new SpriteCompositor(32)
   const animController = new AnimationController()
@@ -666,7 +671,10 @@ async function main(): Promise<void> {
     }
 
     try {
+      const startTime = performance.now()
       const result = await composeAnimation(loader, compositor, config)
+      const elapsed = performance.now() - startTime
+      profiler.recordComposeTime(elapsed)
       // Only apply if this is still the latest request
       if (requestId !== playRequestId) return
       lastPlayedActionId = actionId
@@ -805,6 +813,7 @@ async function main(): Promise<void> {
     }
 
     walk.tick(dt)
+    profiler.tick(dt)
     requestAnimationFrame(gameLoop)
   }
 
@@ -851,6 +860,7 @@ async function main(): Promise<void> {
     interaction.destroy()
     drag.destroy()
     walk.destroy()
+    profiler.destroy()
     pointer.destroy()
   })
 }

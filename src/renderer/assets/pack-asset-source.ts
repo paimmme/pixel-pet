@@ -1,10 +1,13 @@
 import type { CharacterPackSummary, ActionPackSummary, CharacterPackManifest, ActionPackManifest } from '../../shared/pack-types'
 import type { PoseTemplate, PaletteDef } from '../engine/types'
+import type { Profiler } from '../engine/profiler'
 
 const MAX_BITMAP_CACHE = 500
 const MAX_PALETTE_CACHE = 100
 
 export class PackAssetSource {
+  static profiler: Profiler | null = null
+
   constructor(private api: typeof window.electronAPI) {}
 
   // ── LRU caches ──
@@ -32,13 +35,37 @@ export class PackAssetSource {
   private cacheBitmap(key: string, bitmap: ImageBitmap): ImageBitmap {
     this.evictIfNeeded(this.bitmapCache, MAX_BITMAP_CACHE)
     this.bitmapCache.set(key, bitmap)
+    PackAssetSource.profiler?.recordCacheMiss('bitmap')
     return bitmap
+  }
+
+  /** Retrieve a cached ImageBitmap */
+  private getCachedBitmap(key: string): ImageBitmap | undefined {
+    const bmp = this.bitmapCache.get(key)
+    if (bmp) {
+      PackAssetSource.profiler?.recordCacheHit('bitmap')
+    } else {
+      PackAssetSource.profiler?.recordCacheMiss('bitmap')
+    }
+    return bmp
   }
 
   /** Cache a parsed PaletteDef */
   private cachePalette(key: string, def: PaletteDef): PaletteDef {
     this.evictIfNeeded(this.paletteCache as Map<string, unknown>, MAX_PALETTE_CACHE)
     this.paletteCache.set(key, def)
+    PackAssetSource.profiler?.recordCacheMiss('palette')
+    return def
+  }
+
+  /** Retrieve a cached PaletteDef */
+  private getCachedPalette(key: string): PaletteDef | undefined {
+    const def = this.paletteCache.get(key)
+    if (def) {
+      PackAssetSource.profiler?.recordCacheHit('palette')
+    } else {
+      PackAssetSource.profiler?.recordCacheMiss('palette')
+    }
     return def
   }
 
@@ -94,7 +121,7 @@ export class PackAssetSource {
   /** Load a layer part PNG as ImageBitmap (cached) */
   async loadLayerBitmap(characterId: string, layerId: string, resolution: number): Promise<ImageBitmap | null> {
     const key = this.memoKey(characterId, layerId, resolution)
-    const cached = this.bitmapCache.get(key)
+    const cached = this.getCachedBitmap(key)
     if (cached) return cached
 
     const bytes = await this.readPackBytes(characterId, `parts/${resolution}/${layerId}.png`)
@@ -111,7 +138,7 @@ export class PackAssetSource {
   /** Load a palette definition JSON (cached) */
   async loadPaletteDef(characterId: string, paletteId: string): Promise<PaletteDef | null> {
     const key = this.memoKey(characterId, paletteId)
-    const cached = this.paletteCache.get(key)
+    const cached = this.getCachedPalette(key)
     if (cached) return cached
 
     const bytes = await this.readPackBytes(characterId, `palettes/${paletteId}.json`)
@@ -141,7 +168,7 @@ export class PackAssetSource {
   /** Load an override spritesheet frame as ImageBitmap (cached) */
   async loadOverrideFrame(actionId: string, characterId: string, layerId: string, frame: number, resolution: number): Promise<ImageBitmap | null> {
     const key = this.memoKey('ovr', actionId, characterId, layerId, frame, resolution)
-    const cached = this.bitmapCache.get(key)
+    const cached = this.getCachedBitmap(key)
     if (cached) return cached
 
     const bytes = await this.readPackBytes(actionId, `overrides/${characterId}/${resolution}/${layerId}_${frame}.png`)
